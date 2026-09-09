@@ -3,7 +3,9 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BORDER, C, SP } from '../theme';
 import { sprite, type SpriteKey } from '../art';
+import { gunGetir } from '../content';
 import { arkadas, oturmaAlanindakiler } from '../content/arkadaslar';
+import { sigaraIzni, telefonIzni } from '../engine/kurallar';
 import type { ArkadasId } from '../engine/types';
 import { KALITE_ADI, esya, kullanilabilirler } from '../content/esyalar';
 import { useGame } from '../store/gameStore';
@@ -189,12 +191,23 @@ export function RehberPaneli() {
   const [yakinlik, setYakinlik] = useState('');
   const telefonVar = (g.envanter.kamerasizTelefon?.adet ?? 0) > 0;
   const kontor = g.envanter.kontor?.adet ?? 0;
+  const izin = telefonIzni(gunGetir(g.gun)?.blocks[g.blokIndex]?.id, g.miniAktif);
 
   return (
     <PanelKabuk
       baslik="REHBER"
       alt={telefonVar ? `Kontör: ${kontor}` : 'Telefonun yok — ankesör kuyruğu'}
     >
+      {!izin.olur && (
+        <View style={{ borderWidth: BORDER, borderColor: C.rust, padding: SP.md }}>
+          <PixelText font="command" size="body" color={C.rust}>
+            ŞU AN ARANMAZ
+          </PixelText>
+          <PixelText size="small" color={C.canvasDim} line="snug">
+            {izin.sebep}
+          </PixelText>
+        </View>
+      )}
       {!telefonVar && (
         <View style={{ borderWidth: BORDER, borderColor: C.rust, padding: SP.md }}>
           <PixelText size="small" color={C.canvasDim} line="snug">
@@ -234,6 +247,8 @@ export function RehberPaneli() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={`${k.ad} kişisini ara`}
+                accessibilityState={{ disabled: !izin.olur }}
+                disabled={!izin.olur}
                 onPress={() => g.kisiAra(k.id)}
                 style={{
                   borderWidth: BORDER,
@@ -241,9 +256,10 @@ export function RehberPaneli() {
                   backgroundColor: C.surfaceHi,
                   paddingVertical: SP.sm,
                   paddingHorizontal: SP.lg,
+                  opacity: izin.olur ? 1 : 0.4,
                 }}
               >
-                <PixelText font="command" size="lead" color={C.olive}>
+                <PixelText font="command" size="lead" color={izin.olur ? C.olive : C.canvasFaint}>
                   ARA
                 </PixelText>
               </Pressable>
@@ -284,6 +300,10 @@ export function CepPaneli() {
   const telefonVar = (g.envanter.kamerasizTelefon?.adet ?? 0) > 0;
   const dal = g.envanter.sigara?.adet ?? 0;
   const kontor = g.envanter.kontor?.adet ?? 0;
+  // Cep her yerden açılır ama içindekiler her yerde kullanılmaz.
+  const blokId = gunGetir(g.gun)?.blocks[g.blokIndex]?.id;
+  const sigaraOk = sigaraIzni(blokId, g.miniAktif);
+  const telefonOk = telefonIzni(blokId, g.miniAktif);
 
   const satirlar: {
     id: string;
@@ -299,7 +319,12 @@ export function CepPaneli() {
       id: 'telefon',
       sprite: 'telefon',
       ad: 'Kamerasız telefon',
-      alt: kontor > 0 ? `${kontor} kontör · rehberi aç` : 'Kontörün bitti',
+      alt: !telefonOk.olur
+        ? telefonOk.sebep!
+        : kontor > 0
+          ? `${kontor} kontör · rehberi aç`
+          : 'Kontörün bitti',
+      kapali: !telefonOk.olur,
       onPress: () => g.panelAc('rehber'),
     });
   }
@@ -309,8 +334,12 @@ export function CepPaneli() {
       id: 'sigara',
       sprite: 'sigara',
       ad: 'Sigara',
-      alt: dal > 0 ? `${dal} dal kaldı` : 'Paket boş — kantinden al',
-      kapali: dal <= 0,
+      alt: !sigaraOk.olur
+        ? sigaraOk.sebep!
+        : dal > 0
+          ? `${dal} dal kaldı`
+          : 'Paket boş — kantinden al',
+      kapali: !sigaraOk.olur || dal <= 0,
       onPress: () => g.sigaraIc(),
     });
   }
@@ -327,6 +356,14 @@ export function CepPaneli() {
 
   return (
     <PanelKabuk baslik="CEBİN" alt="Üstünde taşıdıkların">
+      {!sigaraOk.olur && !telefonOk.olur && satirlar.length > 0 && (
+        <View style={{ borderWidth: BORDER, borderColor: C.line, padding: SP.md }}>
+          <PixelText size="small" color={C.canvasDim} line="snug">
+            Cebindekiler serbest zamanın işi. Görev başındayken cep kapalı kalır.
+          </PixelText>
+        </View>
+      )}
+
       {satirlar.length === 0 ? (
         <PixelText size="lead" color={C.canvasDim} center line="body">
           Cebin boş. Telefon ve sigara gibi üstünde taşıdıkların burada durur.

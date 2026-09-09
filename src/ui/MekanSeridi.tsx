@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { BORDER, C } from '../theme';
@@ -7,7 +7,7 @@ import { Gokyuzu } from './Gokyuzu';
 import { PixelSprite } from './PixelSprite';
 import { PixelText } from './PixelText';
 
-const YUKSEKLIK = 124;
+const YUKSEKLIK = 150;
 const ZEMIN = 26;
 
 type Oge = {
@@ -18,7 +18,15 @@ type Oge = {
   /** Arka plandaki öğeler soluk: derinlik hissi buradan geliyor. */
   arka?: boolean;
 };
-type Mekan = { ad: string; ic: boolean; ogeler: Oge[] };
+type Mekan = {
+  ad: string;
+  ic: boolean;
+  /** Arkada duran isimsiz kalabalık; koğuş 28 kişilik, üç asker göstermek yalan. */
+  kalabalik?: number;
+  /** Sağ üstte yazan mevcut — metin "yirmi sekiz kişi" derken göz de görsün. */
+  mevcut?: string;
+  ogeler: Oge[];
+};
 
 /**
  * Her bloğun geçtiği yerin ince bir kesiti. Oyuncu gün boyunca aynı metin
@@ -29,6 +37,8 @@ const MEKANLAR: Record<string, Mekan> = {
   nizamiye: {
     ad: 'Nizamiye',
     ic: false,
+    kalabalik: 8,
+    mevcut: 'SEVKİYAT',
     ogeler: [
       { sprite: 'kisla', olcek: 2, x: 30 },
       { sprite: 'agac', olcek: 2, x: 8 },
@@ -38,6 +48,8 @@ const MEKANLAR: Record<string, Mekan> = {
   kalkis: {
     ad: 'Koğuş',
     ic: true,
+    kalabalik: 22,
+    mevcut: '28 KİŞİ',
     ogeler: [
       { sprite: 'dolapSirasi', olcek: 2, x: 2, taban: ZEMIN + 30, arka: true },
       { sprite: 'pencere', olcek: 2, x: 62, taban: ZEMIN + 34, arka: true },
@@ -50,6 +62,8 @@ const MEKANLAR: Record<string, Mekan> = {
   kogus: {
     ad: 'Koğuş',
     ic: true,
+    kalabalik: 22,
+    mevcut: '28 KİŞİ',
     ogeler: [
       { sprite: 'dolapSirasi', olcek: 2, x: 2, taban: ZEMIN + 30, arka: true },
       { sprite: 'pencere', olcek: 2, x: 62, taban: ZEMIN + 34, arka: true },
@@ -60,9 +74,24 @@ const MEKANLAR: Record<string, Mekan> = {
       { sprite: 'asker', olcek: 2, x: 86 },
     ],
   },
+  mintika: {
+    ad: 'Avlu — mıntıka',
+    ic: false,
+    kalabalik: 14,
+    mevcut: 'BÖLÜK',
+    ogeler: [
+      { sprite: 'kisla', olcek: 2, x: 34, taban: ZEMIN + 26, arka: true },
+      { sprite: 'agac', olcek: 2, x: 4 },
+      { sprite: 'askerSirt', olcek: 2, x: 40 },
+      { sprite: 'asker', olcek: 2, x: 62 },
+      { sprite: 'postal', olcek: 2, x: 86 },
+    ],
+  },
   denetim: {
     ad: 'Koğuş — denetim',
     ic: true,
+    kalabalik: 22,
+    mevcut: '28 KİŞİ',
     ogeler: [
       { sprite: 'dolapSirasi', olcek: 2, x: 2, taban: ZEMIN + 30, arka: true },
       { sprite: 'pencere', olcek: 2, x: 62, taban: ZEMIN + 34, arka: true },
@@ -76,6 +105,8 @@ const MEKANLAR: Record<string, Mekan> = {
   ders: {
     ad: 'Sınıf',
     ic: true,
+    kalabalik: 20,
+    mevcut: '28 KİŞİ',
     ogeler: [
       { sprite: 'hedefTahtasi', olcek: 2, x: 4, taban: ZEMIN + 26, arka: true },
       { sprite: 'pencere', olcek: 2, x: 78, taban: ZEMIN + 34, arka: true },
@@ -90,6 +121,8 @@ const MEKANLAR: Record<string, Mekan> = {
   ictima: {
     ad: 'İçtima alanı',
     ic: false,
+    kalabalik: 34,
+    mevcut: 'BÖLÜK',
     ogeler: [
       { sprite: 'kisla', olcek: 2, x: 30, taban: ZEMIN + 26, arka: true },
       { sprite: 'askerSirt', olcek: 1, x: 22, taban: ZEMIN + 22, arka: true },
@@ -106,6 +139,8 @@ const MEKANLAR: Record<string, Mekan> = {
   'aksam-ictima': {
     ad: 'İçtima alanı',
     ic: false,
+    kalabalik: 34,
+    mevcut: 'BÖLÜK',
     ogeler: [
       { sprite: 'bayrak', olcek: 2, x: 6 },
       { sprite: 'askerTolga', olcek: 2, x: 36 },
@@ -116,6 +151,8 @@ const MEKANLAR: Record<string, Mekan> = {
   kahvalti: {
     ad: 'Yemekhane',
     ic: true,
+    kalabalik: 26,
+    mevcut: 'SIRA VAR',
     ogeler: [
       { sprite: 'tepsiBandi', olcek: 2, x: 46, taban: ZEMIN + 32, arka: true },
       { sprite: 'askerSirt', olcek: 2, x: 52, taban: ZEMIN + 24, arka: true },
@@ -131,6 +168,8 @@ const MEKANLAR: Record<string, Mekan> = {
   ogle: {
     ad: 'Yemekhane',
     ic: true,
+    kalabalik: 26,
+    mevcut: 'SIRA VAR',
     ogeler: [
       { sprite: 'tepsiBandi', olcek: 2, x: 46, taban: ZEMIN + 32, arka: true },
       { sprite: 'askerSirt', olcek: 2, x: 52, taban: ZEMIN + 24, arka: true },
@@ -146,6 +185,8 @@ const MEKANLAR: Record<string, Mekan> = {
   'aksam-yemek': {
     ad: 'Yemekhane',
     ic: true,
+    kalabalik: 26,
+    mevcut: 'SIRA VAR',
     ogeler: [
       { sprite: 'tepsiBandi', olcek: 2, x: 46, taban: ZEMIN + 32, arka: true },
       { sprite: 'askerSirt', olcek: 2, x: 52, taban: ZEMIN + 24, arka: true },
@@ -161,6 +202,8 @@ const MEKANLAR: Record<string, Mekan> = {
   'egitim-sabah': {
     ad: 'Eğitim sahası',
     ic: false,
+    kalabalik: 20,
+    mevcut: 'BÖLÜK',
     ogeler: [
       { sprite: 'agac', olcek: 2, x: 20, taban: ZEMIN + 24, arka: true },
       { sprite: 'agac', olcek: 2, x: 60, taban: ZEMIN + 24, arka: true },
@@ -175,6 +218,8 @@ const MEKANLAR: Record<string, Mekan> = {
   talim: {
     ad: 'Talim alanı',
     ic: false,
+    kalabalik: 16,
+    mevcut: 'BÖLÜK',
     ogeler: [
       { sprite: 'hedefTahtasi', olcek: 2, x: 6 },
       { sprite: 'tufek', olcek: 2, x: 36, taban: ZEMIN + 8 },
@@ -185,6 +230,7 @@ const MEKANLAR: Record<string, Mekan> = {
   serbest: {
     ad: 'Avlu',
     ic: false,
+    kalabalik: 10,
     ogeler: [
       { sprite: 'kantinBina', olcek: 2, x: 4 },
       { sprite: 'agac', olcek: 2, x: 48 },
@@ -195,6 +241,8 @@ const MEKANLAR: Record<string, Mekan> = {
   'son-yoklama': {
     ad: 'Koğuş',
     ic: true,
+    kalabalik: 22,
+    mevcut: '28 KİŞİ',
     ogeler: [
       { sprite: 'dolapSirasi', olcek: 2, x: 2, taban: ZEMIN + 30, arka: true },
       { sprite: 'pencere', olcek: 2, x: 62, taban: ZEMIN + 34, arka: true },
@@ -212,14 +260,64 @@ export function mekanBul(blokId: string): Mekan | undefined {
   return MEKANLAR[anahtar];
 }
 
+/** Kalabalık her karede aynı yerde dursun diye sabit, tohumlu dağınıklık. */
+const dagitim = (i: number) => {
+  const n = Math.sin(i * 12.9898) * 43758.5453;
+  return n - Math.floor(n);
+};
+
+const KALABALIK_YUKSEKLIK = 46;
+
+/**
+ * Arkadaki isimsiz kalabalık. Tek tek sprite basmak yerine tek SVG'de
+ * siluet: yirmi sekiz kişilik koğuşta üç asker görünmesin diye var, ama
+ * öndeki adı olan askerlerle yarışmasın diye soluk ve detaysız.
+ */
+function Kalabalik({ adet, en, ic }: { adet: number; en: number; ic: boolean }) {
+  if (!en || adet <= 0) return null;
+
+  const arkaAdet = Math.ceil(adet * 0.55);
+  const satirlar = [
+    { adet: arkaAdet, u: 2, taban: KALABALIK_YUKSEKLIK - 24, opaklik: ic ? 0.4 : 0.35 },
+    { adet: adet - arkaAdet, u: 2, taban: KALABALIK_YUKSEKLIK - 12, opaklik: ic ? 0.62 : 0.55 },
+  ];
+
+  return (
+    <Svg width={en} height={KALABALIK_YUKSEKLIK}>
+      {satirlar.map((satir, si) =>
+        Array.from({ length: satir.adet }, (_, i) => {
+          const u = satir.u;
+          const bosluk = (en - 2 * u) / Math.max(1, satir.adet);
+          const kayma = dagitim(si * 97 + i) * bosluk * 0.6;
+          const x = Math.round(u + i * bosluk + kayma);
+          const y = satir.taban - 10 * u;
+          const uniforma = si === 0 ? '#4E5330' : '#6E7444';
+
+          return (
+            <React.Fragment key={`${si}-${i}`}>
+              <Rect x={x + u} y={y} width={2 * u} height={2 * u} fill="#9A7852" opacity={satir.opaklik} />
+              <Rect x={x} y={y + 2 * u} width={4 * u} height={5 * u} fill={uniforma} opacity={satir.opaklik} />
+              <Rect x={x} y={y + 7 * u} width={u} height={3 * u} fill="#4A3524" opacity={satir.opaklik} />
+              <Rect x={x + 3 * u} y={y + 7 * u} width={u} height={3 * u} fill="#4A3524" opacity={satir.opaklik} />
+            </React.Fragment>
+          );
+        }),
+      )}
+    </Svg>
+  );
+}
+
 type Props = { blokId: string; saat: string };
 
 export function MekanSeridi({ blokId, saat }: Props) {
   const mekan = mekanBul(blokId);
+  // Kalabalık piksel hesabıyla diziliyor; genişliği ölçmeden çizilemez.
+  const [en, setEn] = useState(0);
   if (!mekan) return null;
 
   return (
     <View
+      onLayout={(e) => setEn(Math.round(e.nativeEvent.layout.width))}
       style={{
         height: YUKSEKLIK,
         borderWidth: BORDER,
@@ -249,6 +347,13 @@ export function MekanSeridi({ blokId, saat }: Props) {
         </>
       )}
 
+      {/* Kalabalık dekorun önünde, adı olan askerlerin arkasında duruyor */}
+      {!!mekan.kalabalik && (
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: ZEMIN + 2, height: KALABALIK_YUKSEKLIK }}>
+          <Kalabalik adet={mekan.kalabalik} en={en} ic={mekan.ic} />
+        </View>
+      )}
+
       {mekan.ogeler.map((o, i) => (
         <View
           key={i}
@@ -272,6 +377,23 @@ export function MekanSeridi({ blokId, saat }: Props) {
           {mekan.ad.toLocaleUpperCase('tr-TR')}
         </PixelText>
       </View>
+
+      {mekan.mevcut && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 4,
+            right: 4,
+            backgroundColor: C.ink,
+            paddingHorizontal: 5,
+            paddingVertical: 1,
+          }}
+        >
+          <PixelText font="command" size="small" color={C.canvasDim}>
+            {mekan.mevcut}
+          </PixelText>
+        </View>
+      )}
     </View>
   );
 }

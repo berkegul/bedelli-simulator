@@ -7,8 +7,8 @@ export const gun04: Day = {
   blocks: [
     {
       id: 'd4-kalkis',
-      from: '05:30',
-      to: '06:00',
+      from: '06:00',
+      to: '06:30',
       title: 'Kalkış',
       sprite: 'ranzaDaginik',
       scenes: [
@@ -37,8 +37,8 @@ export const gun04: Day = {
     },
     {
       id: 'd4-ictima',
-      from: '06:00',
-      to: '06:30',
+      from: '06:30',
+      to: '07:00',
       title: 'Sabah İçtiması',
       sprite: 'asker',
       scenes: [
@@ -59,24 +59,9 @@ export const gun04: Day = {
       ]
     },
     {
-      id: 'd4-kahvalti',
-      from: '06:30',
-      to: '07:00',
-      title: 'Kahvaltı',
-      sprite: 'tepsi',
-      scenes: [
-        {
-          kind: 'anlati',
-          id: 'd4-ka1',
-          sprite: 'tepsi',
-          text: 'Kimse konuşmuyor. Herkesin aklı 09:00’da. Emre çayına şeker atarken elleri titriyor: "Ben sivilde otuz kişiye iş veriyorum. Burada bir battaniyeden korkuyorum."'
-        },
-      ]
-    },
-    {
       id: 'd4-denetim',
       from: '07:00',
-      to: '08:00',
+      to: '07:30',
       title: 'Denetim Hazırlığı',
       sprite: 'postal',
       scenes: [
@@ -84,7 +69,7 @@ export const gun04: Day = {
           kind: 'anlati',
           id: 'd4-d1',
           sprite: 'postal',
-          text: 'Son bir saat. Yirmi sekiz dolap, yirmi sekiz yatak, elli altı postal. Bir kişi batırırsa hepiniz batıyorsunuz. Tolga’nın dolabı hâlâ dağınık ve Tolga ortalıkta yok.',
+          text: 'Mıntıka bugün koğuşun içinde. Yirmi sekiz dolap, yirmi sekiz yatak, elli altı postal. Bir kişi batırırsa hepiniz batıyorsunuz. Tolga’nın dolabı hâlâ dağınık ve Tolga ortalıkta yok.',
           choices: [
             {
               id: 'd4-tolga-topla',
@@ -109,8 +94,23 @@ export const gun04: Day = {
       ]
     },
     {
+      id: 'd4-kahvalti',
+      from: '07:30',
+      to: '08:30',
+      title: 'Kahvaltı',
+      sprite: 'tepsi',
+      scenes: [
+        {
+          kind: 'anlati',
+          id: 'd4-ka1',
+          sprite: 'tepsi',
+          text: 'Kimse konuşmuyor. Herkesin aklı 09:00’da. Emre çayına şeker atarken elleri titriyor: "Ben sivilde otuz kişiye iş veriyorum. Burada bir battaniyeden korkuyorum."'
+        },
+      ]
+    },
+    {
       id: 'd4-egitim-sabah',
-      from: '08:00',
+      from: '08:30',
       to: '12:00',
       title: 'Denetim ve Eğitim',
       sprite: 'cavus',
@@ -174,7 +174,7 @@ export const gun04: Day = {
     {
       id: 'd4-talim',
       from: '13:30',
-      to: '17:00',
+      to: '16:30',
       title: 'Silah Eğitimi',
       sprite: 'tufek',
       scenes: [
@@ -207,8 +207,8 @@ export const gun04: Day = {
     },
     {
       id: 'd4-aksam-ictima',
-      from: '17:00',
-      to: '18:00',
+      from: '16:30',
+      to: '17:30',
       title: 'Akşam İçtiması',
       sprite: 'asker',
       scenes: [
@@ -237,8 +237,8 @@ export const gun04: Day = {
     },
     {
       id: 'd4-aksam-yemek',
-      from: '18:00',
-      to: '19:00',
+      from: '17:30',
+      to: '18:30',
       title: 'Akşam Yemeği',
       sprite: 'tepsi',
       scenes: [
@@ -252,7 +252,7 @@ export const gun04: Day = {
     },
     {
       id: 'd4-serbest',
-      from: '19:00',
+      from: '18:30',
       to: '21:00',
       title: 'Serbest Zaman',
       sprite: 'kunye',

@@ -8,6 +8,7 @@ import { BLOK_BASINA_ACLIK, TOKLUK_BANT } from '../engine/stats';
 import type { OgunAdi } from '../engine/types';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelText } from '../ui/PixelText';
+import { Tepsi, TepsiOzeti } from '../ui/Tepsi';
 
 type Props = {
   gun: number;
@@ -51,6 +52,18 @@ export function YemekSahnesi({ gun, blokIndex, ogun, tokluk, onYe }: Props) {
         <PixelText size="micro" color={C.canvasFaint}>
           {`sonraki öğüne ${mesafe} saat dilimi`}
         </PixelText>
+      </View>
+
+      {/* Tepsinin kendisi seçim ekranı: hangi göz doldu, gözle görünüyor */}
+      <View style={{ gap: SP.sm }}>
+        <Tepsi
+          menu={menu}
+          secili={secili}
+          onToggle={(i) =>
+            setSecili((s) => (s.includes(i) ? s.filter((x) => x !== i) : [...s, i]))
+          }
+        />
+        <TepsiOzeti adet={secili.length} tokluk={kazanc} />
       </View>
 
       {/* Tokluk şeridi: ideal bant işaretli, seçim yaptıkça dolan tahmin */}
@@ -123,21 +136,21 @@ export function YemekSahnesi({ gun, blokIndex, ogun, tokluk, onYe }: Props) {
                 borderWidth: BORDER,
                 borderColor: acik ? C.olive : C.ink,
                 backgroundColor: acik ? C.surfaceHi : C.surface,
-                paddingVertical: SP.md,
+                paddingVertical: SP.sm,
                 paddingHorizontal: SP.md,
               }}
             >
               <View
                 style={{
-                  width: 18,
-                  height: 18,
+                  width: 16,
+                  height: 16,
                   borderWidth: BORDER,
                   borderColor: acik ? C.olive : C.line,
                   backgroundColor: acik ? C.olive : 'transparent',
                 }}
               />
               <View style={{ flex: 1 }}>
-                <PixelText font="bodyMed" size="lead" color={acik ? C.canvas : C.canvasDim}>
+                <PixelText font="bodyMed" size="body" color={acik ? C.canvas : C.canvasDim}>
                   {y.ad}
                 </PixelText>
                 {y.not && (

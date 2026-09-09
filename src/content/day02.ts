@@ -7,8 +7,8 @@ export const gun02: Day = {
   blocks: [
     {
       id: 'd2-kalkis',
-      from: '05:30',
-      to: '06:00',
+      from: '06:00',
+      to: '06:30',
       title: 'Kalkış',
       sprite: 'ranzaDaginik',
       scenes: [
@@ -55,63 +55,6 @@ export const gun02: Day = {
             },
           ]
         },
-      ]
-    },
-    {
-      id: 'd2-ictima',
-      from: '06:00',
-      to: '06:30',
-      title: 'Sabah İçtiması',
-      sprite: 'asker',
-      scenes: [
-        {
-          kind: 'anlati',
-          id: 'd2-i1',
-          sprite: 'cavus',
-          speaker: 'Çavuş Kaya',
-          text: 'Bölük hizada. Soğuk. Nefesin buhar oluyor. Çavuş sıranın önünde yürüyor ve herkesin yakasına tek tek bakıyor.'
-        },
-        {
-          kind: 'mini',
-          id: 'd2-i2',
-          game: 'ictima',
-          sprite: 'asker',
-          brief: 'Komut geldiği anda dokun. Erken dokunursan da ceza, geç kalırsan da.',
-          reward: (s) => ({
-            disiplin: Math.round(-6 + s * 18),
-            enerji: -4
-          }),
-          verdict: (s) =>
-            s > 0.85
-              ? 'Bütün bölük tek ses çıkardı. Çavuş başını salladı.'
-              : s > 0.5
-                ? 'Yarım saniye geç kaldın. Kimse fark etmedi. Sen fark ettin.'
-                : 'Sıradan bir adım dışarı çıktın. Bütün bölük seni bekledi.'
-        },
-      ]
-    },
-    {
-      id: 'd2-kahvalti',
-      from: '06:30',
-      to: '07:00',
-      title: 'Kahvaltı',
-      sprite: 'tepsi',
-      scenes: [
-        {
-          kind: 'anlati',
-          id: 'd2-ka1',
-          sprite: 'tepsi',
-          text: 'Yemekhane. Tepsi, iki dilim ekmek, zeytin, reçel, bir parça peynir, çay. Yanına oturan adam elini uzattı: "Emre. Müteahhitim. Yani sivilde. Burada neysem oyum artık."'
-        },
-      ]
-    },
-    {
-      id: 'd2-kogus',
-      from: '07:00',
-      to: '08:00',
-      title: 'Koğuş Düzeni',
-      sprite: 'postal',
-      scenes: [
         {
           kind: 'anlati',
           id: 'd2-ko1',
@@ -147,8 +90,71 @@ export const gun02: Day = {
       ]
     },
     {
+      id: 'd2-ictima',
+      from: '06:30',
+      to: '07:00',
+      title: 'Sabah İçtiması',
+      sprite: 'asker',
+      scenes: [
+        {
+          kind: 'anlati',
+          id: 'd2-i1',
+          sprite: 'cavus',
+          speaker: 'Çavuş Kaya',
+          text: 'Bölük hizada. Soğuk. Nefesin buhar oluyor. Çavuş sıranın önünde yürüyor ve herkesin yakasına tek tek bakıyor.'
+        },
+        {
+          kind: 'mini',
+          id: 'd2-i2',
+          game: 'ictima',
+          sprite: 'asker',
+          brief: 'Komut geldiği anda dokun. Erken dokunursan da ceza, geç kalırsan da.',
+          reward: (s) => ({
+            disiplin: Math.round(-6 + s * 18),
+            enerji: -4
+          }),
+          verdict: (s) =>
+            s > 0.85
+              ? 'Bütün bölük tek ses çıkardı. Çavuş başını salladı.'
+              : s > 0.5
+                ? 'Yarım saniye geç kaldın. Kimse fark etmedi. Sen fark ettin.'
+                : 'Sıradan bir adım dışarı çıktın. Bütün bölük seni bekledi.'
+        },
+      ]
+    },
+    {
+      id: 'd2-mintika',
+      from: '07:00',
+      to: '07:30',
+      title: 'Mıntıka Temizliği',
+      sprite: 'postal',
+      scenes: [
+        {
+          kind: 'anlati',
+          id: 'd2-m1',
+          sprite: 'postal',
+          text: 'Süpürge ve faraş dağıtıldı. Mıntıka dediğin şey avlunun sana düşen köşesi. Bugün yanında yürüyüp bakıyorsun; yarın burası senin.'
+        },
+      ]
+    },
+    {
+      id: 'd2-kahvalti',
+      from: '07:30',
+      to: '08:30',
+      title: 'Kahvaltı',
+      sprite: 'tepsi',
+      scenes: [
+        {
+          kind: 'anlati',
+          id: 'd2-ka1',
+          sprite: 'tepsi',
+          text: 'Yemekhane. Tepsi, iki dilim ekmek, zeytin, reçel, bir parça peynir, çay. Yanına oturan adam elini uzattı: "Emre. Müteahhitim. Yani sivilde. Burada neysem oyum artık."'
+        },
+      ]
+    },
+    {
       id: 'd2-egitim-sabah',
-      from: '08:00',
+      from: '08:30',
       to: '12:00',
       title: 'Temel Eğitim',
       sprite: 'asker',
@@ -221,9 +227,9 @@ export const gun02: Day = {
       ]
     },
     {
-      id: 'd2-egitim-oglen',
+      id: 'd2-talim',
       from: '13:30',
-      to: '17:00',
+      to: '16:30',
       title: 'Talim',
       sprite: 'tufek',
       scenes: [
@@ -257,8 +263,8 @@ export const gun02: Day = {
     },
     {
       id: 'd2-aksam-ictima',
-      from: '17:00',
-      to: '18:00',
+      from: '16:30',
+      to: '17:30',
       title: 'Akşam İçtiması',
       sprite: 'asker',
       scenes: [
@@ -287,8 +293,8 @@ export const gun02: Day = {
     },
     {
       id: 'd2-aksam-yemek',
-      from: '18:00',
-      to: '19:00',
+      from: '17:30',
+      to: '18:30',
       title: 'Akşam Yemeği',
       sprite: 'tepsi',
       scenes: [
@@ -302,7 +308,7 @@ export const gun02: Day = {
     },
     {
       id: 'd2-serbest',
-      from: '19:00',
+      from: '18:30',
       to: '21:00',
       title: 'Serbest Zaman',
       sprite: 'kunye',

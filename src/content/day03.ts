@@ -7,8 +7,8 @@ export const gun03: Day = {
   blocks: [
     {
       id: 'd3-kalkis',
-      from: '05:30',
-      to: '06:00',
+      from: '06:00',
+      to: '06:30',
       title: 'Kalkış',
       sprite: 'ranzaDaginik',
       scenes: [
@@ -32,12 +32,32 @@ export const gun03: Day = {
                 ? 'Yetişti. Kenarı hâlâ tam oturmuyor ama yetişti.'
                 : 'Onbaşı geçerken battaniyeyi çekti. Bir daha.'
         },
+        {
+          kind: 'anlati',
+          id: 'd3-ko1',
+          sprite: 'postal',
+          text: 'Postal boyama. Onbaşı herkesin postalını tek tek eline alıp ışığa tutuyor. "Bu postal bugün ölmüş. Diriltin."',
+          choices: [
+            {
+              id: 'd3-boya-ozen',
+              label: 'Uzun uzun boya, parlat',
+              effect: { disiplin: 9, enerji: -7, moral: -2 },
+              outcome: 'Postalın ayna gibi. Onbaşı hiçbir şey demedi, en iyi yorum bu.'
+            },
+            {
+              id: 'd3-boya-hizli',
+              label: 'Üstünkörü geç, kimse bakmaz',
+              effect: { disiplin: -7, enerji: 2, moral: 3 },
+              outcome: 'Baktı. "Bunu bir daha görürsem hafta sonu izin yok."'
+            },
+          ]
+        },
       ]
     },
     {
       id: 'd3-ictima',
-      from: '06:00',
-      to: '06:30',
+      from: '06:30',
+      to: '07:00',
       title: 'Sabah İçtiması',
       sprite: 'asker',
       scenes: [
@@ -65,9 +85,24 @@ export const gun03: Day = {
       ]
     },
     {
+      id: 'd3-mintika',
+      from: '07:00',
+      to: '07:30',
+      title: 'Mıntıka Temizliği',
+      sprite: 'postal',
+      scenes: [
+        {
+          kind: 'anlati',
+          id: 'd3-m1',
+          sprite: 'postal',
+          text: 'Bugün süpürge senin. Avlunun kuzey köşesi, çay ocağının önü ve iki çöp kovası arası — hepsi mıntıkan.'
+        },
+      ]
+    },
+    {
       id: 'd3-kahvalti',
-      from: '06:30',
-      to: '07:00',
+      from: '07:30',
+      to: '08:30',
       title: 'Kahvaltı',
       sprite: 'tepsi',
       scenes: [
@@ -80,37 +115,8 @@ export const gun03: Day = {
       ]
     },
     {
-      id: 'd3-kogus',
-      from: '07:00',
-      to: '08:00',
-      title: 'Koğuş Düzeni',
-      sprite: 'postal',
-      scenes: [
-        {
-          kind: 'anlati',
-          id: 'd3-ko1',
-          sprite: 'postal',
-          text: 'Postal boyama. Onbaşı herkesin postalını tek tek eline alıp ışığa tutuyor. "Bu postal bugün ölmüş. Diriltin."',
-          choices: [
-            {
-              id: 'd3-boya-ozen',
-              label: 'Uzun uzun boya, parlat',
-              effect: { disiplin: 9, enerji: -7, moral: -2 },
-              outcome: 'Postalın ayna gibi. Onbaşı hiçbir şey demedi, en iyi yorum bu.'
-            },
-            {
-              id: 'd3-boya-hizli',
-              label: 'Üstünkörü geç, kimse bakmaz',
-              effect: { disiplin: -7, enerji: 2, moral: 3 },
-              outcome: 'Baktı. "Bunu bir daha görürsem hafta sonu izin yok."'
-            },
-          ]
-        },
-      ]
-    },
-    {
       id: 'd3-egitim-sabah',
-      from: '08:00',
+      from: '08:30',
       to: '12:00',
       title: 'Temel Eğitim',
       sprite: 'asker',
@@ -180,7 +186,7 @@ export const gun03: Day = {
     {
       id: 'd3-talim',
       from: '13:30',
-      to: '17:00',
+      to: '16:30',
       title: 'Talim',
       sprite: 'tufek',
       scenes: [
@@ -214,8 +220,8 @@ export const gun03: Day = {
     },
     {
       id: 'd3-aksam-ictima',
-      from: '17:00',
-      to: '18:00',
+      from: '16:30',
+      to: '17:30',
       title: 'Akşam İçtiması',
       sprite: 'asker',
       scenes: [
@@ -230,8 +236,8 @@ export const gun03: Day = {
     },
     {
       id: 'd3-aksam-yemek',
-      from: '18:00',
-      to: '19:00',
+      from: '17:30',
+      to: '18:30',
       title: 'Akşam Yemeği',
       sprite: 'tepsi',
       scenes: [
@@ -259,7 +265,7 @@ export const gun03: Day = {
     },
     {
       id: 'd3-serbest',
-      from: '19:00',
+      from: '18:30',
       to: '21:00',
       title: 'Serbest Zaman',
       sprite: 'kunye',

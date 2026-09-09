@@ -22,7 +22,8 @@ const OGUN_EKI: Record<string, OgunAdi> = {
  * Kışlada bir yerden bir yere yürünür. Bu bloklara girerken araya kısa bir
  * yürüyüş sahnesi giriyor; hem günün monotonluğunu kırıyor hem de bloklar
  * arası geçiş "ekran değişti" olmaktan çıkıp mesafe hissi kazanıyor.
- * Yemek ve serbest bloklarına konmuyor — orada zaten kendi ekranı var.
+ * Yemekhane ve avlu da dahil: içtimadan sofraya ışınlanmıyorsun, yürüyorsun.
+ * Yol kısa tutuluyor, günde üç öğün var.
  */
 const YOLLAR: Record<
   string,
@@ -53,28 +54,23 @@ const YOLLAR: Record<
     manzara: ['kantinBina', 'agac', 'kisla', 'agac'],
   },
   denetim: { hedef: 'Koğuşa', adim: 4, mekan: 'kisla', manzara: ['agac', 'bayrak', 'agac'] },
-  kogus: { hedef: 'Koğuşa', adim: 4, mekan: 'kisla', manzara: ['agac', 'ankesor', 'agac'] },
+  mintika: { hedef: 'Mıntıkaya', adim: 4, mekan: 'kisla', manzara: ['agac', 'ankesor', 'agac'] },
+  kahvalti: { hedef: 'Yemekhaneye', adim: 3, mekan: 'kisla', manzara: ['bayrak', 'agac'] },
+  ogle: { hedef: 'Yemekhaneye', adim: 3, mekan: 'kisla', manzara: ['agac', 'kisla'] },
+  'aksam-yemek': { hedef: 'Yemekhaneye', adim: 3, mekan: 'kisla', manzara: ['agac', 'bayrak'] },
+  serbest: { hedef: 'Avluya', adim: 3, mekan: 'kantinBina', manzara: ['kisla', 'agac', 'ankesor'] },
+  'son-yoklama': { hedef: 'Koğuşa', adim: 3, mekan: 'kisla', manzara: ['ankesor', 'agac'] },
 };
 
 function blokZenginlestir(b: TimeBlock): TimeBlock {
-  const yolAnahtari = b.id.replace(/^d\d+-/, '');
+  const anahtar = b.id.replace(/^d\d+-/, '');
   // Sevk gününde bölge zaten turla geziliyor; ayrıca yürüyüş sahnesi konmuyor.
   const sevkGunu = b.id.startsWith('d1-');
-  const yol = sevkGunu ? undefined : YOLLAR[yolAnahtari];
-  if (yol) {
-    const yolSahnesi: Scene = {
-      kind: 'yol',
-      id: `${b.id}-yol`,
-      hedef: yol.hedef,
-      adim: yol.adim,
-      mekan: yol.mekan,
-      manzara: yol.manzara,
-    };
-    return { ...b, scenes: [yolSahnesi, ...b.scenes] };
-  }
+  const yol = sevkGunu ? undefined : YOLLAR[anahtar];
+
+  let scenes = b.scenes;
 
   const ek = Object.keys(OGUN_EKI).find((k) => b.id.endsWith(`-${k}`));
-
   if (ek) {
     // Tepsi en başta: önce yemeğini alırsın, muhabbet sonra gelir.
     const tepsi: Scene = {
@@ -84,7 +80,7 @@ function blokZenginlestir(b: TimeBlock): TimeBlock {
       sprite: 'tepsi',
       brief: 'Sıraya girdin, tepsini aldın. Bugün panoda ne yazıyorsa o var.',
     };
-    return { ...b, scenes: [tepsi, ...b.scenes] };
+    scenes = [tepsi, ...scenes];
   }
 
   if (b.id.endsWith('-serbest')) {
@@ -93,10 +89,25 @@ function blokZenginlestir(b: TimeBlock): TimeBlock {
       id: `${b.id}-menu`,
       brief: 'İki saat senin. Kantin açık, telefon çekiyor, koğuşta muhabbet var.',
     };
-    return { ...b, scenes: [...b.scenes, serbest] };
+    scenes = [...scenes, serbest];
   }
 
-  return b;
+  // Yürüyüş en başa: bloğun kapısından girmeden önce oraya gidiliyor.
+  // Yemek ve serbest blokları da dahil — eskiden bunlar yolun dışındaydı ve
+  // içtimadan sofraya geçiş bir anda oluyordu.
+  if (yol) {
+    const yolSahnesi: Scene = {
+      kind: 'yol',
+      id: `${b.id}-yol`,
+      hedef: yol.hedef,
+      adim: yol.adim,
+      mekan: yol.mekan,
+      manzara: yol.manzara,
+    };
+    scenes = [yolSahnesi, ...scenes];
+  }
+
+  return scenes === b.scenes ? b : { ...b, scenes };
 }
 
 /**
@@ -108,51 +119,56 @@ function gunlukGorevler(g: Day): Day {
   const bloklar = g.blocks.map((b) => {
     const anahtar = b.id.replace(/^d\d+-/, '');
 
+    // Mıntıka temizliği kışlanın günlük rutini: kahvaltıdan önce avlu toplanır.
+    // 2. gün ilk tam gün olduğu için yükü hafif kalıyor, süpürge üçüncü günde
+    // eline veriliyor.
+    if (anahtar === 'mintika' && g.day >= 3) {
+      const izmarit: Scene = {
+        kind: 'mini',
+        id: `${b.id}-izmarit`,
+        game: 'izmarit',
+        sprite: 'postal',
+        brief:
+          'Mıntıka dağıtıldı, avlunun bu köşesi senin. "Yerde bir tane izmarit görürsem hepiniz inersiniz."',
+        reward: (s) => ({
+          disiplin: Math.round(-4 + s * 13),
+          enerji: -9,
+          moral: Math.round(-2 + s * 4),
+        }),
+        verdict: (s) =>
+          s > 0.85
+            ? 'Avlu tertemiz. Onbaşı yere baktı, bir şey bulamadı ve bu onu rahatsız etti.'
+            : s > 0.5
+              ? 'Çoğunu topladın. Kalanları rüzgâr halletti diyelim.'
+              : 'Yarısı yerde kaldı. Bütün bölük seninle beraber bahçeye indi.',
+      };
+      return { ...b, scenes: [...b.scenes, izmarit] };
+    }
+
     // İlk üç gün alıştırma dönemi: bölge tanınır, düzen oturur, ceza yazılmaz.
-    // Görevler dördüncü günden itibaren geliyor.
-    if (anahtar === 'aksam-ictima' && g.day >= 4) {
-      const cezaGunu = g.day % 4 === 2;
-      const gorev: Scene = cezaGunu
-        ? {
-            kind: 'mini',
-            id: `${b.id}-ceza`,
-            game: 'ceza',
-            sprite: 'asker',
-            brief:
-              'Onbaşı listeyi okurken senin adının yanında bir işaret var. "Sen kal. Yirmi şınav, sayıyorum."',
-            reward: (s) => ({
-              disiplin: Math.round(-6 + s * 12),
-              kondisyon: Math.round(-2 + s * 6),
-              enerji: -14,
-              moral: Math.round(-6 + s * 4),
-            }),
-            verdict: (s) =>
-              s >= 1
-                ? 'Sayıyı tamamladın. Onbaşı bir şey demeden gitti.'
-                : s > 0.6
-                  ? 'Yarısını geçtin, gerisini Onbaşı bağışladı. Bu sefer.'
-                  : 'Kollarını kaldıramadın. Yarın aynı ceza, iki katı.',
-          }
-        : {
-            kind: 'mini',
-            id: `${b.id}-izmarit`,
-            game: 'izmarit',
-            sprite: 'postal',
-            brief:
-              'Bölük işleri dağıtıldı: avlu temizliği sende. "Yerde bir tane izmarit görürsem hepiniz inersiniz."',
-            reward: (s) => ({
-              disiplin: Math.round(-4 + s * 13),
-              enerji: -9,
-              moral: Math.round(-2 + s * 4),
-            }),
-            verdict: (s) =>
-              s > 0.85
-                ? 'Avlu tertemiz. Onbaşı yere baktı, bir şey bulamadı ve bu onu rahatsız etti.'
-                : s > 0.5
-                  ? 'Çoğunu topladın. Kalanları rüzgâr halletti diyelim.'
-                  : 'Yarısı yerde kaldı. Bütün bölük seninle beraber bahçeye indi.',
-          };
-      return { ...b, scenes: [...b.scenes, gorev] };
+    // Ceza dördüncü günden sonra ve dört günde bir, akşam içtimasında okunur.
+    if (anahtar === 'aksam-ictima' && g.day >= 4 && g.day % 4 === 2) {
+      const ceza: Scene = {
+        kind: 'mini',
+        id: `${b.id}-ceza`,
+        game: 'ceza',
+        sprite: 'asker',
+        brief:
+          'Onbaşı listeyi okurken senin adının yanında bir işaret var. "Sen kal. Yirmi şınav, sayıyorum."',
+        reward: (s) => ({
+          disiplin: Math.round(-6 + s * 12),
+          kondisyon: Math.round(-2 + s * 6),
+          enerji: -14,
+          moral: Math.round(-6 + s * 4),
+        }),
+        verdict: (s) =>
+          s >= 1
+            ? 'Sayıyı tamamladın. Onbaşı bir şey demeden gitti.'
+            : s > 0.6
+              ? 'Yarısını geçtin, gerisini Onbaşı bağışladı. Bu sefer.'
+              : 'Kollarını kaldıramadın. Yarın aynı ceza, iki katı.',
+      };
+      return { ...b, scenes: [...b.scenes, ceza] };
     }
 
     // Nöbet listesine ancak alıştırma bitince giriyorsun.

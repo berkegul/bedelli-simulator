@@ -14,6 +14,8 @@ export type SaveData = {
   gun: number;
   blokIndex: number;
   sahneIndex: number;
+  /** Gün içindeki saat (dakika). Eski kayıtlarda yok; sahneden türetilir. */
+  saat?: number;
   stats: Stats;
   para: number;
   envanter: Envanter;

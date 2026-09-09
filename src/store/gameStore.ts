@@ -12,7 +12,9 @@ import {
   uykudanSonra,
 } from '../engine/stats';
 import { kaydet, sil, yukle } from '../engine/save';
+import { blokSonu, dakikaya, sahneSaati } from '../engine/zaman';
 import { olayYaz } from '../engine/bulut';
+import { sigaraIzni, telefonIzni } from '../engine/kurallar';
 import type {
   ArkadasId,
   Choice,
@@ -42,7 +44,16 @@ export type Ekran =
 /** Oyun ekranının üstüne açılan panel — sahne akışını bozmadan geri dönülür. */
 export type Panel = null | 'kantin' | 'dolap' | 'rehber' | 'muhabbet' | 'sigaraIstegi' | 'ant41' | 'oturma' | 'cep' | 'izmarit' | 'izmaritCezasi';
 
-export type Sonuc = { metin: string; delta: Partial<Stats> & { para?: number } };
+export type Sonuc = {
+  metin: string;
+  delta: Partial<Stats> & { para?: number };
+  /**
+   * Kart kapanınca sahne ilerlesin mi? Sahnenin kendi sonucu ilerletir;
+   * cepten yapılan iş (sigara, telefon, eşya) ilerletmez — yoksa sigara
+   * yakmak o anki görevi atlıyordu.
+   */
+  ilerletme?: boolean;
+};
 
 /** Sigara içen oyuncuda her blokta biriken kriz. */
 const NIKOTIN_ARTIS = 9;
@@ -60,6 +71,8 @@ type Store = {
   gun: number;
   blokIndex: number;
   sahneIndex: number;
+  /** Gün içindeki saat, gece yarısından beri dakika. Üst şeritte akar. */
+  saat: number;
   stats: Stats;
   para: number;
   envanter: Envanter;
@@ -123,6 +136,7 @@ const ilkDurum = {
   gun: 1,
   blokIndex: 0,
   sahneIndex: 0,
+  saat: dakikaya('05:30'),
   stats: { ...BASLANGIC_STATS },
   para: BASLANGIC_PARA,
   envanter: {} as Envanter,
@@ -162,6 +176,7 @@ export const useGame = create<Store>((set, get) => ({
       gun: k.gun,
       blokIndex: k.blokIndex,
       sahneIndex: k.sahneIndex,
+      saat: k.saat ?? sahneninSaati(k.gun, k.blokIndex, k.sahneIndex),
       stats: k.stats,
       para: k.para,
       envanter: k.envanter ?? {},
@@ -225,7 +240,13 @@ export const useGame = create<Store>((set, get) => ({
       get().sonrakiGun();
       return;
     }
-    set({ ekran: gunOynanabilirMi(gun) ? 'oyun' : 'kilit', sonuc: null, miniAktif: false, panel: null });
+    set({
+      ekran: gunOynanabilirMi(gun) ? 'oyun' : 'kilit',
+      sonuc: null,
+      miniAktif: false,
+      panel: null,
+      saat: sahneninSaati(gun, get().blokIndex, get().sahneIndex),
+    });
   },
 
   anaMenu() {
@@ -233,7 +254,14 @@ export const useGame = create<Store>((set, get) => ({
   },
 
   gunuBaslat() {
-    set({ ekran: 'oyun', sonuc: null, miniAktif: false, panel: null });
+    const { gun, blokIndex, sahneIndex } = get();
+    set({
+      ekran: 'oyun',
+      sonuc: null,
+      miniAktif: false,
+      panel: null,
+      saat: sahneninSaati(gun, blokIndex, sahneIndex),
+    });
   },
 
   ileri() {
@@ -243,7 +271,14 @@ export const useGame = create<Store>((set, get) => ({
 
     const blok = gunData.blocks[blokIndex];
     if (sahneIndex + 1 < blok.scenes.length) {
-      set({ sahneIndex: sahneIndex + 1, sonuc: null, miniAktif: false });
+      set({
+        sahneIndex: sahneIndex + 1,
+        sonuc: null,
+        miniAktif: false,
+        // Sahne ilerledi, saat de ilerler. Bu blokta eylemlerle kazanılmış
+        // fazladan dakikalar varsa geri alınmaz — saat geriye akmaz.
+        saat: Math.min(blokSonu(blok), Math.max(get().saat, sahneSaati(blok, sahneIndex + 1))),
+      });
     } else if (blokIndex + 1 < gunData.blocks.length) {
       // Blok değişimi zamanın geçmesi demek: acıkırsın, sigara krizi büyür.
       set({
@@ -251,6 +286,7 @@ export const useGame = create<Store>((set, get) => ({
         sahneIndex: 0,
         sonuc: null,
         miniAktif: false,
+        saat: dakikaya(gunData.blocks[blokIndex + 1].from),
         stats: blokGecisi(get().stats),
         nikotin: profil.sigaraIciyor ? Math.min(100, get().nikotin + NIKOTIN_ARTIS) : 0,
       });
@@ -290,12 +326,12 @@ export const useGame = create<Store>((set, get) => ({
   },
 
   sonucuKapat() {
-    // Serbest zaman iki saat: sigara içtikten sonra kantine de gidebilmeli.
-    // Bu blokta sonucu kapatmak sahneyi ilerletmez, menüye döndürür —
-    // günü bitiren tek şey "Yat, gün bitsin".
-    const { gun, blokIndex, sahneIndex } = get();
+    // Cepten yapılan iş sahneyi ilerletmez: sigara yakmak içtimayı atlamaz.
+    // Serbest zamanda da hiçbir şey ilerletmez; günü bitiren tek şey
+    // "Yat, gün bitsin".
+    const { gun, blokIndex, sahneIndex, sonuc } = get();
     const sahne = gunGetir(gun)?.blocks[blokIndex]?.scenes[sahneIndex];
-    if (sahne?.kind === 'serbest') {
+    if (sonuc?.ilerletme === false || sahne?.kind === 'serbest') {
       set({ sonuc: null });
       return;
     }
@@ -319,6 +355,7 @@ export const useGame = create<Store>((set, get) => ({
       gun: hedef,
       blokIndex: 0,
       sahneIndex: 0,
+      saat: sahneninSaati(hedef, 0, 0),
       stats: uykudanSonra(stats),
       sonuc: null,
       miniAktif: false,
@@ -383,7 +420,7 @@ export const useGame = create<Store>((set, get) => ({
     else yeni[id] = { ...kayit, adet: kalan };
 
     set({ envanter: yeni });
-    uygulaEtki(set, get, t.kullanimEtkisi, `${t.ad} kullandın.`);
+    uygulaEtki(set, get, t.kullanimEtkisi, `${t.ad} kullandın.`, 0, false);
   },
 
   yemekYe(secilen) {
@@ -398,13 +435,19 @@ export const useGame = create<Store>((set, get) => ({
       if (y.moral) toplam.moral = (toplam.moral ?? 0) + y.moral;
     }
     const adlar = secilen.map((y) => y.ad.toLocaleLowerCase('tr-TR')).join(', ');
-    uygulaEtki(set, get, toplam, `Tepsiden ${adlar} yedin.`);
+    uygulaEtki(set, get, toplam, `Tepsiden ${adlar} yedin.`, 18);
   },
 
   kisiAra(id) {
-    const { rehber, envanter, gun, profil } = get();
+    const { rehber, envanter, gun, blokIndex, miniAktif, profil } = get();
     const kisi = rehber.find((k) => k.id === id);
     if (!kisi) return;
+
+    const izin = telefonIzni(gunGetir(gun)?.blocks[blokIndex]?.id, miniAktif);
+    if (!izin.olur) {
+      uygulaEtki(set, get, {}, izin.sebep ?? 'Şimdi olmaz.', 0, false);
+      return;
+    }
 
     const telefonVar = (envanter.kamerasizTelefon?.adet ?? 0) > 0;
     const kontor = envanter.kontor?.adet ?? 0;
@@ -416,9 +459,18 @@ export const useGame = create<Store>((set, get) => ({
         get,
         { moral: 11, enerji: -9, para: -15 },
         `Ankesör kuyruğunda kırk dakika bekleyip ${kisi.ad} ile üç dakika konuştun.`,
+        43,
+        false,
       );
     } else if (kontor <= 0) {
-      uygulaEtki(set, get, { moral: -4 }, 'Kontörün bitmiş. Kantinden almadan arayamazsın.');
+      uygulaEtki(
+        set,
+        get,
+        { moral: -4 },
+        'Kontörün bitmiş. Kantinden almadan arayamazsın.',
+        0,
+        false,
+      );
       return;
     } else {
       const yeniEnv: Envanter = { ...envanter };
@@ -435,6 +487,8 @@ export const useGame = create<Store>((set, get) => ({
         tazelik === 1
           ? `${kisi.ad} ile konuştun. "${profil.ad || 'Oğlum'}, sesin iyi geliyor" dedi.`
           : `${kisi.ad} bugün ikinci kez seni duydu. Yine de iyi geldi.`,
+        9,
+        false,
       );
     }
 
@@ -485,6 +539,8 @@ export const useGame = create<Store>((set, get) => ({
         get,
         {},
         'Bugün zaten oturdun. İkinci kez oturmak dinlendirmiyor, sadece vakit geçiriyor.',
+        20,
+        false,
       );
       return;
     }
@@ -494,6 +550,8 @@ export const useGame = create<Store>((set, get) => ({
       get,
       { enerji: 12, moral: 6, kondisyon: 2 },
       'Ağacın altına oturdun. Postalları çıkardın, ayakların hava aldı. On beş dakika ama iyi geldi.',
+      15,
+      false,
     );
   },
 
@@ -502,9 +560,17 @@ export const useGame = create<Store>((set, get) => ({
    * ne yapacağın ayrı bir karar. Kolay yol yere atmak, ama riski var.
    */
   sigaraIc() {
-    const { envanter, profil } = get();
+    const { envanter, profil, gun, blokIndex, miniAktif } = get();
     const dal = envanter.sigara?.adet ?? 0;
     if (dal <= 0) return;
+
+    // İçtimada, derste, yemekhanede sigara yakılmaz. Panel zaten kapalı
+    // gösteriyor; buraya düşen çağrı olursa sebebiyle geri çevrilir.
+    const izin = sigaraIzni(gunGetir(gun)?.blocks[blokIndex]?.id, miniAktif);
+    if (!izin.olur) {
+      uygulaEtki(set, get, {}, izin.sebep ?? 'Şimdi olmaz.', 0, false);
+      return;
+    }
 
     const kalan = dal - 1;
     const yeni: Envanter = { ...envanter };
@@ -524,6 +590,7 @@ export const useGame = create<Store>((set, get) => ({
       // Sonuç kartı yerine doğrudan izmarit kararına geçiyoruz.
       panel: 'izmarit',
       sonuc: null,
+      saat: ilerletilmisSaat(get, 7),
     });
     persist(get);
   },
@@ -536,6 +603,8 @@ export const useGame = create<Store>((set, get) => ({
         get,
         { moral: -1 },
         'İzmariti söndürüp cebine koydun. Hoş değil ama kimse görmedi.',
+        0,
+        false,
       );
       return;
     }
@@ -549,6 +618,8 @@ export const useGame = create<Store>((set, get) => ({
         get,
         { moral: 2 },
         'İzmariti yere attın, ayağınla ezdin ve yürüdün. Bu sefer kimse görmedi.',
+        0,
+        false,
       );
       return;
     }
@@ -562,6 +633,8 @@ export const useGame = create<Store>((set, get) => ({
       get,
       { disiplin: -9, moral: -12 },
       'İzmariti aldın, yerden özür diledin, bölük izledi. Bir daha yere atmadan önce iki kere düşüneceksin.',
+      0,
+      false,
     );
   },
 
@@ -575,6 +648,8 @@ export const useGame = create<Store>((set, get) => ({
       get,
       { disiplin: 3, moral: 3 },
       `Cebindeki ${adet} izmariti çöpe attın. Cebin de vicdanın da rahatladı.`,
+      0,
+      false,
     );
   },
 
@@ -593,6 +668,8 @@ export const useGame = create<Store>((set, get) => ({
         get,
         { moral: -2, dostluk: { kim: id, puan: -7 } },
         `"Yok, bende de az kaldı" dedin. ${kisi.ad} bir şey demedi ama not aldı.`,
+        0,
+        false,
       );
       return;
     }
@@ -609,6 +686,8 @@ export const useGame = create<Store>((set, get) => ({
       get,
       { moral: 3, dostluk: { kim: id, puan: 9 } },
       `${yonelme(kisi.ad)} bir dal verdin. ${kalan} dal kaldı. Burada bu, para değil, arkadaşlık.`,
+      0,
+      false,
     );
   },
 
@@ -629,6 +708,8 @@ export const useGame = create<Store>((set, get) => ({
       get,
       { moral: s.moral, disiplin: s.disiplin, para: s.para },
       s.outcome,
+      12,
+      false,
     );
   },
 }));
@@ -639,6 +720,10 @@ function uygulaEtki(
   get: () => Store,
   effect: Effect,
   metin: string,
+  /** Eylemin kaç dakika sürdüğü; saat kadar ilerler. */
+  sure = 0,
+  /** Sonuç kartı kapanınca sahne ilerlesin mi? Cep işlerinde ilerlemez. */
+  ilerletme = true,
 ) {
   const { stats, para, nikotin, dostluk, envanter } = get();
   const sonrasi = applyEffect(stats, para, effect);
@@ -646,9 +731,11 @@ function uygulaEtki(
   const yamalar: Partial<Store> = {
     stats: sonrasi.stats,
     para: sonrasi.para,
-    sonuc: { metin, delta: sonrasi.delta },
+    sonuc: { metin, delta: sonrasi.delta, ilerletme },
     panel: null,
   };
+
+  if (sure > 0) yamalar.saat = ilerletilmisSaat(get, sure);
 
   if (effect.nikotin !== undefined) {
     yamalar.nikotin = Math.max(0, Math.min(100, nikotin + effect.nikotin));
@@ -671,6 +758,20 @@ function uygulaEtki(
 
   set(yamalar);
   persist(get);
+}
+
+/** Bir eylemin süresi; blok bitişini aşmaz, gün bir anda ertesi güne kaymaz. */
+function ilerletilmisSaat(get: () => Store, dakika: number) {
+  const { gun, blokIndex, saat } = get();
+  const blok = gunGetir(gun)?.blocks[blokIndex];
+  if (!blok) return saat + dakika;
+  return Math.min(blokSonu(blok), saat + dakika);
+}
+
+/** Kayıttan dönerken ya da güne başlarken saatin doğal karşılığı. */
+function sahneninSaati(gun: number, blokIndex: number, sahneIndex: number) {
+  const blok = gunGetir(gun)?.blocks[blokIndex];
+  return blok ? sahneSaati(blok, sahneIndex) : dakikaya('05:30');
 }
 
 /** Sigara krizi büyüdükçe moral ve dikkat gider. */
@@ -703,6 +804,7 @@ function persist(get: () => Store) {
     gun: s.gun,
     blokIndex: s.blokIndex,
     sahneIndex: s.sahneIndex,
+    saat: s.saat,
     stats: s.stats,
     para: s.para,
     envanter: s.envanter,

@@ -7,8 +7,8 @@ export const gun05: Day = {
   blocks: [
     {
       id: 'd5-kalkis',
-      from: '05:30',
-      to: '06:00',
+      from: '06:00',
+      to: '06:30',
       title: 'Kalkış',
       sprite: 'ranzaDaginik',
       scenes: [
@@ -32,12 +32,18 @@ export const gun05: Day = {
                 ? 'Yetişti. Kenar bir daha çekildi ama kimse görmedi.'
                 : 'Bugün elin ağır. Onbaşı geçerken battaniyeye baktı.',
         },
+        {
+          kind: 'anlati',
+          id: 'd5-ko1',
+          sprite: 'postal',
+          text: 'Dolap düzeni, postal, askı. Beş günde bu işin kaç adım olduğunu öğrendin ve artık saymıyorsun.',
+        },
       ],
     },
     {
       id: 'd5-ictima',
-      from: '06:00',
-      to: '06:30',
+      from: '06:30',
+      to: '07:00',
       title: 'Sabah İçtiması',
       sprite: 'asker',
       scenes: [
@@ -65,9 +71,24 @@ export const gun05: Day = {
       ],
     },
     {
+      id: 'd5-mintika',
+      from: '07:00',
+      to: '07:30',
+      title: 'Mıntıka Temizliği',
+      sprite: 'postal',
+      scenes: [
+        {
+          kind: 'anlati',
+          id: 'd5-m1',
+          sprite: 'postal',
+          text: 'Avlu her sabah aynı avlu, izmaritler her sabah yeni. Beşinci günde artık nereye bakacağını biliyorsun.',
+        },
+      ],
+    },
+    {
       id: 'd5-kahvalti',
-      from: '06:30',
-      to: '07:00',
+      from: '07:30',
+      to: '08:30',
       title: 'Kahvaltı',
       sprite: 'tepsi',
       scenes: [
@@ -80,23 +101,8 @@ export const gun05: Day = {
       ],
     },
     {
-      id: 'd5-kogus',
-      from: '07:00',
-      to: '08:00',
-      title: 'Koğuş Düzeni',
-      sprite: 'postal',
-      scenes: [
-        {
-          kind: 'anlati',
-          id: 'd5-ko1',
-          sprite: 'postal',
-          text: 'Dolap düzeni, postal, askı. Beş günde bu işin kaç adım olduğunu öğrendin ve artık saymıyorsun.',
-        },
-      ],
-    },
-    {
       id: 'd5-ders',
-      from: '08:00',
+      from: '08:30',
       to: '12:00',
       title: 'ANT-41 Dersi',
       sprite: 'defter',
@@ -167,7 +173,7 @@ export const gun05: Day = {
     {
       id: 'd5-talim',
       from: '13:30',
-      to: '17:00',
+      to: '16:30',
       title: 'Uygulama',
       sprite: 'asker',
       scenes: [
@@ -201,8 +207,8 @@ export const gun05: Day = {
     },
     {
       id: 'd5-aksam-ictima',
-      from: '17:00',
-      to: '18:00',
+      from: '16:30',
+      to: '17:30',
       title: 'Akşam İçtiması',
       sprite: 'asker',
       scenes: [
@@ -217,8 +223,8 @@ export const gun05: Day = {
     },
     {
       id: 'd5-aksam-yemek',
-      from: '18:00',
-      to: '19:00',
+      from: '17:30',
+      to: '18:30',
       title: 'Akşam Yemeği',
       sprite: 'tepsi',
       scenes: [
@@ -232,7 +238,7 @@ export const gun05: Day = {
     },
     {
       id: 'd5-serbest',
-      from: '19:00',
+      from: '18:30',
       to: '21:00',
       title: 'Serbest Zaman',
       sprite: 'kunye',
