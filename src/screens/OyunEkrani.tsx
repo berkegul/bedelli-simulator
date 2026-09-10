@@ -153,7 +153,9 @@ export function OyunEkrani() {
                     mekan={sahne.mekan}
                     manzara={sahne.manzara}
                     saat={saate(g.saat)}
-                    onVardi={g.ileri}
+                    gun={g.gun}
+                    blokIndex={g.blokIndex}
+                    onVardi={g.yoldaVar}
                   />
                 ) : sahne.kind === "anlati" ? (
                   <PixelPanel style={{ padding: SP.lg }}>

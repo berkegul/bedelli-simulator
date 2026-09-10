@@ -1,9 +1,16 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, PanResponder, View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { BORDER, C, SP } from '../theme';
 import { sprite, type SpriteKey } from '../art';
 import { Siddet, secim, titret } from '../ui/haptik';
+import {
+  HAVA_METNI,
+  HAVA_YOL_NOTU,
+  ZEMIN_RENK,
+  havaDurumu,
+  zeminTipi,
+} from '../engine/hava';
 import { Gokyuzu } from '../ui/Gokyuzu';
 import { PixelSprite, spriteSize } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
@@ -27,6 +34,9 @@ type Props = {
   manzara: SpriteKey[];
   /** Bloğun saati; gökyüzünün rengini bu belirliyor. */
   saat: string;
+  /** Hava ve zemin bu ikisinden türetiliyor. */
+  gun: number;
+  blokIndex: number;
   onVardi: () => void;
 };
 
@@ -54,7 +64,13 @@ function parcayaIzdusum(p: Nokta, a: Nokta, b: Nokta) {
  * parmağınla takip ediyorsun: asker yolun neresindeysen orada, yoldan
  * çıkarsan ilerlemiyor. Bıraktığın yerden devam edebilirsin.
  */
-export function YolSahnesi({ hedef, adim, mekan, manzara, saat, onVardi }: Props) {
+export function YolSahnesi({ hedef, adim, mekan, manzara, saat, gun, blokIndex, onVardi }: Props) {
+  const hava = havaDurumu(gun, blokIndex);
+  const zemin = zeminTipi(gun, blokIndex);
+  const zeminRenk = ZEMIN_RENK[zemin];
+  // Sis ve yağmur manzarayı yutuyor: uzaktaki şeyler daha az görünüyor.
+  const manzaraOpaklik = hava === 'sisli' ? 0.22 : hava === 'yagmurlu' ? 0.38 : 0.5;
+  const yagmur = useRef(new Animated.Value(0)).current;
   const [en, setEn] = useState(0);
   const [solAyak, setSolAyak] = useState(true);
   const [basladi, setBasladi] = useState(false);
@@ -204,6 +220,21 @@ export function YolSahnesi({ hedef, adim, mekan, manzara, saat, onVardi }: Props
   const hedefYuk = hedefBoyu.h * 3;
   const son = yol?.noktalar[yol.noktalar.length - 1];
 
+  // Yağmur sürekli akıyor; yürüsen de dursan da.
+  useEffect(() => {
+    if (hava !== 'yagmurlu') return;
+    const dongu = Animated.loop(
+      Animated.timing(yagmur, {
+        toValue: 1,
+        duration: 620,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+    );
+    dongu.start();
+    return () => dongu.stop();
+  }, [hava, yagmur]);
+
   return (
     <View style={{ gap: SP.md }}>
       <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: SP.sm }}>
@@ -211,7 +242,7 @@ export function YolSahnesi({ hedef, adim, mekan, manzara, saat, onVardi }: Props
           {hedef.toLocaleUpperCase('tr-TR')}
         </PixelText>
         <PixelText size="micro" color={sapti ? C.rust : C.canvasFaint}>
-          {sapti ? 'yoldan çıktın' : basladi ? 'yürüyorsun' : 'rotayı parmağınla çiz'}
+          {sapti ? 'yoldan çıktın' : basladi ? 'yürüyorsun' : HAVA_METNI[hava]}
         </PixelText>
       </View>
 
@@ -238,10 +269,28 @@ export function YolSahnesi({ hedef, adim, mekan, manzara, saat, onVardi }: Props
           }}
         >
           <Svg width="100%" height="100%">
-            <Rect x="0" y="0" width="100%" height="100%" fill="#3A3421" />
+            <Rect x="0" y="0" width="100%" height="100%" fill={zeminRenk.ust} />
+            <Rect x="0" y="40%" width="100%" height="60%" fill={zeminRenk.alt} />
             <Rect x="0" y="0" width="100%" height={2} fill={C.line} />
-            <Rect x="0" y={10} width="100%" height={1} fill={C.ink} opacity={0.5} />
-            <Rect x="0" y={34} width="100%" height={1} fill={C.ink} opacity={0.4} />
+            {zemin === 'beton' ? (
+              <>
+                <Rect x="0" y={10} width="100%" height={1} fill={C.ink} opacity={0.5} />
+                <Rect x="0" y={34} width="100%" height={1} fill={C.ink} opacity={0.4} />
+              </>
+            ) : (
+              // Toprak ve çakılda düz derz yok, serpiştirilmiş iz var
+              Array.from({ length: 16 }, (_, i) => (
+                <Rect
+                  key={i}
+                  x={`${(i * 6.5 + ((gun + blokIndex) % 6)) % 98}%`}
+                  y={6 + ((i * 11) % 44)}
+                  width={zemin === 'cakil' ? 3 : 6}
+                  height={2}
+                  fill={C.ink}
+                  opacity={0.32}
+                />
+              ))
+            )}
           </Svg>
         </View>
 
@@ -253,7 +302,7 @@ export function YolSahnesi({ hedef, adim, mekan, manzara, saat, onVardi }: Props
               position: 'absolute',
               left: `${8 + i * (76 / Math.max(1, manzara.length - 1 || 1))}%`,
               top: SAHNE_YUKSEKLIK * UFUK - 26,
-              opacity: 0.55,
+              opacity: manzaraOpaklik,
               transform: [
                 {
                   translateX: ilerleme.interpolate({
@@ -380,6 +429,57 @@ export function YolSahnesi({ hedef, adim, mekan, manzara, saat, onVardi }: Props
           </View>
         )}
 
+        {/* Sis: ufuktan aşağı inen soluk perde */}
+        {hava === 'sisli' && (
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: C.canvasFaint,
+              opacity: 0.2,
+            }}
+          />
+        )}
+
+        {/* Yağmur: eğik çizgiler, sürekli akıyor */}
+        {hava === 'yagmurlu' && (
+          <Animated.View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              top: -18,
+              left: 0,
+              right: 0,
+              height: SAHNE_YUKSEKLIK + 18,
+              transform: [
+                { translateY: yagmur.interpolate({ inputRange: [0, 1], outputRange: [0, 18] }) },
+              ],
+            }}
+          >
+            <Svg width="100%" height={SAHNE_YUKSEKLIK + 18}>
+              {Array.from({ length: 30 }, (_, i) => {
+                const x = (i * 17 + (i % 3) * 5) % 100;
+                const y = (i * 23) % (SAHNE_YUKSEKLIK - 6);
+                return (
+                  <Rect
+                    key={i}
+                    x={`${x}%`}
+                    y={y}
+                    width={1}
+                    height={7}
+                    fill={C.steel}
+                    opacity={0.45}
+                  />
+                );
+              })}
+            </Svg>
+          </Animated.View>
+        )}
+
         {/* Dokunma katmanı en üstte: konum hep sahneye göre ölçülüyor */}
         <View
           {...pan.panHandlers}
@@ -388,6 +488,10 @@ export function YolSahnesi({ hedef, adim, mekan, manzara, saat, onVardi }: Props
           style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
         />
       </View>
+
+      <PixelText size="micro" color={C.canvasFaint} center>
+        {HAVA_YOL_NOTU[hava]}
+      </PixelText>
 
       {/* Ne kadarı geride kaldı */}
       <View style={{ height: 8, backgroundColor: C.ink, borderWidth: 1, borderColor: C.line }}>

@@ -28,6 +28,7 @@ import type {
   Stats,
 } from '../engine/types';
 import { gunOynanabilirMi } from '../monetization/entitlements';
+import { havaDurumu, havaEtkisi } from '../engine/hava';
 import { yonelme } from '../engine/turkce';
 
 export type Ekran =
@@ -123,6 +124,7 @@ type Store = {
   arkadasaGit: (id: ArkadasId) => void;
   sigaraVer: (ver: boolean) => void;
   golgedeDinlen: () => void;
+  yoldaVar: () => void;
   sigaraIc: () => void;
   izmaritKarar: (yereAt: boolean) => void;
   izmaritCezasiBitir: () => void;
@@ -529,6 +531,21 @@ export const useGame = create<Store>((set, get) => ({
       aktifIstek: null,
       aktifDiyalog: havuz.length ? havuz[Math.floor(Math.random() * havuz.length)] : null,
     });
+  },
+
+  /**
+   * Yürüyüş bitti. Havanın bedeli burada ödeniyor — yağmurda yürümek
+   * bedava değil, açık havada yürümek iyi geliyor. Etki sessiz uygulanıyor,
+   * sonuç kartı çıkarmıyor: her yolda kart göstermek akışı boğuyordu.
+   */
+  yoldaVar() {
+    const { gun, blokIndex, stats, para } = get();
+    const etki = havaEtkisi(havaDurumu(gun, blokIndex));
+    if (Object.keys(etki).length) {
+      const sonrasi = applyEffect(stats, para, etki);
+      set({ stats: sonrasi.stats, para: sonrasi.para });
+    }
+    get().ileri();
   },
 
   /** Avludaki ağacın altında kısa mola. Günde bir kez işe yarıyor. */
