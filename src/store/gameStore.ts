@@ -64,7 +64,8 @@ export type Ekran =
   | 'oyun'
   | 'gunSonu'
   | 'kilit'
-  | 'icerikSonu';
+  | 'icerikSonu'
+  | 'gelistirme';
 
 /** Oyun ekranının üstüne açılan panel — sahne akışını bozmadan geri dönülür. */
 export type Panel = null | 'kantin' | 'dolap' | 'rehber' | 'muhabbet' | 'sigaraIstegi' | 'ant41' | 'oturma' | 'cep' | 'izmarit' | 'izmaritCezasi' | 'gorusme';
@@ -120,7 +121,7 @@ const NIKOTIN_ARTIS = 9;
 
 const BOS_DOSTLUK: Record<ArkadasId, number> = { emre: 0, tolga: 0, serkan: 0 };
 
-type Store = {
+export type Store = {
   ekran: Ekran;
   panel: Panel;
   hazir: boolean;
@@ -174,6 +175,11 @@ type Store = {
   gelenArama: { rol: Rol; kisiId: string } | null;
   /** Telefonun yokken gelen aramalar: nöbetçi haber veriyor, sen geri arıyorsun. */
   bekleyenArama: Rol[];
+  /**
+   * Geliştirme alanından bir yere atlandı mı. Doğruysa ekranın üstünde
+   * geri dönüş rozeti duruyor; oyunun kendi akışına dokunmuyor.
+   */
+  gelistirmeDonus: boolean;
 
   ilkYukleme: () => Promise<void>;
   yeniOyun: () => Promise<void>;
@@ -188,6 +194,10 @@ type Store = {
   carsiyiBitir: () => void;
   devamEt: () => void;
   anaMenu: () => void;
+  gelistirmeAc: () => void;
+  gelistirmeyeDon: () => void;
+  /** Geliştirme alanından oyuna atlama; dönüş rozetini de kuruyor. */
+  gelistirmeAtla: (p: Partial<Store>) => void;
   gunuBaslat: () => void;
   ileri: () => void;
   secimYap: (c: Choice) => void;
@@ -248,6 +258,7 @@ const ilkDurum = {
   sevgiliVar: true,
   gelenArama: null as { rol: Rol; kisiId: string } | null,
   bekleyenArama: [] as Rol[],
+  gelistirmeDonus: false,
 };
 
 export const useGame = create<Store>((set, get) => ({
@@ -373,7 +384,27 @@ export const useGame = create<Store>((set, get) => ({
   },
 
   anaMenu() {
-    set({ ekran: 'menu', panel: null });
+    set({ ekran: 'menu', panel: null, gelistirmeDonus: false });
+  },
+
+  gelistirmeAc() {
+    set({ ekran: 'gelistirme', panel: null, gelistirmeDonus: false });
+  },
+
+  gelistirmeyeDon() {
+    set({
+      ekran: 'gelistirme',
+      panel: null,
+      sonuc: null,
+      miniAktif: false,
+      aktifGorusme: null,
+      aktifDiyalog: null,
+      gelistirmeDonus: false,
+    });
+  },
+
+  gelistirmeAtla(p) {
+    set({ ...p, gelistirmeDonus: true, panel: null, sonuc: null, miniAktif: false });
   },
 
   gunuBaslat() {

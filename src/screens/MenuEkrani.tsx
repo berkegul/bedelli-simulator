@@ -10,6 +10,7 @@ import { CentikTakvim } from '../ui/CentikTakvim';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
+import { GELISTIRME_ACIK } from '../gelistirme/ayar';
 
 export function MenuEkrani() {
   const g = useGame();
@@ -51,6 +52,15 @@ export function MenuEkrani() {
           onPress={() => void g.yeniOyun()}
         />
       </View>
+
+      {GELISTIRME_ACIK && (
+        <View style={{ gap: SP.xs }}>
+          <PixelButton label="Geliştirme kontrol alanı" tur="sessiz" onPress={g.gelistirmeAc} />
+          <PixelText size="micro" color={C.canvasFaint} center>
+            Bütün mekanizmalar tek tek · yayın derlemesinde görünmez
+          </PixelText>
+        </View>
+      )}
 
       <View style={{ gap: SP.md, alignItems: 'center' }}>
         <CentikTakvim

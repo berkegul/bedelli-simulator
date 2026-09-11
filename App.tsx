@@ -22,6 +22,8 @@ import { OyunEkrani } from './src/screens/OyunEkrani';
 import { GunSonuEkrani } from './src/screens/GunSonuEkrani';
 import { KilitEkrani } from './src/screens/KilitEkrani';
 import { IcerikSonuEkrani } from './src/screens/IcerikSonuEkrani';
+import { GelistirmeEkrani } from './src/gelistirme/GelistirmeEkrani';
+import { GelistirmeRozeti } from './src/gelistirme/GelistirmeRozeti';
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -60,6 +62,8 @@ export default function App() {
         {ekran === 'gunSonu' && <GunSonuEkrani />}
         {ekran === 'kilit' && <KilitEkrani />}
         {ekran === 'icerikSonu' && <IcerikSonuEkrani />}
+        {ekran === 'gelistirme' && <GelistirmeEkrani />}
+        <GelistirmeRozeti />
       </View>
     </SafeAreaProvider>
   );

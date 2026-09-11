@@ -25,7 +25,7 @@ const OGUN_EKI: Record<string, OgunAdi> = {
  * Yemekhane ve avlu da dahil: içtimadan sofraya ışınlanmıyorsun, yürüyorsun.
  * Yol kısa tutuluyor, günde üç öğün var.
  */
-const YOLLAR: Record<
+export const YOLLAR: Record<
   string,
   { hedef: string; adim: number; mekan: SpriteKey; manzara: SpriteKey[] }
 > = {
