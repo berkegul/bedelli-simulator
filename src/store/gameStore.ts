@@ -15,6 +15,7 @@ import { kaydet, sil, yukle } from '../engine/save';
 import { blokSonu, dakikaya, sahneSaati } from '../engine/zaman';
 import { olayYaz } from '../engine/bulut';
 import { sigaraIzni, telefonIzni } from '../engine/kurallar';
+import { YAKINLIK_KISA, konusmaSec, type TelefonKonusma } from '../content/telefon';
 import type {
   ArkadasId,
   Choice,
@@ -26,6 +27,7 @@ import type {
   RehberKisi,
   Scene,
   Stats,
+  YakinlikTuru,
 } from '../engine/types';
 import { gunOynanabilirMi } from '../monetization/entitlements';
 import { havaDurumu, havaEtkisi } from '../engine/hava';
@@ -43,7 +45,7 @@ export type Ekran =
   | 'icerikSonu';
 
 /** Oyun ekranının üstüne açılan panel — sahne akışını bozmadan geri dönülür. */
-export type Panel = null | 'kantin' | 'dolap' | 'rehber' | 'muhabbet' | 'sigaraIstegi' | 'ant41' | 'oturma' | 'cep' | 'izmarit' | 'izmaritCezasi';
+export type Panel = null | 'kantin' | 'dolap' | 'rehber' | 'muhabbet' | 'sigaraIstegi' | 'ant41' | 'oturma' | 'cep' | 'izmarit' | 'izmaritCezasi' | 'gorusme';
 
 export type Sonuc = {
   metin: string;
@@ -96,11 +98,17 @@ type Store = {
   bugunDinlenildi: boolean;
   /** Cepte biriken izmarit; yere atmak yerine saklayınca artıyor. */
   cepteIzmarit: number;
+  /** Süren telefon görüşmesi. */
+  aktifGorusme: { kisiId: string; konusma: TelefonKonusma; ankesor: boolean } | null;
+  /** Tekrar eden konuşmaları elemek için. */
+  gorulmusKonusmalar: string[];
 
   ilkYukleme: () => Promise<void>;
   yeniOyun: () => Promise<void>;
   profilKaydet: (ad: string, sigaraIciyor: boolean) => void;
-  kisiEkle: (ad: string, yakinlik: string) => void;
+  kisiEkle: (ad: string, yakinlik: string, tur: YakinlikTuru) => void;
+  gorusmeCevapla: (index: number) => void;
+  gorusmeKapat: () => void;
   kisiSil: (id: string) => void;
   carsiyiBitir: () => void;
   devamEt: () => void;
@@ -155,6 +163,8 @@ const ilkDurum = {
   bugunIsteyenler: [] as ArkadasId[],
   bugunDinlenildi: false,
   cepteIzmarit: 0,
+  aktifGorusme: null as Store['aktifGorusme'],
+  gorulmusKonusmalar: [] as string[],
 };
 
 export const useGame = create<Store>((set, get) => ({
@@ -200,11 +210,19 @@ export const useGame = create<Store>((set, get) => ({
     persist(get);
   },
 
-  kisiEkle(ad, yakinlik) {
+  kisiEkle(ad, yakinlik, tur) {
     const temiz = ad.trim();
     if (!temiz) return;
     set({
-      rehber: [...get().rehber, { id: `k${Date.now()}`, ad: temiz, yakinlik: yakinlik.trim() || 'Yakınım' }],
+      rehber: [
+        ...get().rehber,
+        {
+          id: `k${Date.now()}`,
+          ad: temiz,
+          yakinlik: yakinlik.trim() || YAKINLIK_KISA[tur],
+          tur,
+        },
+      ],
     });
     persist(get);
   },
@@ -440,8 +458,13 @@ export const useGame = create<Store>((set, get) => ({
     uygulaEtki(set, get, toplam, `Tepsiden ${adlar} yedin.`, 18);
   },
 
+  /**
+   * Arama. Kendi telefonun varsa kontör gerekmiyor — hattın sende, paket
+   * senin. Kontör yalnızca ankesör için: telefonsuz kalanın tek yolu o.
+   * Konuşmanın kendisi panelde geçiyor, kiminle konuştuğuna göre değişiyor.
+   */
   kisiAra(id) {
-    const { rehber, envanter, gun, blokIndex, miniAktif, profil } = get();
+    const { rehber, envanter, gun, blokIndex, miniAktif } = get();
     const kisi = rehber.find((k) => k.id === id);
     if (!kisi) return;
 
@@ -454,50 +477,70 @@ export const useGame = create<Store>((set, get) => ({
     const telefonVar = (envanter.kamerasizTelefon?.adet ?? 0) > 0;
     const kontor = envanter.kontor?.adet ?? 0;
 
-    // Telefonu olmayan ankesör kuyruğuna giriyor: daha uzun, daha yorucu.
+    // Ankesör kartı yalnızca kendi telefonu olmayan için gerekli.
     if (!telefonVar) {
-      uygulaEtki(
-        set,
-        get,
-        { moral: 11, enerji: -9, para: -15 },
-        `Ankesör kuyruğunda kırk dakika bekleyip ${kisi.ad} ile üç dakika konuştun.`,
-        43,
-        false,
-      );
-    } else if (kontor <= 0) {
-      uygulaEtki(
-        set,
-        get,
-        { moral: -4 },
-        'Kontörün bitmiş. Kantinden almadan arayamazsın.',
-        0,
-        false,
-      );
-      return;
-    } else {
+      if (kontor <= 0) {
+        uygulaEtki(
+          set,
+          get,
+          { moral: -4 },
+          'Ankesör kartın bitmiş. Kantinden almadan bu telefondan arayamazsın.',
+          0,
+          false,
+        );
+        return;
+      }
       const yeniEnv: Envanter = { ...envanter };
       if (kontor - 1 <= 0) delete yeniEnv.kontor;
       else yeniEnv.kontor = { ...envanter.kontor!, adet: kontor - 1 };
       set({ envanter: yeniEnv });
-
-      // Aynı kişiyi her gün aramak ilk seferki kadar iyi gelmiyor.
-      const tazelik = kisi.sonArananGun === gun ? 0.35 : 1;
-      uygulaEtki(
-        set,
-        get,
-        { moral: Math.round(14 * tazelik), enerji: -4 },
-        tazelik === 1
-          ? `${kisi.ad} ile konuştun. "${profil.ad || 'Oğlum'}, sesin iyi geliyor" dedi.`
-          : `${kisi.ad} bugün ikinci kez seni duydu. Yine de iyi geldi.`,
-        9,
-        false,
-      );
     }
 
+    const konusma = konusmaSec(kisi.tur ?? 'arkadas', get().gorulmusKonusmalar);
+    if (!konusma) return;
+
     set({
+      aktifGorusme: { kisiId: id, konusma, ankesor: !telefonVar },
+      panel: 'gorusme',
       rehber: get().rehber.map((k) => (k.id === id ? { ...k, sonArananGun: gun } : k)),
     });
     persist(get);
+  },
+
+  gorusmeCevapla(index) {
+    const gorusme = get().aktifGorusme;
+    if (!gorusme) return;
+    const secenek = gorusme.konusma.secenekler[index];
+    if (!secenek) return;
+
+    const kisi = get().rehber.find((k) => k.id === gorusme.kisiId);
+    // Aynı kişiyi aynı gün ikinci kez aramak ilk seferki kadar iyi gelmiyor.
+    const ikinciKez = kisi?.sonArananGun === get().gun && get().gorulmusKonusmalar.length > 0;
+    const tazelik = ikinciKez ? 0.5 : 1;
+
+    set({
+      aktifGorusme: null,
+      panel: null,
+      gorulmusKonusmalar: [...get().gorulmusKonusmalar, gorusme.konusma.id],
+    });
+
+    uygulaEtki(
+      set,
+      get,
+      {
+        moral: Math.round(secenek.moral * tazelik),
+        // Ankesör kuyruğu hem yoruyor hem para yakıyor.
+        enerji: (secenek.enerji ?? 0) - (gorusme.ankesor ? 8 : 3),
+        para: gorusme.ankesor ? -10 : 0,
+      },
+      `${secenek.cevap}\n\n${gorusme.konusma.kapanis}`,
+      gorusme.ankesor ? 43 : 9,
+      false,
+    );
+  },
+
+  gorusmeKapat() {
+    set({ aktifGorusme: null, panel: null });
   },
 
   muhabbetBaslat() {

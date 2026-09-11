@@ -5,6 +5,7 @@ import { BORDER, C, SP } from '../theme';
 import { sprite, type SpriteKey } from '../art';
 import { gunGetir } from '../content';
 import { arkadas, oturmaAlanindakiler } from '../content/arkadaslar';
+import { YAKINLIK_KISA } from '../content/telefon';
 import { sigaraIzni, telefonIzni } from '../engine/kurallar';
 import type { ArkadasId } from '../engine/types';
 import { KALITE_ADI, esya, kullanilabilirler } from '../content/esyalar';
@@ -13,8 +14,10 @@ import { DukkanListesi } from '../ui/DukkanListesi';
 import { DersSahnesi } from './DersSahnesi';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelInput } from '../ui/PixelInput';
+import { YakinlikSecici } from '../ui/YakinlikSecici';
 import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
+import type { YakinlikTuru } from '../engine/types';
 
 const ARKADAS_SPRITE: Record<ArkadasId, 'askerEmre' | 'askerTolga' | 'askerSerkan'> = {
   emre: 'askerEmre',
@@ -189,6 +192,7 @@ export function RehberPaneli() {
   const g = useGame();
   const [ad, setAd] = useState('');
   const [yakinlik, setYakinlik] = useState('');
+  const [tur, setTur] = useState<YakinlikTuru>('ebeveyn');
   const telefonVar = (g.envanter.kamerasizTelefon?.adet ?? 0) > 0;
   const kontor = g.envanter.kontor?.adet ?? 0;
   const izin = telefonIzni(gunGetir(g.gun)?.blocks[g.blokIndex]?.id, g.miniAktif);
@@ -196,7 +200,11 @@ export function RehberPaneli() {
   return (
     <PanelKabuk
       baslik="REHBER"
-      alt={telefonVar ? `Kontör: ${kontor}` : 'Telefonun yok — ankesör kuyruğu'}
+      alt={
+        telefonVar
+          ? 'Kendi telefonun · kontör gerekmiyor'
+          : `Ankesör · ${kontor} kart kaldı`
+      }
     >
       {!izin.olur && (
         <View style={{ borderWidth: BORDER, borderColor: C.rust, padding: SP.md }}>
@@ -212,7 +220,7 @@ export function RehberPaneli() {
         <View style={{ borderWidth: BORDER, borderColor: C.rust, padding: SP.md }}>
           <PixelText size="small" color={C.canvasDim} line="snug">
             Kamerasız telefon almadın. Aramak için ankesör kuyruğuna gireceksin:
-            daha uzun, daha yorucu ve her seferinde parası var.
+            her arama bir ankesör kartı yakar, kırk dakika kuyruk ve parası var.
           </PixelText>
         </View>
       )}
@@ -241,7 +249,13 @@ export function RehberPaneli() {
                   {k.ad}
                 </PixelText>
                 <PixelText size="micro" color={C.canvasFaint}>
-                  {k.sonArananGun === g.gun ? `${k.yakinlik} · bugün arandı` : k.yakinlik}
+                  {[
+                    k.yakinlik,
+                    k.tur ? YAKINLIK_KISA[k.tur].toLocaleLowerCase('tr-TR') : null,
+                    k.sonArananGun === g.gun ? 'bugün arandı' : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
                 </PixelText>
               </View>
               <Pressable
@@ -277,11 +291,14 @@ export function RehberPaneli() {
             <PixelInput value={yakinlik} onChangeText={setYakinlik} placeholder="Yakınlık" maxLength={14} />
           </View>
         </View>
+
+        <YakinlikSecici secili={tur} onSec={setTur} />
+
         <PixelButton
           label="Rehbere ekle"
           tur="sessiz"
           onPress={() => {
-            g.kisiEkle(ad, yakinlik);
+            g.kisiEkle(ad, yakinlik, tur);
             setAd('');
             setYakinlik('');
           }}
@@ -299,7 +316,6 @@ export function CepPaneli() {
   const g = useGame();
   const telefonVar = (g.envanter.kamerasizTelefon?.adet ?? 0) > 0;
   const dal = g.envanter.sigara?.adet ?? 0;
-  const kontor = g.envanter.kontor?.adet ?? 0;
   // Cep her yerden açılır ama içindekiler her yerde kullanılmaz.
   const blokId = gunGetir(g.gun)?.blocks[g.blokIndex]?.id;
   const sigaraOk = sigaraIzni(blokId, g.miniAktif);
@@ -319,11 +335,8 @@ export function CepPaneli() {
       id: 'telefon',
       sprite: 'telefon',
       ad: 'Kamerasız telefon',
-      alt: !telefonOk.olur
-        ? telefonOk.sebep!
-        : kontor > 0
-          ? `${kontor} kontör · rehberi aç`
-          : 'Kontörün bitti',
+      // Kendi telefonun: kontör yok, hattın sende.
+      alt: !telefonOk.olur ? telefonOk.sebep! : 'Rehberi aç · kontör gerekmiyor',
       kapali: !telefonOk.olur,
       onPress: () => g.panelAc('rehber'),
     });
@@ -575,6 +588,63 @@ export function OturmaAlaniPaneli() {
 
       <PixelText size="micro" color={C.canvasFaint} center line="snug">
         Oturmak günde bir kez dinlendirir. Konuşmanın sayısı yoktur.
+      </PixelText>
+    </PanelKabuk>
+  );
+}
+
+/**
+ * Telefon görüşmesi. Karşı taraf kim olduğuna göre başka konuşuyor:
+ * anneyle yemek ve üşüme, sevgiliyle özlem, kankayla dalga. Ne cevap
+ * verdiğin de morali değiştiriyor.
+ */
+export function GorusmePaneli() {
+  const g = useGame();
+  const gorusme = g.aktifGorusme;
+  if (!gorusme) return null;
+
+  const kisi = g.rehber.find((k) => k.id === gorusme.kisiId);
+  if (!kisi) return null;
+
+  const tur = kisi.tur ?? 'arkadas';
+  // Açılış cümlesinde oyuncunun adı geçiyor.
+  const acilis = gorusme.konusma.acilis.replace(/\{ad\}/g, g.profil.ad || 'evlat');
+
+  return (
+    <PanelKabuk
+      baslik={kisi.ad.toLocaleUpperCase('tr-TR')}
+      alt={`${YAKINLIK_KISA[tur]} · ${gorusme.ankesor ? 'ankesörden' : 'cep telefonundan'}`}
+    >
+      <View style={{ alignItems: 'center', gap: SP.xs }}>
+        <PixelSprite sprite={sprite(gorusme.ankesor ? 'ankesor' : 'telefon')} scale={4} />
+        <PixelText size="micro" color={C.canvasFaint} style={{ marginTop: SP.sm }}>
+          {gorusme.ankesor ? 'Kuyrukta kırk dakika, konuşmada üç dakika' : 'Hat açık'}
+        </PixelText>
+      </View>
+
+      <View
+        style={{
+          borderWidth: BORDER,
+          borderColor: C.line,
+          backgroundColor: C.surface,
+          padding: SP.lg,
+        }}
+      >
+        <PixelText size="lead" color={C.canvas} line="body">
+          {acilis}
+        </PixelText>
+      </View>
+
+      <View style={{ gap: SP.sm }}>
+        {gorusme.konusma.secenekler.map((sec, i) => (
+          <PixelButton key={i} tur="secim" label={sec.label} onPress={() => g.gorusmeCevapla(i)} />
+        ))}
+      </View>
+
+      <PixelText size="micro" color={C.canvasFaint} center line="snug">
+        {gorusme.ankesor
+          ? 'Arkanda kuyruk var, uzatma.'
+          : 'Kendi telefonun; kontör yakmıyorsun.'}
       </PixelText>
     </PanelKabuk>
   );

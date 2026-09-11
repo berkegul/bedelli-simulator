@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import Svg, { Circle, Rect } from 'react-native-svg';
+import Svg, { Rect } from 'react-native-svg';
 import { C } from '../theme';
 import { PixelSprite } from './PixelSprite';
 import { sprite } from '../art';

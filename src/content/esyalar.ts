@@ -181,8 +181,9 @@ export const ESYALAR: EsyaTanim[] = [
   // ── Kantin ─────────────────────────────────────────────────────────
   {
     id: 'kontor',
-    ad: 'Kontör',
-    aciklama: 'Konuşma kredisi. Her arama bir kontör yakar.',
+    ad: 'Ankesör kartı',
+    aciklama:
+      'Ankesörlü telefon için kontör kartı. Kendi telefonun varsa gerekmez — bu, telefonsuz kalanın tek yolu.',
     fiyat: 60,
     sprite: 'kontor',
     nerede: ['hazirlik', 'kantin'],

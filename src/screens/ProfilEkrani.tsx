@@ -6,8 +6,10 @@ import { SPRITES } from '../art';
 import { useGame } from '../store/gameStore';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelInput } from '../ui/PixelInput';
+import { YakinlikSecici } from '../ui/YakinlikSecici';
 import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
+import type { YakinlikTuru } from '../engine/types';
 
 /** Kışlaya girmeden önce: kimsin, sigara içiyor musun, kimleri arayacaksın. */
 export function ProfilEkrani() {
@@ -17,6 +19,7 @@ export function ProfilEkrani() {
   const [sigara, setSigara] = useState(g.profil.sigaraIciyor);
   const [kisiAd, setKisiAd] = useState('');
   const [kisiYakinlik, setKisiYakinlik] = useState('');
+  const [kisiTur, setKisiTur] = useState<YakinlikTuru>('ebeveyn');
 
   return (
     <ScrollView
@@ -143,11 +146,14 @@ export function ProfilEkrani() {
             />
           </View>
         </View>
+
+        <YakinlikSecici secili={kisiTur} onSec={setKisiTur} />
+
         <PixelButton
           label="Rehbere ekle"
           tur="sessiz"
           onPress={() => {
-            g.kisiEkle(kisiAd, kisiYakinlik);
+            g.kisiEkle(kisiAd, kisiYakinlik, kisiTur);
             setKisiAd('');
             setKisiYakinlik('');
           }}

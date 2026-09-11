@@ -16,6 +16,7 @@ import { OyunKabugu } from "./OyunKabugu";
 import {
   Ant41Paneli,
   CepPaneli,
+  GorusmePaneli,
   IzmaritCezasiPaneli,
   IzmaritPaneli,
   KantinPaneli,
@@ -283,6 +284,7 @@ export function OyunEkrani() {
       {g.panel === "cep" && <CepPaneli />}
       {g.panel === "izmarit" && <IzmaritPaneli />}
       {g.panel === "izmaritCezasi" && <IzmaritCezasiPaneli />}
+      {g.panel === "gorusme" && <GorusmePaneli />}
     </>
   );
 }

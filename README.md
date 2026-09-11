@@ -82,6 +82,27 @@ tanınıp `src/content/index.ts` içinde otomatik eklenir:
 
   **Cep**: telefon ve sigara avluda bir yerde değil, üstünde. Dolap koğuşta
   kalır, cep seninle gelir.
+
+### Telefon
+
+Kendi kamerasız telefonun varsa **kontör gerekmiyor** — hat sende, cepten
+ararsın. Kontör (ankesör kartı) yalnızca telefonu olmayanın işine yarıyor:
+avludaki ankesöre gidip kart yakarsın, kırk dakika kuyruk ve parası var.
+Çarşıda telefon almamanın 28 günlük bedeli burada çıkıyor.
+
+Konuşmanın kendisi kiminle konuştuğuna göre değişiyor. Rehbere kişi
+eklerken bir **yakınlık türü** seçiliyor (ebeveyn, sevgili, eş, kardeş,
+arkadaş) ve `src/content/telefon.ts` her tür için ayrı diyalog havuzu
+tutuyor:
+
+- **Ebeveyn** yemek ve üşüme sorar, baban telefonda rahat değildir
+- **Sevgili** özler, aramadığın gün kırılır
+- **Eş** evden haber verir, çocuk kapıya bakar
+- **Kardeş** dalga geçer
+- **Arkadaş** "lan" der
+
+Her konuşmada 2–3 cevap seçeneği var ve seçtiğin cevap morali değiştiriyor;
+aynı konuşma üst üste çıkmıyor. Açılış cümlesinde oyuncunun adı geçiyor.
 - **Tanıtım** (yalnızca sevk günü): bölge turu. Koğuş, yemekhane, kantin,
   revir, içtima alanı ve nizamiye haritada gezilir, her biri ne işe yaradığını
   anlatır. Hepsi gezilmeden tur bitmez.

@@ -78,10 +78,19 @@ export type Profil = {
   sigaraIciyor: boolean;
 };
 
+/**
+ * Kiminle konuştuğun nasıl konuştuğunu belirliyor: anneyle "iyi misin
+ * oğlum", sevgiliyle "özledim", kankayla "naber lan" konuşuluyor.
+ */
+export type YakinlikTuru = 'ebeveyn' | 'sevgili' | 'es' | 'kardes' | 'arkadas';
+
 export type RehberKisi = {
   id: string;
   ad: string;
+  /** Ekranda görünen serbest etiket: "Annem", "İrem", "Dayı". */
   yakinlik: string;
+  /** Diyalogların tonunu belirleyen kategori. Eski kayıtlarda olmayabilir. */
+  tur?: YakinlikTuru;
   /** Son arandığı gün; her gün aranmak etkisini azaltır. */
   sonArananGun?: number;
 };
