@@ -1,23 +1,28 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BORDER, C, SP } from '../theme';
 import { sprite, type SpriteKey } from '../art';
 import { gunGetir } from '../content';
 import { arkadas, oturmaAlanindakiler } from '../content/arkadaslar';
-import { YAKINLIK_KISA } from '../content/telefon';
+import {
+  KAYIT_ADI,
+  ROL_ADI,
+  TUM_GORUSMELER,
+  secenekleriHazirla,
+} from '../content/telefon';
 import { sigaraIzni, telefonIzni } from '../engine/kurallar';
 import type { ArkadasId } from '../engine/types';
 import { KALITE_ADI, esya, kullanilabilirler } from '../content/esyalar';
-import { useGame } from '../store/gameStore';
+import { telefonDurumuOku, useGame } from '../store/gameStore';
 import { DukkanListesi } from '../ui/DukkanListesi';
 import { DersSahnesi } from './DersSahnesi';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelInput } from '../ui/PixelInput';
-import { YakinlikSecici } from '../ui/YakinlikSecici';
+import { KayitSecici } from '../ui/KayitSecici';
 import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
-import type { YakinlikTuru } from '../engine/types';
+import type { KayitRolu, Rol } from '../engine/types';
 
 const ARKADAS_SPRITE: Record<ArkadasId, 'askerEmre' | 'askerTolga' | 'askerSerkan'> = {
   emre: 'askerEmre',
@@ -26,7 +31,20 @@ const ARKADAS_SPRITE: Record<ArkadasId, 'askerEmre' | 'askerTolga' | 'askerSerka
 };
 
 /** Oyun ekranının üstüne binen tam ekran panel; sahne akışı bozulmaz. */
-function PanelKabuk({ baslik, alt, children }: { baslik: string; alt?: string; children: React.ReactNode }) {
+function PanelKabuk({
+  baslik,
+  alt,
+  children,
+  kapat,
+  kapatLabel = 'Geri dön',
+}: {
+  baslik: string;
+  alt?: string;
+  children: React.ReactNode;
+  /** Görüşme paneli gibi kapanışı kendi yöneten paneller için. */
+  kapat?: () => void;
+  kapatLabel?: string;
+}) {
   const g = useGame();
   const inset = useSafeAreaInsets();
 
@@ -65,7 +83,11 @@ function PanelKabuk({ baslik, alt, children }: { baslik: string; alt?: string; c
       </ScrollView>
 
       <View style={{ padding: SP.lg, paddingBottom: inset.bottom + SP.lg, backgroundColor: C.ink }}>
-        <PixelButton label="Geri dön" tur="sessiz" onPress={() => g.panelAc(null)} />
+        <PixelButton
+          label={kapatLabel}
+          tur="sessiz"
+          onPress={kapat ?? (() => g.panelAc(null))}
+        />
       </View>
     </View>
   );
@@ -192,7 +214,7 @@ export function RehberPaneli() {
   const g = useGame();
   const [ad, setAd] = useState('');
   const [yakinlik, setYakinlik] = useState('');
-  const [tur, setTur] = useState<YakinlikTuru>('ebeveyn');
+  const [tur, setTur] = useState<KayitRolu>('ev');
   const telefonVar = (g.envanter.kamerasizTelefon?.adet ?? 0) > 0;
   const kontor = g.envanter.kontor?.adet ?? 0;
   const izin = telefonIzni(gunGetir(g.gun)?.blocks[g.blokIndex]?.id, g.miniAktif);
@@ -251,7 +273,10 @@ export function RehberPaneli() {
                 <PixelText size="micro" color={C.canvasFaint}>
                   {[
                     k.yakinlik,
-                    k.tur ? YAKINLIK_KISA[k.tur].toLocaleLowerCase('tr-TR') : null,
+                    // Etiket zaten rolün adıysa iki kere yazmanın anlamı yok.
+                    k.rol && k.yakinlik !== KAYIT_ADI[k.rol]
+                      ? KAYIT_ADI[k.rol].toLocaleLowerCase('tr-TR')
+                      : null,
                     k.sonArananGun === g.gun ? 'bugün arandı' : null,
                   ]
                     .filter(Boolean)
@@ -292,7 +317,11 @@ export function RehberPaneli() {
           </View>
         </View>
 
-        <YakinlikSecici secili={tur} onSec={setTur} />
+        <KayitSecici
+          secili={tur}
+          onSec={setTur}
+          devreDisi={g.rehber.some((k) => k.rol === 'ev') ? ['ev'] : []}
+        />
 
         <PixelButton
           label="Rehbere ekle"
@@ -598,55 +627,137 @@ export function OturmaAlaniPaneli() {
  * anneyle yemek ve üşüme, sevgiliyle özlem, kankayla dalga. Ne cevap
  * verdiğin de morali değiştiriyor.
  */
+/**
+ * Görüşme: tek kart değil, biriken bir transkript.
+ * Söylenen her şey ekranda kalıyor — uzun bir konuşmanın uzun hissettirmesi
+ * ve geriye dönüp "ne demiştim" diye bakabilmek için. Etkiler konuşma
+ * boyunca gizli birikiyor, kapanışta bir kere işleniyor.
+ */
 export function GorusmePaneli() {
   const g = useGame();
   const gorusme = g.aktifGorusme;
-  if (!gorusme) return null;
+  const kaydirma = useRef<ScrollView>(null);
 
+  if (!gorusme) return null;
   const kisi = g.rehber.find((k) => k.id === gorusme.kisiId);
   if (!kisi) return null;
 
-  const tur = kisi.tur ?? 'arkadas';
-  // Açılış cümlesinde oyuncunun adı geçiyor.
-  const acilis = gorusme.konusma.acilis.replace(/\{ad\}/g, g.profil.ad || 'evlat');
+  const veri = TUM_GORUSMELER.find((x) => x.id === gorusme.gorusmeId);
+  const replik = veri?.replikler[gorusme.replikId];
+  const durum = telefonDurumuOku();
+  const secenekler =
+    !gorusme.kapanis && veri && replik
+      ? secenekleriHazirla(replik, durum, gorusme.rol, gorusme.ankesor)
+      : [];
+
+  const kaynak = gorusme.gelen
+    ? 'seni aradı'
+    : gorusme.ankesor
+      ? 'ankesörden'
+      : 'cep telefonundan';
 
   return (
     <PanelKabuk
       baslik={kisi.ad.toLocaleUpperCase('tr-TR')}
-      alt={`${YAKINLIK_KISA[tur]} · ${gorusme.ankesor ? 'ankesörden' : 'cep telefonundan'}`}
+      alt={`${ROL_ADI[gorusme.rol]} · ${kaynak}`}
+      kapat={g.gorusmeKapat}
+      kapatLabel={gorusme.kapanis ? 'Kapat' : 'Telefonu kapat'}
     >
       <View style={{ alignItems: 'center', gap: SP.xs }}>
-        <PixelSprite sprite={sprite(gorusme.ankesor ? 'ankesor' : 'telefon')} scale={4} />
-        <PixelText size="micro" color={C.canvasFaint} style={{ marginTop: SP.sm }}>
-          {gorusme.ankesor ? 'Kuyrukta kırk dakika, konuşmada üç dakika' : 'Hat açık'}
+        <PixelSprite
+          sprite={sprite(gorusme.ankesor ? 'ankesor' : 'telefon')}
+          scale={3}
+        />
+        <PixelText size="micro" color={C.canvasFaint} center line="snug">
+          {gorusme.ankesor
+            ? `Arkanda kuyruk var · ${gorusme.kalanRaunt} söz hakkın kaldı`
+            : 'Hat açık · acele ettiren yok'}
         </PixelText>
       </View>
 
-      <View
-        style={{
-          borderWidth: BORDER,
-          borderColor: C.line,
-          backgroundColor: C.surface,
-          padding: SP.lg,
-        }}
+      <ScrollView
+        ref={kaydirma}
+        style={{ maxHeight: 380 }}
+        contentContainerStyle={{ gap: SP.md }}
+        onContentSizeChange={() => kaydirma.current?.scrollToEnd({ animated: true })}
       >
-        <PixelText size="lead" color={C.canvas} line="body">
-          {acilis}
+        {gorusme.gecmis.map((satir, i) => (
+          <TranskriptSatiri key={i} satir={satir} sonuncu={i === gorusme.gecmis.length - 1} />
+        ))}
+      </ScrollView>
+
+      {gorusme.kapanis ? (
+        <View
+          style={{
+            borderLeftWidth: 4,
+            borderLeftColor: C.brass,
+            paddingLeft: SP.lg,
+            gap: SP.xs,
+          }}
+        >
+          <PixelText font="command" size="body" color={C.brass}>
+            KAPANIŞ
+          </PixelText>
+          <PixelText size="lead" color={C.canvasDim} line="body">
+            {gorusme.kapanis}
+          </PixelText>
+        </View>
+      ) : (
+        <View style={{ gap: SP.sm }}>
+          {secenekler.map((sec, i) => (
+            <PixelButton
+              key={sec.id}
+              tur="secim"
+              label={sec.label}
+              onPress={() => g.gorusmeCevapla(i)}
+            />
+          ))}
+        </View>
+      )}
+    </PanelKabuk>
+  );
+}
+
+/** Transkript satırı: karşı taraf solda ve parlak, sen sağda ve sönük. */
+function TranskriptSatiri({
+  satir,
+  sonuncu,
+}: {
+  satir: { kim: string; metin: string; ben?: boolean };
+  sonuncu: boolean;
+}) {
+  if (satir.ben) {
+    return (
+      <View style={{ alignItems: 'flex-end', paddingLeft: SP.xxl }}>
+        <PixelText size="body" color={C.canvasDim} line="snug" style={{ textAlign: 'right' }}>
+          {`— ${satir.metin}`}
         </PixelText>
       </View>
+    );
+  }
 
-      <View style={{ gap: SP.sm }}>
-        {gorusme.konusma.secenekler.map((sec, i) => (
-          <PixelButton key={i} tur="secim" label={sec.label} onPress={() => g.gorusmeCevapla(i)} />
-        ))}
-      </View>
-
-      <PixelText size="micro" color={C.canvasFaint} center line="snug">
-        {gorusme.ankesor
-          ? 'Arkanda kuyruk var, uzatma.'
-          : 'Kendi telefonun; kontör yakmıyorsun.'}
+  // Anlatıcı: adsız, tırnaksız, kenarlıksız. Sahnenin kendi sesi.
+  if (!satir.kim) {
+    return (
+      <PixelText size="body" color={C.canvasFaint} line="body">
+        {satir.metin}
       </PixelText>
-    </PanelKabuk>
+    );
+  }
+
+  return (
+    <View style={{ gap: 2, paddingRight: SP.xl }}>
+      <PixelText font="command" size="body" color={C.brass}>
+        {satir.kim.toLocaleUpperCase('tr-TR')}
+      </PixelText>
+      <PixelText
+        size="lead"
+        color={sonuncu ? C.canvas : C.canvasDim}
+        line="body"
+      >
+        {satir.metin}
+      </PixelText>
+    </View>
   );
 }
 

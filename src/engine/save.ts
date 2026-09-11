@@ -1,13 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { bulutaYaz, buluttanOku } from './bulut';
-import type { ArkadasId, Envanter, Profil, RehberKisi, Stats } from './types';
+import type { ArkadasId, Envanter, Profil, RehberKisi, Rol, Stats } from './types';
 
-const KEY = 'bedelli.save.v2';
+const KEY = 'bedelli.save.v3';
 /** v1 kayıtları profil/envanter taşımıyordu; taşınamaz, temiz başlanır. */
 const ESKI_KEYS = ['bedelli.save.v1'];
+/** v2 taşınabilir: telefon alanları varsayılanla doldurulur, rehber role çevrilir. */
+const V2_KEY = 'bedelli.save.v2';
 
 export type SaveData = {
-  version: 2;
+  version: 3;
   profil: Profil;
   /** Çarşı bitmeden oyun başlamaz. */
   hazirlikBitti: boolean;
@@ -24,13 +26,21 @@ export type SaveData = {
   rehber: RehberKisi[];
   nikotin: number;
   bitenGunler: { gun: number; not: string; puan: number }[];
+  /** Telefon motoru v2 alanları; v2 kayıtlarında yoktur. */
+  iliski?: Record<Rol, number>;
+  gerilim?: Record<Rol, number>;
+  ozlem?: number;
+  hafiza?: Record<string, { deger: string; gun: number }>;
+  sonArama?: Record<Rol, number>;
+  gorulmusGorusmeler?: string[];
+  sevgiliVar?: boolean;
   guncelleme: number;
 };
 
 export type KayitYuku = Omit<SaveData, 'version' | 'guncelleme'>;
 
 export async function kaydet(data: KayitYuku) {
-  const payload: SaveData = { ...data, version: 2, guncelleme: Date.now() };
+  const payload: SaveData = { ...data, version: 3, guncelleme: Date.now() };
   try {
     await AsyncStorage.setItem(KEY, JSON.stringify(payload));
   } catch {
@@ -45,7 +55,18 @@ export async function yukle(): Promise<SaveData | null> {
     const raw = await AsyncStorage.getItem(KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as SaveData;
-      if (parsed?.version === 2) return parsed;
+      if (parsed?.version === 3) return parsed;
+    }
+
+    // v2 kaydı duruyorsa taşı: ilerleme, envanter ve rehber korunur.
+    const eski = await AsyncStorage.getItem(V2_KEY);
+    if (eski) {
+      const parsed = JSON.parse(eski) as Omit<SaveData, 'version'> & { version: number };
+      if (parsed?.version === 2) {
+        const tasinan: SaveData = { ...parsed, version: 3, guncelleme: Date.now() };
+        await AsyncStorage.setItem(KEY, JSON.stringify(tasinan));
+        return tasinan;
+      }
     }
   } catch {
     // düşer ve buluta bakarız
@@ -65,7 +86,7 @@ export async function yukle(): Promise<SaveData | null> {
 
 export async function sil() {
   try {
-    await AsyncStorage.multiRemove([KEY, ...ESKI_KEYS]);
+    await AsyncStorage.multiRemove([KEY, V2_KEY, ...ESKI_KEYS]);
   } catch {
     // yok sayılır
   }

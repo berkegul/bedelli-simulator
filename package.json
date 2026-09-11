@@ -23,13 +23,16 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "tsx": "^4.20.6"
   },
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "telefon:dogrula": "tsx src/content/telefon/calistir-dogrula.ts",
+    "telefon:simule": "tsx src/content/telefon/simule.ts"
   },
   "private": true
 }

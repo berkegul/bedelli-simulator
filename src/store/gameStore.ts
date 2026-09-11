@@ -15,16 +15,38 @@ import { kaydet, sil, yukle } from '../engine/save';
 import { blokSonu, dakikaya, sahneSaati } from '../engine/zaman';
 import { olayYaz } from '../engine/bulut';
 import { sigaraIzni, telefonIzni } from '../engine/kurallar';
-import { YAKINLIK_KISA, konusmaSec, type TelefonKonusma } from '../content/telefon';
+import {
+  KAYIT_ADI,
+  ROL_ADI,
+  TUM_GORUSMELER,
+  TUM_ROLLER,
+  ankesorKapanisi,
+  eskiTurdenRol,
+  gelenAramaKurasi,
+  gunGorusmesi,
+  ihmalSarkmasi,
+  iliskiUygula,
+  kayittanRolSec,
+  metinDoldur,
+  raunt,
+  replikCoz,
+  secenekleriHazirla,
+  type Gorusme,
+  type Hafiza,
+  type Replik,
+  type TelefonDurumu,
+} from '../content/telefon';
 import type {
   ArkadasId,
   Choice,
   Effect,
   Envanter,
   EsyaId,
+  KayitRolu,
   Kalite,
   Profil,
   RehberKisi,
+  Rol,
   Scene,
   Stats,
   YakinlikTuru,
@@ -46,6 +68,41 @@ export type Ekran =
 
 /** Oyun ekranının üstüne açılan panel — sahne akışını bozmadan geri dönülür. */
 export type Panel = null | 'kantin' | 'dolap' | 'rehber' | 'muhabbet' | 'sigaraIstegi' | 'ant41' | 'oturma' | 'cep' | 'izmarit' | 'izmaritCezasi' | 'gorusme';
+
+/**
+ * Süren görüşmenin imleci. Etkiler anında uygulanmıyor, burada birikiyor:
+ * oyuncu konuşurken üstteki çubukların oynamasına bakıp seçim yapmasın diye.
+ */
+export type AktifGorusme = {
+  kisiId: string;
+  gorusmeId: string;
+  /** Şu an konuşan; 'ev' kaydında görüşme ortasında değişebilir. */
+  rol: Rol;
+  replikId: string;
+  /** Transkript: baştan beri söylenenler. */
+  gecmis: { kim: string; metin: string; ben?: boolean }[];
+  ankesor: boolean;
+  kalanRaunt: number;
+  birikenIliski: Partial<Record<Rol, number>>;
+  birikenGerilim: Partial<Record<Rol, number>>;
+  birikenMoral: number;
+  birikenEnerji: number;
+  birikenOzlem: number;
+  isaretler: { ad: string; deger: string }[];
+  /** Karşı taraf aradıysa kontör yakmıyor ve açılış farklı. */
+  gelen: boolean;
+  /** Görüşme bittiğinde dolan kapanış cümlesi; dolunca seçenek kalmaz. */
+  kapanis: string | null;
+};
+
+const BOS_ROL_SAYISI = (): Record<Rol, number> => ({
+  anne: 0, baba: 0, sevgili: 0, kanka: 0, kardes: 0, es: 0, akraba: 0,
+});
+
+/** Başlangıç ilişkileri: annenle zaten yakınsın, babanla mesafe var. */
+const BASLANGIC_ILISKI: Record<Rol, number> = {
+  anne: 75, baba: 60, sevgili: 70, kanka: 70, kardes: 65, es: 75, akraba: 55,
+};
 
 export type Sonuc = {
   metin: string;
@@ -99,16 +156,34 @@ type Store = {
   /** Cepte biriken izmarit; yere atmak yerine saklayınca artıyor. */
   cepteIzmarit: number;
   /** Süren telefon görüşmesi. */
-  aktifGorusme: { kisiId: string; konusma: TelefonKonusma; ankesor: boolean } | null;
-  /** Tekrar eden konuşmaları elemek için. */
-  gorulmusKonusmalar: string[];
+  aktifGorusme: AktifGorusme | null;
+  /** Oynanmış görüşme id'leri; omurga beat'leri tekrar etmesin diye. */
+  gorulmusGorusmeler: string[];
+  /** Rol başına ilişki (0-100) ve gerilim (0-100). */
+  iliski: Record<Rol, number>;
+  gerilim: Record<Rol, number>;
+  /** Ev özlemi; gün sonu ve final kartları buna bakıyor. */
+  ozlem: number;
+  /** Oyuncunun söyledikleri ve başına gelenler — işaret + konduğu gün. */
+  hafiza: Hafiza;
+  /** Rol başına en son arandığı gün. */
+  sonArama: Record<Rol, number>;
+  /** Oyuncunun sevgilisi var mı — kurulumda soruluyor. */
+  sevgiliVar: boolean;
+  /** Bugün seni arayan; serbest blokta açılabilir. */
+  gelenArama: { rol: Rol; kisiId: string } | null;
+  /** Telefonun yokken gelen aramalar: nöbetçi haber veriyor, sen geri arıyorsun. */
+  bekleyenArama: Rol[];
 
   ilkYukleme: () => Promise<void>;
   yeniOyun: () => Promise<void>;
   profilKaydet: (ad: string, sigaraIciyor: boolean) => void;
-  kisiEkle: (ad: string, yakinlik: string, tur: YakinlikTuru) => void;
+  kisiEkle: (ad: string, yakinlik: string, rol: KayitRolu) => void;
+  sevgiliVarMi: (v: boolean) => void;
   gorusmeCevapla: (index: number) => void;
   gorusmeKapat: () => void;
+  gelenAramayiAc: () => void;
+  gelenAramayiGecistir: () => void;
   kisiSil: (id: string) => void;
   carsiyiBitir: () => void;
   devamEt: () => void;
@@ -163,8 +238,16 @@ const ilkDurum = {
   bugunIsteyenler: [] as ArkadasId[],
   bugunDinlenildi: false,
   cepteIzmarit: 0,
-  aktifGorusme: null as Store['aktifGorusme'],
-  gorulmusKonusmalar: [] as string[],
+  aktifGorusme: null as AktifGorusme | null,
+  gorulmusGorusmeler: [] as string[],
+  iliski: { ...BASLANGIC_ILISKI },
+  gerilim: BOS_ROL_SAYISI(),
+  ozlem: 20,
+  hafiza: {} as Hafiza,
+  sonArama: BOS_ROL_SAYISI(),
+  sevgiliVar: true,
+  gelenArama: null as { rol: Rol; kisiId: string } | null,
+  bekleyenArama: [] as Rol[],
 };
 
 export const useGame = create<Store>((set, get) => ({
@@ -194,7 +277,18 @@ export const useGame = create<Store>((set, get) => ({
       envanter: k.envanter ?? {},
       dostluk: { ...BOS_DOSTLUK, ...(k.dostluk ?? {}) },
       gorulmusDiyaloglar: k.gorulmusDiyaloglar ?? [],
-      rehber: k.rehber ?? [],
+      rehber: (k.rehber ?? []).map((kisi) => ({
+        ...kisi,
+        // v2 kayıtlarında rol yok, eski türden türetiliyor.
+        rol: kisi.rol ?? eskiTurdenRol(kisi.tur),
+      })),
+      iliski: { ...BASLANGIC_ILISKI, ...(k.iliski ?? {}) },
+      gerilim: { ...BOS_ROL_SAYISI(), ...(k.gerilim ?? {}) },
+      ozlem: k.ozlem ?? 20,
+      hafiza: k.hafiza ?? {},
+      sonArama: { ...BOS_ROL_SAYISI(), ...(k.sonArama ?? {}) },
+      gorulmusGorusmeler: k.gorulmusGorusmeler ?? [],
+      sevgiliVar: k.sevgiliVar ?? true,
       nikotin: k.nikotin ?? 0,
       bitenGunler: k.bitenGunler ?? [],
     });
@@ -210,20 +304,28 @@ export const useGame = create<Store>((set, get) => ({
     persist(get);
   },
 
-  kisiEkle(ad, yakinlik, tur) {
+  kisiEkle(ad, yakinlik, rol) {
     const temiz = ad.trim();
     if (!temiz) return;
+    // Ev tek satır: annen de baban da aynı numaradan açar.
+    if (rol === 'ev' && get().rehber.some((k) => k.rol === 'ev')) return;
     set({
       rehber: [
         ...get().rehber,
         {
-          id: `k${Date.now()}`,
+          id: `k${Date.now()}${Math.floor(Math.random() * 1000)}`,
           ad: temiz,
-          yakinlik: yakinlik.trim() || YAKINLIK_KISA[tur],
-          tur,
+          yakinlik: yakinlik.trim() || KAYIT_ADI[rol],
+          rol,
         },
       ],
     });
+    persist(get);
+  },
+
+  sevgiliVarMi(v) {
+    set({ sevgiliVar: v });
+    if (!v) set({ rehber: get().rehber.filter((k) => k.rol !== 'sevgili') });
     persist(get);
   },
 
@@ -241,6 +343,7 @@ export const useGame = create<Store>((set, get) => ({
     });
     set({ hazirlikBitti: true, ekran: 'gunBasi' });
     gunlukDolapEtkisi(set, get);
+    gunBasiTelefon(set, get);
     persist(get);
   },
 
@@ -384,8 +487,11 @@ export const useGame = create<Store>((set, get) => ({
       bugunIsteyenler: [],
       bugunDinlenildi: false,
       nikotin: get().profil.sigaraIciyor ? Math.min(100, get().nikotin + 15) : 0,
+      gelenArama: null,
+      bekleyenArama: [],
     });
     gunlukDolapEtkisi(set, get);
+    gunBasiTelefon(set, get);
     persist(get);
   },
 
@@ -496,51 +602,142 @@ export const useGame = create<Store>((set, get) => ({
       set({ envanter: yeniEnv });
     }
 
-    const konusma = konusmaSec(kisi.tur ?? 'arkadas', get().gorulmusKonusmalar);
-    if (!konusma) return;
+    gorusmeAc(set, get, id, false);
+  },
 
+  gelenAramayiAc() {
+    const gelen = get().gelenArama;
+    if (!gelen) return;
+    set({ gelenArama: null });
+    gorusmeAc(set, get, gelen.kisiId, true);
+  },
+
+  gelenAramayiGecistir() {
+    const gelen = get().gelenArama;
+    if (!gelen) return;
+    // Açmamak da bir cevap. Ertesi günün açılışı bunu biliyor.
+    const hafiza: Hafiza = {
+      ...get().hafiza,
+      cevapsiz: { deger: gelen.rol, gun: get().gun },
+    };
     set({
-      aktifGorusme: { kisiId: id, konusma, ankesor: !telefonVar },
-      panel: 'gorusme',
-      rehber: get().rehber.map((k) => (k.id === id ? { ...k, sonArananGun: gun } : k)),
+      gelenArama: null,
+      hafiza,
+      iliski: { ...get().iliski, [gelen.rol]: Math.max(0, get().iliski[gelen.rol] - 3) },
+      gerilim: { ...get().gerilim, [gelen.rol]: Math.min(100, get().gerilim[gelen.rol] + 5) },
     });
     persist(get);
   },
 
   gorusmeCevapla(index) {
-    const gorusme = get().aktifGorusme;
+    const g = get().aktifGorusme;
+    if (!g || g.kapanis) return;
+
+    const gorusme = TUM_GORUSMELER.find((x) => x.id === g.gorusmeId);
     if (!gorusme) return;
-    const secenek = gorusme.konusma.secenekler[index];
+
+    const durum = telefonDurumu(get);
+    const replik = gorusme.replikler[g.replikId];
+    if (!replik) return;
+
+    const secenekler = secenekleriHazirla(replik, durum, g.rol, g.ankesor);
+    const secenek = secenekler[index];
     if (!secenek) return;
 
-    const kisi = get().rehber.find((k) => k.id === gorusme.kisiId);
-    // Aynı kişiyi aynı gün ikinci kez aramak ilk seferki kadar iyi gelmiyor.
-    const ikinciKez = kisi?.sonArananGun === get().gun && get().gorulmusKonusmalar.length > 0;
-    const tazelik = ikinciKez ? 0.5 : 1;
+    const kisi = get().rehber.find((k) => k.id === g.kisiId);
+    const baglam = {
+      ad: get().profil.ad,
+      kisi: kisi?.ad ?? '',
+      gun: get().gun,
+      hafiza: get().hafiza,
+    };
+
+    const gecmis = [...g.gecmis, { kim: 'Sen', metin: secenek.label, ben: true }];
+    if (secenek.cevap) {
+      gecmis.push({ kim: konusanAdi(get, g.rol), metin: metinDoldur(secenek.cevap, baglam) });
+    }
+
+    // Etki o an konuşan role işliyor; rolDegis'ten sonrası yeni role.
+    const hedef = g.rol;
+    const birikenIliski = { ...g.birikenIliski };
+    const birikenGerilim = { ...g.birikenGerilim };
+    const e = secenek.etki ?? {};
+    if (e.iliski) birikenIliski[hedef] = (birikenIliski[hedef] ?? 0) + e.iliski;
+    if (e.gerilim) birikenGerilim[hedef] = (birikenGerilim[hedef] ?? 0) + e.gerilim;
+    if (e.digerIliski) {
+      const d = e.digerIliski;
+      birikenIliski[d.kim] = (birikenIliski[d.kim] ?? 0) + d.puan;
+    }
+
+    const isaretler = secenek.isaret ? [...g.isaretler, secenek.isaret] : g.isaretler;
+    const kalanRaunt = g.kalanRaunt - 1;
+    const yeniRol = secenek.rolDegis ?? g.rol;
+
+    const ara: AktifGorusme = {
+      ...g,
+      rol: yeniRol,
+      gecmis,
+      kalanRaunt,
+      birikenIliski,
+      birikenGerilim,
+      birikenMoral: g.birikenMoral + (e.moral ?? 0),
+      birikenEnerji: g.birikenEnerji + (e.enerji ?? 0),
+      birikenOzlem: g.birikenOzlem + (e.ozlem ?? 0),
+      isaretler,
+    };
+
+    // Kuyruk seni kesiyor: ankesörde raunt bitince konuşma yarıda kalıyor.
+    if (secenek.sonraki && kalanRaunt <= 0) {
+      set({ aktifGorusme: { ...ara, kapanis: ankesorKapanisi(gorusme) } });
+      return;
+    }
+
+    const sonraki = secenek.sonraki
+      ? replikCoz(gorusme, secenek.sonraki, durum)
+      : undefined;
+
+    if (!sonraki) {
+      set({ aktifGorusme: { ...ara, kapanis: gorusme.kapanis } });
+      return;
+    }
+
+    // Seçeneksiz düğümler (anlatıcı araları) zincirleme okunur.
+    const { replik: durak, gecmis: eklenen } = zinciriYurut(
+      gorusme,
+      sonraki,
+      durum,
+      baglam,
+      get,
+      yeniRol,
+    );
+
+    if (!durak) {
+      set({
+        aktifGorusme: {
+          ...ara,
+          gecmis: [...gecmis, ...eklenen],
+          kapanis: gorusme.kapanis,
+        },
+      });
+      return;
+    }
 
     set({
-      aktifGorusme: null,
-      panel: null,
-      gorulmusKonusmalar: [...get().gorulmusKonusmalar, gorusme.konusma.id],
-    });
-
-    uygulaEtki(
-      set,
-      get,
-      {
-        moral: Math.round(secenek.moral * tazelik),
-        // Ankesör kuyruğu hem yoruyor hem para yakıyor.
-        enerji: (secenek.enerji ?? 0) - (gorusme.ankesor ? 8 : 3),
-        para: gorusme.ankesor ? -10 : 0,
+      aktifGorusme: {
+        ...ara,
+        gecmis: [...gecmis, ...eklenen],
+        replikId: durak.id,
       },
-      `${secenek.cevap}\n\n${gorusme.konusma.kapanis}`,
-      gorusme.ankesor ? 43 : 9,
-      false,
-    );
+    });
   },
 
   gorusmeKapat() {
-    set({ aktifGorusme: null, panel: null });
+    const g = get().aktifGorusme;
+    if (!g) {
+      set({ panel: null });
+      return;
+    }
+    gorusmeBitir(set, get, g);
   },
 
   muhabbetBaslat() {
@@ -774,6 +971,226 @@ export const useGame = create<Store>((set, get) => ({
   },
 }));
 
+// ─────────────────────────────────────────── telefon yardımcıları
+
+const kirp = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
+
+/** Rehberdeki hangi kayıt bu rolü konuşturur. */
+function rolunKaydi(get: () => Store, rol: Rol): RehberKisi | undefined {
+  const hedef: KayitRolu = rol === 'anne' || rol === 'baba' ? 'ev' : (rol as KayitRolu);
+  return get().rehber.find((k) => (k.rol ?? eskiTurdenRol(k.tur)) === hedef);
+}
+
+/** Rehberde karşılığı olan roller; kimse eklenmemişse motor boşa çalışmaz. */
+function aktifRoller(get: () => Store): Rol[] {
+  const s = get();
+  return TUM_ROLLER.filter((rol) => {
+    if (rol === 'sevgili' && !s.sevgiliVar) return false;
+    return !!rolunKaydi(get, rol);
+  });
+}
+
+function telefonDurumu(get: () => Store): TelefonDurumu {
+  const s = get();
+  return {
+    gun: s.gun,
+    iliski: s.iliski,
+    gerilim: s.gerilim,
+    ozlem: s.ozlem,
+    moral: s.stats.moral,
+    disiplin: s.stats.disiplin,
+    hafiza: s.hafiza,
+    gorulmus: s.gorulmusGorusmeler,
+    telefonVar: (s.envanter.kamerasizTelefon?.adet ?? 0) > 0,
+    sigaraIcen: s.profil.sigaraIciyor,
+    sevgiliVar: s.sevgiliVar,
+    sonArama: s.sonArama,
+  };
+}
+
+/** Transkriptte görünen ad: ev kaydında "Annen"/"Baban", diğerlerinde kişinin adı. */
+function konusanAdi(get: () => Store, rol: Rol): string {
+  if (rol === 'anne' || rol === 'baba') return ROL_ADI[rol];
+  return rolunKaydi(get, rol)?.ad ?? ROL_ADI[rol];
+}
+
+/**
+ * Seçeneksiz replikleri (anlatıcı araları, tek cümlelik geçişler) zincirleme
+ * okur ve ilk seçenekli düğümde durur. Durmazsa görüşme kapanıyor demektir.
+ */
+function zinciriYurut(
+  gorusme: Gorusme,
+  baslangic: Replik,
+  durum: TelefonDurumu,
+  baglam: { ad: string; kisi: string; gun: number; hafiza: Hafiza },
+  get: () => Store,
+  rol: Rol,
+) {
+  const gecmis: AktifGorusme['gecmis'] = [];
+  const gorulen = new Set<string>();
+  let su: Replik | undefined = baslangic;
+
+  while (su && !gorulen.has(su.id)) {
+    gorulen.add(su.id);
+    const kim = su.kim === 'anlatici' ? '' : konusanAdi(get, (su.kim as Rol) ?? rol);
+    gecmis.push({ kim, metin: metinDoldur(su.metin, baglam) });
+    if (su.secenekler?.length) return { replik: su, gecmis };
+    su = su.sonraki ? replikCoz(gorusme, su.sonraki, durum) : undefined;
+  }
+  return { replik: undefined, gecmis };
+}
+
+function gorusmeAc(
+  set: (p: Partial<Store>) => void,
+  get: () => Store,
+  kisiId: string,
+  gelen: boolean,
+) {
+  const kisi = get().rehber.find((k) => k.id === kisiId);
+  if (!kisi) return;
+
+  const durum = telefonDurumu(get);
+  const kayit: KayitRolu = kisi.rol ?? eskiTurdenRol(kisi.tur);
+  const rol = kayittanRolSec(kayit, durum);
+  const gorusme = gunGorusmesi(rol, durum);
+  if (!gorusme) {
+    uygulaEtki(set, get, {}, 'Telefon çaldı, çaldı, kimse açmadı.', 0, false);
+    return;
+  }
+
+  const telefonVar = durum.telefonVar;
+  const baglam = { ad: get().profil.ad, kisi: kisi.ad, gun: get().gun, hafiza: get().hafiza };
+  const kok = replikCoz(gorusme, gorusme.kok, durum);
+  if (!kok) return;
+
+  const { replik, gecmis } = zinciriYurut(gorusme, kok, durum, baglam, get, rol);
+
+  set({
+    aktifGorusme: {
+      kisiId,
+      gorusmeId: gorusme.id,
+      rol,
+      replikId: replik?.id ?? gorusme.kok,
+      gecmis,
+      ankesor: !telefonVar && !gelen,
+      kalanRaunt: raunt(telefonVar),
+      birikenIliski: {},
+      birikenGerilim: {},
+      birikenMoral: 0,
+      birikenEnerji: 0,
+      birikenOzlem: 0,
+      isaretler: [],
+      gelen,
+      kapanis: replik ? null : gorusme.kapanis,
+    },
+    panel: 'gorusme',
+    sonArama: { ...get().sonArama, [rol]: get().gun },
+    rehber: get().rehber.map((k) =>
+      k.id === kisiId ? { ...k, sonArananGun: get().gun } : k,
+    ),
+  });
+  persist(get);
+}
+
+/**
+ * Görüşme kapanışı: biriken her şey burada tek seferde işleniyor.
+ * Ankesör hem kırk dakika hem on lira yakıyor; kendi telefonun neredeyse
+ * bedava — çarşıdaki o kalemin asıl karşılığı bu.
+ */
+function gorusmeBitir(
+  set: (p: Partial<Store>) => void,
+  get: () => Store,
+  g: AktifGorusme,
+) {
+  const s = get();
+  const iliski = { ...s.iliski };
+  for (const [rol, puan] of Object.entries(g.birikenIliski)) {
+    iliski[rol as Rol] = iliskiUygula(iliski[rol as Rol], puan ?? 0);
+  }
+  const gerilim = { ...s.gerilim };
+  for (const [rol, puan] of Object.entries(g.birikenGerilim)) {
+    gerilim[rol as Rol] = kirp(gerilim[rol as Rol] + (puan ?? 0));
+  }
+
+  const hafiza: Hafiza = { ...s.hafiza };
+  for (const isaret of g.isaretler) hafiza[isaret.ad] = { deger: isaret.deger, gun: s.gun };
+
+  const kullanilan = Math.max(1, raunt(!g.ankesor) - g.kalanRaunt);
+  const sure = g.gelen ? 6 : g.ankesor ? 40 + kullanilan * 2 : 4 + kullanilan * 2;
+
+  set({
+    iliski,
+    gerilim,
+    hafiza,
+    // Duygusal anlar özlemi kışkırtıyor; yarım ağırlıkla, yoksa tek bir
+    // konuşma sayacı tavana vurduruyor.
+    ozlem: kirp(s.ozlem + Math.round(g.birikenOzlem / 2)),
+    gorulmusGorusmeler: s.gorulmusGorusmeler.includes(g.gorusmeId)
+      ? s.gorulmusGorusmeler
+      : [...s.gorulmusGorusmeler, g.gorusmeId],
+    aktifGorusme: null,
+  });
+
+  uygulaEtki(
+    set,
+    get,
+    {
+      moral: g.birikenMoral,
+      enerji: g.birikenEnerji - (g.ankesor ? 8 : 3),
+      para: g.ankesor ? -10 : 0,
+    },
+    g.kapanis ?? 'Telefonu kapattın.',
+    sure,
+    false,
+  );
+}
+
+/**
+ * Gün başı telefon işleri: aranmayan ilişkiler sarkıyor, karşı taraf
+ * belirli bir noktadan sonra seni arıyor. Telefonun yoksa arayamazlar —
+ * nöbetçi haber veriyor, geri araman gerekiyor.
+ */
+function gunBasiTelefon(set: (p: Partial<Store>) => void, get: () => Store) {
+  const roller = aktifRoller(get);
+  if (!roller.length) return;
+
+  const durum = telefonDurumu(get);
+  const sarkma = ihmalSarkmasi(roller, durum);
+
+  const iliski = { ...get().iliski };
+  for (const [rol, puan] of Object.entries(sarkma.iliski)) {
+    iliski[rol as Rol] = iliskiUygula(iliski[rol as Rol], puan ?? 0);
+  }
+  const gerilim = { ...get().gerilim };
+  for (const [rol, puan] of Object.entries(sarkma.gerilim)) {
+    gerilim[rol as Rol] = kirp(gerilim[rol as Rol] + (puan ?? 0));
+  }
+  const hafiza: Hafiza = { ...get().hafiza };
+  for (const rol of sarkma.isaretler) {
+    hafiza.uzun_sessizlik = { deger: rol, gun: get().gun };
+  }
+
+  const arayan = gelenAramaKurasi(roller, telefonDurumu(get));
+  const kisi = arayan ? rolunKaydi(get, arayan) : undefined;
+  const telefonVar = durum.telefonVar;
+
+  // Özlem yalnızlıktan büyüyor, alışmayla sönüyor. İçerik 28 günde ~165
+  // puan üretiyor ve hiç boşalmasa herkes tavana vuruyordu; günlük sönüm
+  // sayacı anlamlı tutuyor. Alışma finali buna bakıyor.
+  const ihmalEdilen = roller.filter((rol) => get().gun - (get().sonArama[rol] || 0) >= 2);
+  const ozlemArtisi =
+    (ihmalEdilen.length >= 2 ? 4 : ihmalEdilen.length === 1 ? 2 : 0) - 2;
+
+  set({
+    iliski,
+    gerilim,
+    hafiza,
+    ozlem: kirp(get().ozlem + ozlemArtisi),
+    gelenArama: arayan && kisi && telefonVar ? { rol: arayan, kisiId: kisi.id } : null,
+    bekleyenArama: arayan && kisi && !telefonVar ? [arayan] : [],
+  });
+}
+
 /** Etkiyi uygular, sonuç kartını hazırlar ve kaydeder — tek yerden. */
 function uygulaEtki(
   set: (p: Partial<Store>) => void,
@@ -873,7 +1290,22 @@ function persist(get: () => Store) {
     rehber: s.rehber,
     nikotin: s.nikotin,
     bitenGunler: s.bitenGunler,
+    iliski: s.iliski,
+    gerilim: s.gerilim,
+    ozlem: s.ozlem,
+    hafiza: s.hafiza,
+    sonArama: s.sonArama,
+    gorulmusGorusmeler: s.gorulmusGorusmeler,
+    sevgiliVar: s.sevgiliVar,
   });
+}
+
+/**
+ * Panelin koşul değerlendirmesi için durum görüntüsü. Bileşen zaten
+ * useGame ile abone olduğu için her render'da güncel okunur.
+ */
+export function telefonDurumuOku(): TelefonDurumu {
+  return telefonDurumu(() => useGame.getState());
 }
 
 export function aktifSahne(): Scene | undefined {

@@ -79,9 +79,18 @@ export type Profil = {
 };
 
 /**
- * Kiminle konuştuğun nasıl konuştuğunu belirliyor: anneyle "iyi misin
- * oğlum", sevgiliyle "özledim", kankayla "naber lan" konuşuluyor.
+ * Telefonda konuşan karakter. Rehber kaydıyla birebir değil: tek bir "Ev"
+ * kaydını annen de açabilir baban da, ve ikisi ayrı ilişki taşır.
  */
+export type Rol = 'anne' | 'baba' | 'sevgili' | 'kanka' | 'kardes' | 'es' | 'akraba';
+
+/**
+ * Rehberde görünen satır. Kadro sabit değil — oyuncu istediğini ekler;
+ * 'akraba' amcan, halan, dayın için genel havuzu açar.
+ */
+export type KayitRolu = 'ev' | 'sevgili' | 'kanka' | 'kardes' | 'es' | 'akraba';
+
+/** v2 kayıtlarında duran eski kategori; v3 migration'ında role çevriliyor. */
 export type YakinlikTuru = 'ebeveyn' | 'sevgili' | 'es' | 'kardes' | 'arkadas';
 
 export type RehberKisi = {
@@ -89,7 +98,9 @@ export type RehberKisi = {
   ad: string;
   /** Ekranda görünen serbest etiket: "Annem", "İrem", "Dayı". */
   yakinlik: string;
-  /** Diyalogların tonunu belirleyen kategori. Eski kayıtlarda olmayabilir. */
+  /** Hangi içerik havuzunun açılacağı. Eski kayıtlarda yok, türden türetilir. */
+  rol?: KayitRolu;
+  /** v2 artığı; yalnızca migration okur. */
   tur?: YakinlikTuru;
   /** Son arandığı gün; her gün aranmak etkisini azaltır. */
   sonArananGun?: number;

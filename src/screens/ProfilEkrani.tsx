@@ -6,10 +6,10 @@ import { SPRITES } from '../art';
 import { useGame } from '../store/gameStore';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelInput } from '../ui/PixelInput';
-import { YakinlikSecici } from '../ui/YakinlikSecici';
+import { KayitSecici } from '../ui/KayitSecici';
 import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
-import type { YakinlikTuru } from '../engine/types';
+import type { KayitRolu } from '../engine/types';
 
 /** Kışlaya girmeden önce: kimsin, sigara içiyor musun, kimleri arayacaksın. */
 export function ProfilEkrani() {
@@ -19,7 +19,7 @@ export function ProfilEkrani() {
   const [sigara, setSigara] = useState(g.profil.sigaraIciyor);
   const [kisiAd, setKisiAd] = useState('');
   const [kisiYakinlik, setKisiYakinlik] = useState('');
-  const [kisiTur, setKisiTur] = useState<YakinlikTuru>('ebeveyn');
+  const [kisiTur, setKisiTur] = useState<KayitRolu>('ev');
 
   return (
     <ScrollView
@@ -147,7 +147,11 @@ export function ProfilEkrani() {
           </View>
         </View>
 
-        <YakinlikSecici secili={kisiTur} onSec={setKisiTur} />
+        <KayitSecici
+          secili={kisiTur}
+          onSec={setKisiTur}
+          devreDisi={g.rehber.some((k) => k.rol === 'ev') ? ['ev'] : []}
+        />
 
         <PixelButton
           label="Rehbere ekle"
