@@ -2,16 +2,26 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { C, SP } from '../../theme';
 import { GUNLER } from '../../content';
-import type { Scene } from '../../engine/types';
+import type { Kusur, Scene } from '../../engine/types';
+import { denetimSonucu } from '../../content/denetim';
+import { DenetimSahnesi } from '../../screens/DenetimSahnesi';
 import { useGame } from '../../store/gameStore';
 import { PixelButton } from '../../ui/PixelButton';
 import { PixelText } from '../../ui/PixelText';
 import { YemekSahnesi } from '../../screens/YemekSahnesi';
 import { DersSahnesi } from '../../screens/DersSahnesi';
 import { TanitimSahnesi } from '../../screens/TanitimSahnesi';
+import { DolapDenetimi, DolapYerlesimi } from '../../screens/DolapYerlesimi';
 import { Baslik, Cikti, Kart, Kutu, Satir } from '../parcalar';
 
 type Tur = Scene['kind'];
+
+/** Denetim önizlemesi için: üniforma tamam, postal ve tıraş kusurlu. */
+const ORNEK_KUSURLAR: Kusur[] = [
+  { kaynak: 'giyinme', puan: 0.8 },
+  { kaynak: 'postal', puan: 0.3 },
+  { kaynak: 'tiras', puan: 0.4 },
+];
 
 const TUR_ADI: Record<Tur, string> = {
   anlati: 'Anlatı',
@@ -20,6 +30,9 @@ const TUR_ADI: Record<Tur, string> = {
   serbest: 'Serbest zaman',
   ders: 'ANT-41 dersi',
   tanitim: 'Bölge tanıtımı',
+  dolap: 'Dolap yerleşimi',
+  dolapDenetimi: 'Dolap denetimi',
+  denetim: 'İçtima denetimi',
   yol: 'Yol (konum değiştirme)',
 };
 
@@ -30,6 +43,9 @@ const TUR_RENK: Record<Tur, string> = {
   serbest: C.brass,
   ders: C.steel,
   tanitim: C.tea,
+  dolap: C.olive,
+  dolapDenetimi: C.rust,
+  denetim: C.brass,
   yol: C.steel,
 };
 
@@ -124,6 +140,42 @@ export function BolumSahneler() {
         {s.kind === 'tanitim' && (
           <Kutu baslik="Canlı önizleme" renk={C.tea}>
             <TanitimSahnesi onBitti={() => setCikti(['TANITIM', 'Bütün noktalar gezildi.'])} />
+          </Kutu>
+        )}
+
+        {s.kind === 'dolap' && (
+          <Kutu baslik="Canlı önizleme" renk={C.olive}>
+            <DolapYerlesimi
+              envanter={g.envanter}
+              onBitti={(c, d) =>
+                setCikti([
+                  'DOLAP',
+                  `${c.label}: ${c.outcome} Kayda geçecek düzen: ${
+                    Object.entries(d.yerler)
+                      .map(([id, b]) => `${id}→${b}`)
+                      .join(', ') || 'boş'
+                  }${d.hizli ? ' (yığın)' : ''}`,
+                ])
+              }
+            />
+          </Kutu>
+        )}
+
+        {s.kind === 'denetim' && (
+          <Kutu baslik="Canlı önizleme · örnek kusurlar" renk={C.brass}>
+            <DenetimSahnesi
+              kusurlar={ORNEK_KUSURLAR}
+              onBitti={(skor) => setCikti(['DENETİM', denetimSonucu(ORNEK_KUSURLAR, skor).metin])}
+            />
+          </Kutu>
+        )}
+
+        {s.kind === 'dolapDenetimi' && (
+          <Kutu baslik="Canlı önizleme" renk={C.rust}>
+            <DolapDenetimi
+              duzen={g.dolapDuzeni}
+              onBitti={(c) => setCikti(['DENETİM', c.outcome])}
+            />
           </Kutu>
         )}
 

@@ -28,7 +28,9 @@ import {
 } from "./Paneller";
 import { SerbestSahnesi } from "./SerbestSahnesi";
 import { YemekSahnesi } from "./YemekSahnesi";
+import { DenetimSahnesi } from "./DenetimSahnesi";
 import { DersSahnesi } from "./DersSahnesi";
+import { DolapDenetimi, DolapYerlesimi } from "./DolapYerlesimi";
 import { TanitimSahnesi } from "./TanitimSahnesi";
 import { YolSahnesi } from "./YolSahnesi";
 
@@ -153,6 +155,8 @@ export function OyunEkrani() {
                     adim={sahne.adim}
                     mekan={sahne.mekan}
                     manzara={sahne.manzara}
+                    bakis={sahne.bakis}
+                    sivil={sahne.sivil}
                     saat={saate(g.saat)}
                     gun={g.gun}
                     blokIndex={g.blokIndex}
@@ -230,6 +234,15 @@ export function OyunEkrani() {
                 )}
                 {!g.sonuc && metinBitti && sahne.kind === "ders" && (
                   <DersSahnesi onBitti={g.ileri} />
+                )}
+                {!g.sonuc && metinBitti && sahne.kind === "dolap" && (
+                  <DolapYerlesimi envanter={g.envanter} onBitti={g.dolapKapat} />
+                )}
+                {!g.sonuc && metinBitti && sahne.kind === "denetim" && (
+                  <DenetimSahnesi kusurlar={g.bekleyenKusurlar} onBitti={g.denetimBitir} />
+                )}
+                {!g.sonuc && metinBitti && sahne.kind === "dolapDenetimi" && (
+                  <DolapDenetimi duzen={g.dolapDuzeni} onBitti={g.secimYap} />
                 )}
 
                 <View style={{ flex: 1 }} />

@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Skia web: postinstall ile geliyor
+public/canvaskit.wasm

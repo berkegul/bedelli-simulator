@@ -1,4 +1,5 @@
 import type { SpriteKey } from '../art';
+import type { Bakis } from './yuruyus';
 
 export type StatKey = 'kondisyon' | 'disiplin' | 'moral' | 'enerji' | 'tokluk';
 
@@ -51,6 +52,8 @@ export type EsyaId =
   | 'dolapKilidi'
   | 'askerCuzdani'
   | 'kamerasizTelefon'
+  | 'pijama'
+  | 'terlik'
   // Kantinden alınanlar
   | 'kontor'
   | 'kitap'
@@ -70,6 +73,18 @@ export type Kalite = 'ekonomik' | 'standart' | 'kaliteli';
 export type EnvanterKayit = { adet: number; kalite: Kalite };
 
 export type Envanter = Partial<Record<EsyaId, EnvanterKayit>>;
+
+export type DolapBolgesi = 'ust' | 'aski' | 'orta' | 'alt' | 'kapi';
+
+/**
+ * Dolabın kayıttaki hâli: hangi parça hangi bölgede. Anahtar sırası
+ * yerleştirme sırası — denetimde raflar aynı sırayla dizilsin diye.
+ * `hizli`: torba olduğu gibi boşaltıldı, her şey alt gözde yığın.
+ */
+export type DolapDuzeni = { yerler: Record<string, DolapBolgesi>; hizli?: boolean };
+
+/** Denetimi bekleyen bir rutin işi: hangi mini oyun, kaç puanla bitti. */
+export type Kusur = { kaynak: MiniGameId; puan: number };
 
 /** Oyuncunun kışlaya girmeden önce belirlediği kimliği. */
 export type Profil = {
@@ -113,7 +128,11 @@ export type MiniGameId =
   | 'silah'
   | 'nobet'
   | 'izmarit'
-  | 'ceza';
+  | 'ceza'
+  | 'giyinme'
+  | 'postal'
+  | 'tiras'
+  | 'gece';
 
 export type OgunAdi = 'kahvalti' | 'ogle' | 'aksam';
 
@@ -134,6 +153,11 @@ export type Scene =
       kind: 'mini';
       id: string;
       game: MiniGameId;
+      /**
+       * Sonucu hemen değil, sonraki denetimde (içtima, yoklama) değerlendirilir.
+       * `reward` yalnızca anında hissedilen bedel; disiplin denetimde gelir.
+       */
+      denetimde?: boolean;
       sprite?: SpriteKey;
       brief: string;
       /** 0–1 puanı etkiye çevirir. */
@@ -169,6 +193,30 @@ export type Scene =
       brief: string;
     }
   | {
+      /** Dolap yerleşimi: torbadaki eşyaları tek tek dolaptaki yerine sürüklersin. */
+      kind: 'dolap';
+      id: string;
+      sprite?: SpriteKey;
+      brief: string;
+    }
+  | {
+      /** Dolap denetimi: kayıttaki yerleşime bakılır, yanlış yerdeki her şey görünür. */
+      kind: 'dolapDenetimi';
+      id: string;
+      sprite?: SpriteKey;
+      brief: string;
+    }
+  | {
+      /**
+       * İçtima ya da yoklama denetimi: Onbaşı sırayı dolaşıyor, sabahki (ya da
+       * gece) rutinden kalan kusurlara bakıyor; kusur varsa şınav cezası.
+       */
+      kind: 'denetim';
+      id: string;
+      sprite?: SpriteKey;
+      brief: string;
+    }
+  | {
       /** İki blok arası yürüyüş: dokundukça adım atarsın. */
       kind: 'yol';
       id: string;
@@ -179,6 +227,10 @@ export type Scene =
       mekan: SpriteKey;
       /** Yol boyunca geçilen manzara. */
       manzara: SpriteKey[];
+      /** Sahnenin hangi kameradan çekildiği. */
+      bakis: Bakis;
+      /** Üniforma daha torbadaysa yürüyen sivil kıyafetle çiziliyor. */
+      sivil?: boolean;
     };
 
 export type TimeBlock = {

@@ -18,6 +18,10 @@ const MINILER: MiniGameId[] = [
   'nobet',
   'izmarit',
   'ceza',
+  'giyinme',
+  'postal',
+  'tiras',
+  'gece',
 ];
 
 const NE_YAPAR: Record<MiniGameId, string> = {
@@ -28,6 +32,10 @@ const NE_YAPAR: Record<MiniGameId, string> = {
   nobet: 'Gece nöbetinde uyanık kal, hareketi yakala.',
   izmarit: 'Mıntıkadaki izmaritleri süre dolmadan topla.',
   ceza: 'Cezayı çek; ne kadar dayanırsan o kadar.',
+  giyinme: 'Dolaptan sırayla giyin: fanila, pantolon, çorap, postal, ceket. Raflar kapalı, bakmak zaman alır.',
+  postal: 'İki postalı parmakla ovarak parlat. Bot bakım seti yoksa bezle: yavaş ve bir yerden sonra parlamıyor.',
+  tiras: 'Jileti yüzde aşağı doğru çek. Hızlı ya da ters çekersen keser; kör jilet daha çok keser.',
+  gece: 'Üniformayı çıkarıp yerine koy, pijama ve terliği dolaptan al. Çorap, kirli torbası nerede duruyorsa oraya.',
 };
 
 /** Oyundaki bu mini oyuna bağlı gerçek sahneleri bulur — ödül eğrisi orada. */
@@ -64,7 +72,7 @@ export function BolumMiniOyunlar() {
         <Baslik
           ust="Bölüm 02"
           ad="Mini oyunlar"
-          alt="Yedi görev. Hepsi ortak arayüzü paylaşıyor: zorluk girer, 0–1 arası skor çıkar. Ödüle çevirme işi içerik dosyalarında."
+          alt="On bir görev. Hepsi ortak arayüzü paylaşıyor: zorluk girer, 0–1 arası skor çıkar. Ödüle çevirme işi içerik dosyalarında."
         />
         <View style={{ gap: SP.sm }}>
           {MINILER.map((id) => {

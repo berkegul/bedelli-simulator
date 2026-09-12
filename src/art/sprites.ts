@@ -988,3 +988,439 @@ export const OTURAN_ASKER = oturanVaryant('#565B36', '#6E7444', '#4E5330');
 export const OTURAN_EMRE = oturanVaryant('#7A5230', '#7C6A3C', '#59492A');
 export const OTURAN_TOLGA = oturanVaryant('#42566A', '#59684A', '#3D4832');
 export const OTURAN_SERKAN = oturanVaryant('#8A7A2E', '#6E7444', '#4E5330');
+
+// ── Yürüyüş kareleri ─────────────────────────────────────────────────
+// Yol sahnesi üç ayrı kameradan çekiliyor (patika / perspektif / yan) ve
+// her kamera askere başka taraftan bakıyor. Ortak kural: tek bir "duruş"
+// karesi yetmiyor, yürüyüş kontak (ayak yere basar, gövde alçalır) ve
+// geçiş (bacaklar yan yana, gövde yükselir) kareleri arasında gidip
+// geliyor. Gövdenin inip kalkması sprite'ta değil, sahnedeki salınımda.
+
+/** Gövde ve baş her karede aynı; yalnız bacaklar değişiyor. */
+const ON_GOVDE = [
+  '.....kkkkkk.....',
+  '....khhhhhhk....',
+  '...kuuuuuuuuk...',
+  '...kssssssssk...',
+  '...kskssssksk...',
+  '...ksssSSsssk...',
+  '...kssskksssk...',
+  '....kssssssk....',
+  '.....kSSSSk.....',
+  '...kuuuuuuuuk...',
+  '..kuuuuuuuuuuk..',
+  '.kUuuuuuuuuuuUk.',
+  '.kUummuuuuuuuUk.',
+  '.kUuuuuuuuuuuUk.',
+  '.kUubbbmmbbbuUk.',
+  '.kUsuuuuuuuusUk.',
+  '..kuuuuuuuuuuk..',
+];
+
+/** Sol ayak havada, sağ ayak basıyor. */
+export const ASKER_ADIM_SOL: SpriteDef = {
+  palette: P,
+  rows: [
+    ...ON_GOVDE,
+    '..kuuuu..uuuuk..',
+    '..kuuuu..uuuuk..',
+    '..kUUUU..uuuuk..',
+    '..kbbbb..uuuuk..',
+    '..kkkkk..UUUUk..',
+    '.........bbbbk..',
+    '.........kkkkk..',
+  ],
+};
+
+/** Sağ ayak havada, sol ayak basıyor — döngünün öteki yarısı. */
+export const ASKER_ADIM_SAG: SpriteDef = {
+  palette: P,
+  rows: [
+    ...ON_GOVDE,
+    '..kuuuu..uuuuk..',
+    '..kuuuu..uuuuk..',
+    '..kuuuu..UUUUk..',
+    '..kuuuu..bbbbk..',
+    '..kUUUU..kkkkk..',
+    '..kbbbb.........',
+    '..kkkkk.........',
+  ],
+};
+
+/**
+ * Sırt görünüşü. Perspektif kamerada asker senden uzaklaşarak ufka
+ * yürüyor; önden bakan bir sprite o sahnede geri geri gidiyor gibi
+ * duruyordu. Elde 8x12'lik bir sırt sprite'ı vardı ama kalabalık
+ * siluetiydi, kahraman olacak kadar detaylı değil.
+ */
+const ARKA_GOVDE = [
+  '.....kkkkkk.....',
+  '....khhhhhhk....',
+  '...khhhhhhhhk...',
+  '...khhhhhhhhk...',
+  '...khhhhhhhhk...',
+  '....kSSSSSSk....',
+  '....kssssssk....',
+  '.....kSSSSk.....',
+  '.....kSSSSk.....',
+  '...kuuuuuuuuk...',
+  '..kuuuuuuuuuuk..',
+  '.kUuuuuuuuuuuUk.',
+  '.kUuuuuuuuuuuUk.',
+  '.kUuuukkuuuuuUk.',
+  '.kUubbbbbbbbuUk.',
+  '.kUsuuuuuuuusUk.',
+  '..kuuuuuuuuuuk..',
+];
+
+export const ASKER_ARKA: SpriteDef = {
+  palette: P,
+  rows: [
+    ...ARKA_GOVDE,
+    '..kuuuu..uuuuk..',
+    '..kuuuu..uuuuk..',
+    '..kuuuu..uuuuk..',
+    '..kUUUU..UUUUk..',
+    '..kbbbb..bbbbk..',
+    '..kbbbb..bbbbk..',
+    '..kkkkk..kkkkk..',
+  ],
+};
+
+export const ASKER_ARKA_SOL: SpriteDef = {
+  palette: P,
+  rows: [
+    ...ARKA_GOVDE,
+    '..kuuuu..uuuuk..',
+    '..kuuuu..uuuuk..',
+    '..kUUUU..uuuuk..',
+    '..kbbbb..uuuuk..',
+    '..kkkkk..UUUUk..',
+    '.........bbbbk..',
+    '.........kkkkk..',
+  ],
+};
+
+export const ASKER_ARKA_SAG: SpriteDef = {
+  palette: P,
+  rows: [
+    ...ARKA_GOVDE,
+    '..kuuuu..uuuuk..',
+    '..kuuuu..uuuuk..',
+    '..kuuuu..UUUUk..',
+    '..kuuuu..bbbbk..',
+    '..kUUUU..kkkkk..',
+    '..kbbbb.........',
+    '..kkkkk.........',
+  ],
+};
+
+// ── Sivil ────────────────────────────────────────────────────────────
+// Nizamiyeden koğuşa yürürken üniforma daha torbada. Gövde aynı, kıyafet
+// sivil. Palet takası yetmiyor: kep siperliği de gövde de aynı 'u', göğüsteki
+// arma ve kemer tokası 'm'. O yüzden grid bölge bölge çevriliyor —
+// kep saça, üniforma kazağa ve kota, postal spor ayakkabıya.
+
+const SIVIL_P = {
+  ...P,
+  H: '#3B2B20', // saç
+  c: '#8A4A3A', // kazak
+  C: '#63342A', // kazak gölge
+  j: '#46607E', // kot
+  J: '#31445C', // kot gölge
+  e: '#D6CFBF', // spor ayakkabı
+  v: '#9C7A4E', // valiz
+  V: '#74582F', // valiz gölge
+} as Record<string, string>;
+
+/** 0–8 baş ve boyun, 9–16 gövde, sonrası bacak. Bütün asker kareleri bu düzende. */
+const BAS_SONU = 9;
+const GOVDE_SONU = 17;
+
+function sivilGiydir(def: SpriteDef): SpriteDef {
+  const cevir = (satir: string, harita: Record<string, string>) =>
+    satir.replace(/./g, (ch) => harita[ch] ?? ch);
+  return {
+    palette: SIVIL_P,
+    rows: def.rows.map((satir, i) => {
+      if (i < BAS_SONU) return cevir(satir, { h: 'H', u: 'H' });
+      if (i < GOVDE_SONU) return cevir(satir, { u: 'c', U: 'C', m: 'c', b: 'c' });
+      return cevir(satir, { u: 'j', U: 'J', b: 'e' });
+    }),
+  };
+}
+
+/**
+ * Orta boy el valizi. Sapı elde, gövdesi bacağın yanında; alt kenarı
+ * yerden bir piksel yukarıda, yani taşınıyor, sürüklenmiyor.
+ */
+const VALIZ = [
+  '.sskk.', // kolun ucundaki el sapı kavrıyor
+  '.k..k.',
+  'kkkkkk',
+  'kvvvvk',
+  'kvmmvk',
+  'kvvvvk',
+  'kVVVVk',
+  'kkkkkk',
+];
+/** El satırı: valizi tutan el gövdenin yanından sapa geçiyor. */
+const EL_SATIRI = 15;
+const VALIZ_UST = EL_SATIRI;
+/** Sprite iki yandan eşit genişliyor; çapa alt-orta olduğu için asker kaymıyor. */
+const PAY = 5;
+
+/**
+ * `savrulma`: adım karelerinde valiz bir piksel dışarı açılıyor, kontakta
+ * ortaya dönüyor — her adımda bir kez sallanıyor. El ve sap kolda sabit;
+ * yalnız sapın altı ve gövde kaydığı için sap da hafifçe yatıyor.
+ */
+function valizTut(def: SpriteDef, yan: 'sag' | 'sol', savrulma: 0 | 1 = 0): SpriteDef {
+  const bos = '.'.repeat(PAY);
+  return {
+    palette: def.palette,
+    rows: def.rows.map((satir, i) => {
+      let s = satir;
+      if (i === EL_SATIRI) {
+        const el = yan === 'sag' ? s.lastIndexOf('s') : s.indexOf('s');
+        s = s.slice(0, el) + 'c' + s.slice(el + 1);
+      }
+      const tam = (bos + s + bos).split('');
+      const satirParca = VALIZ[i - VALIZ_UST];
+      if (satirParca) {
+        // Valiz bacağa bitişik: kenardan bir sütun içeride. Solda ayna görüntüsü.
+        const parca = yan === 'sag' ? satirParca : satirParca.split('').reverse().join('');
+        const kayma = i > EL_SATIRI ? savrulma : 0;
+        const bas = yan === 'sag' ? tam.length - parca.length - 1 + kayma : 1 - kayma;
+        parca.split('').forEach((ch, j) => {
+          if (ch !== '.') tam[bas + j] = ch;
+        });
+      }
+      return tam.join('');
+    }),
+  };
+}
+
+// Valiz sol elde: önden bakınca ekranın sağında, arkadan bakınca solunda.
+const onden = (d: SpriteDef, savrulma: 0 | 1 = 0) => valizTut(sivilGiydir(d), 'sag', savrulma);
+const arkadan = (d: SpriteDef, savrulma: 0 | 1 = 0) => valizTut(sivilGiydir(d), 'sol', savrulma);
+
+export const SIVIL = onden(SOLDIER);
+export const SIVIL_ADIM_SOL = onden(ASKER_ADIM_SOL, 1);
+export const SIVIL_ADIM_SAG = onden(ASKER_ADIM_SAG, 1);
+export const SIVIL_ARKA = arkadan(ASKER_ARKA);
+export const SIVIL_ARKA_SOL = arkadan(ASKER_ARKA_SOL, 1);
+export const SIVIL_ARKA_SAG = arkadan(ASKER_ARKA_SAG, 1);
+
+/** Nizamiyede verilen yedek üniforma, katlanmış: tişörtün kalıbı, üniformanın kumaşı. */
+export const UNIFORMA_KATLI: SpriteDef = {
+  palette: { ...P, w: '#6E7444', W: '#4E5330' },
+  rows: TISORT.rows,
+};
+
+/** Askıdan alınan pantolon: kemeri takılı, paçalar ayrık. */
+export const PANTOLON: SpriteDef = {
+  palette: P,
+  rows: [
+    '............',
+    '.kkkkkkkkkk.',
+    '.kbbbmmbbbk.',
+    '.kuuuuuuuuk.',
+    '.kuuuuuuuuk.',
+    '.kuuukkuuuk.',
+    '.kuuk..kuuk.',
+    '.kuuk..kuuk.',
+    '.kuuk..kuuk.',
+    '.kUUk..kUUk.',
+    '.kkkk..kkkk.',
+    '............',
+  ],
+};
+
+// ── Sabah giyinme ────────────────────────────────────────────────────
+// Asker iç çamaşırından tam üniformaya aşama aşama giyiniyor. Gövde yine
+// SOLDIER; her aşamada bir bölge kendi rengine dönüyor. Sıra mini oyunla
+// aynı: 0 iç çamaşırı, 1 fanila, 2 pantolon, 3 çorap, 4 postal, 5 ceket ve kep.
+
+const GIYINME_P = {
+  ...P,
+  H: '#3B2B20', // saç — kep ceketle geliyor
+  f: '#DDD5C0', // fanila
+  F: '#B3A88C', // fanila gölge
+  x: '#55657A', // boxer
+  c: '#8A8F96', // çorap
+} as Record<string, string>;
+
+/** Kalça satırı: boxer ya da pantolon beli. */
+const KALCA = GOVDE_SONU - 1;
+/** Postal satırları; son satır dış hat. */
+const AYAK_BASI = 21;
+
+function giyinmeKaresi(asama: number): SpriteDef {
+  const cevir = (satir: string, harita: Record<string, string>) =>
+    satir.replace(/./g, (ch) => harita[ch] ?? ch);
+  const ten = { u: 's', U: 'S', m: 's', b: 's' };
+  return {
+    palette: GIYINME_P,
+    rows: SOLDIER.rows.map((satir, i) => {
+      if (i < BAS_SONU) return asama >= 5 ? satir : cevir(satir, { h: 'H', u: 'H' });
+      if (i === KALCA) return asama >= 2 ? satir : cevir(satir, { u: 'x', U: 'x' });
+      if (i < GOVDE_SONU) {
+        if (asama >= 5) return satir;
+        return cevir(satir, asama >= 1 ? { u: 'f', U: 'F', m: 'f', b: 'f' } : ten);
+      }
+      if (i < AYAK_BASI) return asama >= 2 ? satir : cevir(satir, ten);
+      if (asama >= 4) return satir;
+      return cevir(satir, asama >= 3 ? { b: 'c' } : { b: 's' });
+    }),
+  };
+}
+
+export const GIYINME_ASAMALARI: SpriteDef[] = [0, 1, 2, 3, 4, 5].map(giyinmeKaresi);
+
+/** Katlanmış pijama: tişörtün kalıbı, açık mavi pamuk. */
+export const PIJAMA_KATLI: SpriteDef = {
+  palette: { ...P, w: '#7C93A8', W: '#5B6F82' },
+  rows: TISORT.rows,
+};
+
+// ── Gece ─────────────────────────────────────────────────────────────
+// Yoklamadan önce üniforma çıkıyor (GIYINME_ASAMALARI tersten), sonra
+// pijama ve terlik. Çıplak hâl fanila aşaması: boxer, fanila, yalınayak.
+
+const GECE_P = { ...GIYINME_P, p: '#7C93A8', P: '#5B6F82', t: '#34495E' } as Record<string, string>;
+
+function geceKaresi(pijama: boolean, terlik: boolean): SpriteDef {
+  const cevir = (satir: string, harita: Record<string, string>) =>
+    satir.replace(/./g, (ch) => harita[ch] ?? ch);
+  return {
+    palette: GECE_P,
+    rows: giyinmeKaresi(1).rows.map((satir, i) => {
+      if (pijama && i >= BAS_SONU && i < KALCA) return cevir(satir, { f: 'p', F: 'P' });
+      if (pijama && i === KALCA) return cevir(satir, { x: 'p' });
+      if (pijama && i > KALCA && i < AYAK_BASI) return cevir(satir, { s: 'p', S: 'P' });
+      // Terlik tabanı: ayağın son satırı.
+      if (terlik && i === AYAK_BASI + 1) return cevir(satir, { s: 't' });
+      return satir;
+    }),
+  };
+}
+
+/** [pijama][terlik]: 0 yok, 1 var. */
+export const GECE_KARELERI: SpriteDef[][] = [
+  [geceKaresi(false, false), geceKaresi(false, true)],
+  [geceKaresi(true, false), geceKaresi(true, true)],
+];
+
+/**
+ * Tıraş aynası: yakından yüz. Sakal 8–15. satırlardaki ten piksellerinde
+ * duruyor (yanak, çene, boyun); ağız dış hat olduğu için tıraşlanmıyor.
+ */
+export const YUZ: SpriteDef = {
+  palette: { ...P, H: '#3B2B20' },
+  rows: [
+    '.....kkkkkk.....',
+    '...kkHHHHHHkk...',
+    '..kHHHHHHHHHHk..',
+    '..kHssssssssHk..',
+    '.kssssssssssssk.',
+    '.ksskksssskkssk.',
+    '.kssssssssssssk.',
+    '.ksssssSSsssssk.',
+    '.kssssssssssssk.',
+    '.kssssssssssssk.',
+    '.ksssskkkkssssk.',
+    '..kssssssssssk..',
+    '...kssssssssk...',
+    '....kssssssk....',
+    '.....kSSSSk.....',
+    '.....kSSSSk.....',
+  ],
+};
+
+// ── Şınav ────────────────────────────────────────────────────────────
+// Yandan, baş sağda. Gövde elle çizili, komutanla aynı palet ve aynı
+// detay: postal, pantolon, pirinç tokalı kemer, ceket, yaka, kep, kulak,
+// göz. Eğim döndürmeyle değil makaslamayla veriliyor — her piksel sütunu
+// kendi yüksekliği kadar kalkıyor, pikseller keskin kalıyor ve gövde
+// kareler arasında aynı çizim olarak kalıyor. Kol ayrı çiziliyor: öndeki
+// kol, gövdenin önünde; indikçe dirsek geriye kırılıyor.
+
+/** Yere yatmış asker: solda postal, sağda baş; üst kenar sırt, alt kenar göğüs. */
+const SINAV_GOVDE = [
+  '........................kkkkk.',
+  '.............kkkkkkkkkkkhhhhhk',
+  'kkkkkkkkkkkkkbbuuuuuuuukhhhhhk',
+  'kbbbbuuuuuuuubbuuuuuuuukuuuuuu',
+  'kbbbbuuuuuuuubmuuuUUuuukSssskk',
+  'kbbbbUUUUUUUUbbuuuuuuuuksssssk',
+  'kbbbbkkkkkkkkbbUUUUUUUUsssSssk',
+  'kbbbb........kkkkkkkkkkkkkkkk.',
+  'kkkkk.........................',
+];
+const SINAV_EN = SINAV_GOVDE[0].length;
+/** Kollar düzken başın kalkabileceği en fazla yükseklik. */
+const SINAV_KALDIRMA = 12;
+const SINAV_BOY = SINAV_KALDIRMA + SINAV_GOVDE.length;
+/** Kolun gövdeye bağlandığı sütun (ceketin göğüs tarafı). */
+const SINAV_OMUZ = 21;
+/** Gövde çiziminde göğsün alt dış hattının satırı; kol buradan çıkıyor. */
+const SINAV_GOGUS = 7;
+
+function sinavKaresi(d: number): SpriteDef {
+  const iz = Array.from({ length: SINAV_BOY }, () => Array<string>(SINAV_EN).fill('.'));
+  const koy = (x: number, y: number, ch: string) => {
+    if (x >= 0 && y >= 0 && x < SINAV_EN && y < SINAV_BOY) iz[y][x] = ch;
+  };
+
+  // Eğim: kollar düzken 0.42, göğüs yerdeyken 0.1 — postal burnu sabit.
+  const egim = 0.42 + (0.1 - 0.42) * d;
+  const kalkis = (x: number) => Math.round(egim * x);
+
+  SINAV_GOVDE.forEach((satir, y) =>
+    [...satir].forEach((ch, x) => {
+      if (ch !== '.') koy(x, y + SINAV_KALDIRMA - kalkis(x), ch);
+    }),
+  );
+
+  // Kol: omuzdan dirseğe, dirsekten ele; iki piksel kalın, sonra dış hat.
+  const omuzY = SINAV_GOGUS + SINAV_KALDIRMA - kalkis(SINAV_OMUZ);
+  const elX = SINAV_OMUZ + 1;
+  const elY = SINAV_BOY - 2;
+  // Aşağıda dirsek geriye ve göğsün hemen üstüne kırılıyor; daha yukarı
+  // kırınca gövdenin dış hattıyla birleşip leke gibi duruyordu.
+  const dirsekX = SINAV_OMUZ - Math.round(d * 5);
+  const dirsekY = Math.round(((omuzY + elY) / 2) * (1 - d) + (omuzY - 1) * d);
+
+  const ic = new Set<string>();
+  const cizgi = (x0: number, y0: number, x1: number, y1: number) => {
+    const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0), 1);
+    for (let i = 0; i <= n; i++) {
+      const x = Math.round(x0 + ((x1 - x0) * i) / n);
+      const y = Math.round(y0 + ((y1 - y0) * i) / n);
+      ic.add(`${x},${y}`);
+      ic.add(`${x + 1},${y}`);
+    }
+  };
+  cizgi(SINAV_OMUZ - 1, omuzY - 1, dirsekX, dirsekY);
+  cizgi(dirsekX, dirsekY, elX, elY - 1);
+  ic.forEach((k) => {
+    const [x, y] = k.split(',').map(Number);
+    koy(x, y, 'U');
+  });
+  for (const x of [elX, elX + 1]) {
+    ic.add(`${x},${elY}`);
+    koy(x, elY, 's');
+  }
+  ic.forEach((k) => {
+    const [x, y] = k.split(',').map(Number);
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      if (!ic.has(`${x + dx},${y + dy}`)) koy(x + dx, y + dy, 'k');
+    }
+  });
+
+  return { palette: P, rows: iz.map((r) => r.join('')) };
+}
+
+/** Derinlik 0 (kollar düz) → 1 (göğüs yerde), yedi kare. */
+export const SINAV_KARELERI: SpriteDef[] = Array.from({ length: 7 }, (_, i) => sinavKaresi(i / 6));

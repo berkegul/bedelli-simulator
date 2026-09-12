@@ -1,4 +1,5 @@
 import type { Day } from '../engine/types';
+import { postalSahnesi } from './rutin';
 
 export const gun03: Day = {
   day: 3,
@@ -32,26 +33,10 @@ export const gun03: Day = {
                 ? 'Yetişti. Kenarı hâlâ tam oturmuyor ama yetişti.'
                 : 'Onbaşı geçerken battaniyeyi çekti. Bir daha.'
         },
-        {
-          kind: 'anlati',
-          id: 'd3-ko1',
-          sprite: 'postal',
-          text: 'Postal boyama. Onbaşı herkesin postalını tek tek eline alıp ışığa tutuyor. "Bu postal bugün ölmüş. Diriltin."',
-          choices: [
-            {
-              id: 'd3-boya-ozen',
-              label: 'Uzun uzun boya, parlat',
-              effect: { disiplin: 9, enerji: -7, moral: -2 },
-              outcome: 'Postalın ayna gibi. Onbaşı hiçbir şey demedi, en iyi yorum bu.'
-            },
-            {
-              id: 'd3-boya-hizli',
-              label: 'Üstünkörü geç, kimse bakmaz',
-              effect: { disiplin: -7, enerji: 2, moral: 3 },
-              outcome: 'Baktı. "Bunu bir daha görürsem hafta sonu izin yok."'
-            },
-          ]
-        },
+        postalSahnesi(
+          'd3-ko1',
+          'Postal boyama. Dün içtimada Onbaşı iki kişinin postalını ışığa tuttu: "Bu postal ölmüş." Bugün sıranın kimde olduğu belli değil.'
+        ),
       ]
     },
     {
@@ -95,7 +80,7 @@ export const gun03: Day = {
           kind: 'anlati',
           id: 'd3-m1',
           sprite: 'postal',
-          text: 'Bugün süpürge senin. Avlunun kuzey köşesi, çay ocağının önü ve iki çöp kovası arası — hepsi mıntıkan.'
+          text: 'Dünkü köşe bugün büyüdü: avlunun kuzey köşesi, çay ocağının önü ve iki çöp kovası arası — hepsi mıntıkan.'
         },
       ]
     },

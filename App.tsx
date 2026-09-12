@@ -11,6 +11,7 @@ import {
   PixelifySans_700Bold,
 } from '@expo-google-fonts/pixelify-sans';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { C } from './src/theme';
 import { useGame } from './src/store/gameStore';
@@ -51,20 +52,24 @@ export default function App() {
   if (!fontHazir || !hazir) return null;
 
   return (
-    <SafeAreaProvider>
-      <View style={{ flex: 1, backgroundColor: C.bg }} onLayout={yerlesimHazir}>
-        <StatusBar style="light" />
-        {ekran === 'menu' && <MenuEkrani />}
-        {ekran === 'profil' && <ProfilEkrani />}
-        {ekran === 'carsi' && <CarsiEkrani />}
-        {ekran === 'gunBasi' && <GunBasiEkrani />}
-        {ekran === 'oyun' && <OyunEkrani />}
-        {ekran === 'gunSonu' && <GunSonuEkrani />}
-        {ekran === 'kilit' && <KilitEkrani />}
-        {ekran === 'icerikSonu' && <IcerikSonuEkrani />}
-        {ekran === 'gelistirme' && <GelistirmeEkrani />}
-        <GelistirmeRozeti />
-      </View>
-    </SafeAreaProvider>
+    // Jestler kökten aşağı dağılıyor: yol sahnesindeki sürükleme bu sarmalın
+    // içinde olmazsa dokunmayı hiç görmüyor.
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <View style={{ flex: 1, backgroundColor: C.bg }} onLayout={yerlesimHazir}>
+          <StatusBar style="light" />
+          {ekran === 'menu' && <MenuEkrani />}
+          {ekran === 'profil' && <ProfilEkrani />}
+          {ekran === 'carsi' && <CarsiEkrani />}
+          {ekran === 'gunBasi' && <GunBasiEkrani />}
+          {ekran === 'oyun' && <OyunEkrani />}
+          {ekran === 'gunSonu' && <GunSonuEkrani />}
+          {ekran === 'kilit' && <KilitEkrani />}
+          {ekran === 'icerikSonu' && <IcerikSonuEkrani />}
+          {ekran === 'gelistirme' && <GelistirmeEkrani />}
+          <GelistirmeRozeti />
+        </View>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

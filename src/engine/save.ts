@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { bulutaYaz, buluttanOku } from './bulut';
-import type { ArkadasId, Envanter, Profil, RehberKisi, Rol, Stats } from './types';
+import type { ArkadasId, DolapDuzeni, Envanter, Kusur, Profil, RehberKisi, Rol, Stats } from './types';
 
 const KEY = 'bedelli.save.v3';
 /** v1 kayıtları profil/envanter taşımıyordu; taşınamaz, temiz başlanır. */
@@ -21,6 +21,10 @@ export type SaveData = {
   stats: Stats;
   para: number;
   envanter: Envanter;
+  /** İlk gün dolaba ne nereye kondu; denetim buna bakıyor. Eski kayıtlarda yok. */
+  dolapDuzeni?: DolapDuzeni | null;
+  /** Kalkıştan içtimaya (ya da geceden yoklamaya) kalan, denetimi bekleyen işler. */
+  bekleyenKusurlar?: Kusur[];
   dostluk: Record<ArkadasId, number>;
   gorulmusDiyaloglar: string[];
   rehber: RehberKisi[];

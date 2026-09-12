@@ -4,6 +4,7 @@ import { C, SP } from '../../theme';
 import { YOLLAR } from '../../content';
 import { blokAnahtari } from '../../engine/kurallar';
 import { havaDurumu, havaEtkisi } from '../../engine/hava';
+import { BAKIS_ADI, GUZERGAH_BAKIS, type Bakis } from '../../engine/yuruyus';
 import { saate } from '../../engine/zaman';
 import { sprite } from '../../art';
 import { useGame } from '../../store/gameStore';
@@ -28,8 +29,12 @@ export function BolumKonum() {
   const [blok, setBlok] = useState(g.blokIndex);
   const [saat, setSaat] = useState(g.saat);
   const [vardi, setVardi] = useState(0);
+  // Kamera normalde güzergâhtan geliyor; burada üçü de tek tek denenebilsin.
+  const [bakis, setBakis] = useState<Bakis | null>(null);
 
   const yol = secili ? YOLLAR[secili] : undefined;
+  const varsayilanBakis: Bakis = (secili && GUZERGAH_BAKIS[secili]) || 'patika';
+  const etkinBakis = bakis ?? varsayilanBakis;
   const hava = havaDurumu(gun, blok);
   const etki = havaEtkisi(hava);
 
@@ -39,18 +44,19 @@ export function BolumKonum() {
         <Baslik
           ust="Bölüm 01"
           ad="Konum değiştirme"
-          alt={`Oyunda ${GUZERGAHLAR.length} güzergâh var. Her blok kapısından girmeden önce bu sahne oynuyor; 1. günde çalışmıyor çünkü sevk gününde bölge zaten turla geziliyor.`}
+          alt={`Oyunda ${GUZERGAHLAR.length} güzergâh var. Her blok kapısından girmeden önce bu sahne oynuyor; 1. günde yalnızca nizamiye ve bölge turu yürüyüşsüz; koğuşa ilk yol sivil kıyafetle yürünüyor.`}
         />
         <View style={{ gap: SP.sm }}>
           {GUZERGAHLAR.map(([anahtar, y]) => (
             <Kart
               key={anahtar}
               ad={y.hedef}
-              alt={`${anahtar} · ${y.adim} adım · ${y.manzara.length} manzara parçası`}
+              alt={`${anahtar} · ${y.adim} adım · ${GUZERGAH_BAKIS[anahtar] ?? 'patika'}`}
               saglik={`${y.adim}`}
               renk={C.steel}
               onPress={() => {
                 setSecili(anahtar);
+                setBakis(null);
                 setVardi(0);
               }}
             />
@@ -70,6 +76,20 @@ export function BolumKonum() {
         <Satir ad="adım sayısı" deger={yol.adim} />
         <Satir ad="varış mekanı" deger={yol.mekan} />
         <Satir ad="manzara" deger={yol.manzara.join(' → ')} />
+        <Satir ad="kamera" deger={BAKIS_ADI[varsayilanBakis]} renk={C.brass} />
+      </Kutu>
+
+      <Kutu baslik="Kamera" renk={C.olive}>
+        <PixelText size="micro" color={C.canvasFaint}>
+          Oyunda bu güzergâh {varsayilanBakis} bakışıyla oynuyor. Üçünü de burada
+          karşılaştırabilirsin — sahne seçimle birlikte baştan başlıyor.
+        </PixelText>
+        <Secenekler
+          liste={['patika', 'perspektif', 'yan'] as const}
+          secili={etkinBakis}
+          onSec={(v) => setBakis(v)}
+          etiket={(v) => (v === varsayilanBakis ? `${v} ✓` : v)}
+        />
       </Kutu>
 
       <Kutu baslik="Sahneyi besleyen durum" renk={C.brass}>
@@ -119,11 +139,12 @@ export function BolumKonum() {
         }}
       >
         <YolSahnesi
-          key={`${secili}-${gun}-${blok}-${saat}-${vardi}`}
+          key={`${secili}-${etkinBakis}-${gun}-${blok}-${saat}-${vardi}`}
           hedef={yol.hedef}
           adim={yol.adim}
           mekan={yol.mekan}
           manzara={yol.manzara}
+          bakis={etkinBakis}
           saat={saate(saat)}
           gun={gun}
           blokIndex={blok}
@@ -149,7 +170,14 @@ export function BolumKonum() {
             g.gelistirmeAtla({ ekran: 'oyun', gun, blokIndex: blok, sahneIndex: 0, saat })
           }
         />
-        <PixelButton label="‹ Güzergâh listesi" tur="sessiz" onPress={() => setSecili(null)} />
+        <PixelButton
+          label="‹ Güzergâh listesi"
+          tur="sessiz"
+          onPress={() => {
+            setSecili(null);
+            setBakis(null);
+          }}
+        />
       </View>
     </View>
   );

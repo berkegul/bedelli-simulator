@@ -82,8 +82,8 @@ export const ESYALAR: EsyaTanim[] = [
     nerede: ['hazirlik', 'kantin'],
     kademeli: true,
     maxAdet: 2,
-    gunluk: { disiplin: 3 },
-    yokluk: { disiplin: -3 },
+    // Günlük pasif etkisi yok: her sabah postal parlatma mini oyununda
+    // elle kullanılıyor, karşılığı orada (bkz. minigames/PostalParlatma).
   },
   {
     id: 'tabanlik',
@@ -123,8 +123,8 @@ export const ESYALAR: EsyaTanim[] = [
     nerede: ['hazirlik', 'kantin'],
     kademeli: true,
     maxAdet: 1,
-    gunluk: { disiplin: 2, moral: 1 },
-    yokluk: { disiplin: -3, moral: -2 },
+    // Günlük pasif etkisi yok: her sabah tıraş mini oyununda jilet olarak
+    // kullanılıyor, karşılığı orada (bkz. minigames/Tiras).
   },
   {
     id: 'kogusDuzen',
@@ -165,6 +165,27 @@ export const ESYALAR: EsyaTanim[] = [
     maxAdet: 1,
     gunluk: { disiplin: 1 },
     yokluk: { para: -6 },
+  },
+  {
+    id: 'pijama',
+    ad: 'Pijama takımı',
+    aciklama:
+      'Son yoklamaya yatma kıyafetiyle çıkılır. Pijaması olmayan fanilayla yatar, sabah aynı fanilayı giyer.',
+    fiyat: 280,
+    sprite: 'pijama',
+    nerede: ['hazirlik'],
+    maxAdet: 1,
+    // Etkisi gece rutininde: yoklamadan önce dolaptan alınıp giyiliyor.
+  },
+  {
+    id: 'terlik',
+    ad: 'Terlik',
+    aciklama:
+      'Koğuşta, duşta, gece nöbet değişiminde. Yalınayak dolaşan yoklamada ilk göze batan olur.',
+    fiyat: 120,
+    sprite: 'terlik',
+    nerede: ['hazirlik', 'kantin'],
+    maxAdet: 1,
   },
   {
     id: 'kamerasizTelefon',

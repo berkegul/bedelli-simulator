@@ -1,4 +1,5 @@
 import type { Day } from '../engine/types';
+import { tirasSahnesi } from './rutin';
 
 export const gun02: Day = {
   day: 2,
@@ -36,25 +37,10 @@ export const gun02: Day = {
                 ? 'İdare eder. Kenarı bir daha çekmen gerekti ama sıraya yetiştin.'
                 : 'Onbaşı battaniyeyi tek hamlede yere attı. Baştan.'
         },
-        {
-          kind: 'anlati',
-          id: 'd2-k3',
-          text: 'Lavaboda on kişi, dört musluk var. Tıraş olurken aynada kendine bakıyorsun. Saçın dün bu kadar kısa değildi.',
-          choices: [
-            {
-              id: 'tras-hizli',
-              label: 'Hızlı ol, sıraya yetiş',
-              effect: { disiplin: 6, moral: -3 },
-              outcome: 'Çeneni kestin ama içtimada ilk sıradasın.'
-            },
-            {
-              id: 'tras-duzgun',
-              label: 'Düzgün tıraş ol, geç kalsan da',
-              effect: { disiplin: -5, moral: 5, kondisyon: 2 },
-              outcome: 'Yüzün temiz. İçtimaya son giren sen oldun ve Onbaşı bunu gördü.'
-            },
-          ]
-        },
+        tirasSahnesi(
+          'd2-k3',
+          'Lavaboda on kişi, dört musluk var. Aynada kendine bakıyorsun; saçın dün bu kadar kısa değildi. Jileti aşağı doğru çek, acele eden yüzünü keser.'
+        ),
         {
           kind: 'anlati',
           id: 'd2-ko1',
@@ -133,7 +119,7 @@ export const gun02: Day = {
           kind: 'anlati',
           id: 'd2-m1',
           sprite: 'postal',
-          text: 'Süpürge ve faraş dağıtıldı. Mıntıka dediğin şey avlunun sana düşen köşesi. Bugün yanında yürüyüp bakıyorsun; yarın burası senin.'
+          text: 'Süpürge ve faraş dağıtıldı. Mıntıka dediğin şey avlunun sana düşen köşesi; ilk sabahından itibaren burası senin. Onbaşı köşeleri tek tek gösterdi, sonra saatine baktı.'
         },
       ]
     },

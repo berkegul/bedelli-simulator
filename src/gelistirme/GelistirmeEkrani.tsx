@@ -44,7 +44,7 @@ const BOLUMLER: {
   {
     id: 'mini',
     ad: 'Mini oyunlar',
-    alt: 'Yedi görev · zorluk ayarlı, skor ve ödül hesabıyla',
+    alt: 'On bir görev · zorluk ayarlı, skor ve ödül hesabıyla',
     renk: C.olive,
     bilesen: BolumMiniOyunlar,
   },

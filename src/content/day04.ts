@@ -123,6 +123,12 @@ export const gun04: Day = {
           text: 'Denetim başladı. Yüzbaşı koğuşa girdi. Herkes ranzasının başında, hazır olda. Yüzbaşı hiçbir şey söylemeden yürüyor ve her yatağa iki saniye bakıyor.'
         },
         {
+          kind: 'dolapDenetimi',
+          id: 'd4-es-dolap',
+          sprite: 'postal',
+          brief: 'Yüzbaşı senin ranzanın önünde durdu. "Dolap." Kapağı açtın ve geri çekildin. İlk gün nasıl yerleştirdiysen öyle duruyor.',
+        },
+        {
           kind: 'mini',
           id: 'd4-es2',
           game: 'yurumek',

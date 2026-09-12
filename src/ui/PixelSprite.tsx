@@ -72,3 +72,12 @@ export function spriteSize(def: SpriteDef) {
   const { w, h } = compile(def);
   return { w, h };
 }
+
+/**
+ * Derlenmiş bant listesi. Yol sahnesi aynı sprite'ları SVG yerine Skia'ya
+ * çiziyor; iki render yolunun aynı veriden beslenmesi için derleyici
+ * dışarı açık. Önbellek ortak, ikinci bir derleme olmuyor.
+ */
+export function spriteBantlari(def: SpriteDef) {
+  return compile(def);
+}

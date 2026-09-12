@@ -55,14 +55,44 @@ export const gun01: Day = {
           kind: 'anlati',
           id: 'd1-n3',
           sprite: 'kunye',
-          text: 'Sıraya girdin. Künyeni, üniformanı, iki çift postalını aldın. Artık bir numaran var. Adın hâlâ duruyor ama bugünden sonra daha az kullanılacak.',
+          text: 'Sıraya girdin. Künyeni, üniformanı, iki çift postalını aldın. Artık bir numaran var. Adın hâlâ duruyor ama bugünden sonra daha az kullanılacak. Kucağında torba, bölük koğuşa yürütülüyor.',
+        },
+      ],
+    },
+    {
+      id: 'd1-kogus',
+      from: '12:00',
+      to: '13:00',
+      title: 'Koğuş Yerleşimi',
+      sprite: 'ranzaDaginik',
+      scenes: [
+        {
+          kind: 'anlati',
+          id: 'd1-y1',
+          sprite: 'ranzaDaginik',
+          speaker: 'Onbaşı Recep',
+          text: 'Bu koğuş yirmi sekiz kişilik. Ranzanız, dolabınız, askınız numaralı. Bugün yerleşeceksiniz, yarın sabah 05:30’da bu koğuş bambaşka görünecek.',
+        },
+        {
+          kind: 'dolap',
+          id: 'd1-y2',
+          sprite: 'postal',
+          brief:
+            'Ranzanı buldun. Alt kat. Dolabın dar ve derin, kapağı açık. Çarşıda ne aldıysan torbada; her şeyin dolapta bir yeri var ve Onbaşı yarın hangisinin nerede durduğuna bakacak.',
+        },
+        {
+          kind: 'anlati',
+          id: 'd1-y3',
+          sprite: 'cavus',
+          speaker: 'Onbaşı Recep',
+          text: 'Üniformalar giyildi mi? Siviller dolaba! Koğuş önünde iki sıra, yemekhaneye beraber gidiyoruz. Yolu bugün ben gösteriyorum, yarından sonra kendiniz bulacaksınız.',
         },
       ],
     },
     {
       id: 'd1-ogle',
-      from: '12:00',
-      to: '13:30',
+      from: '13:00',
+      to: '14:00',
       title: 'İlk Yemek',
       sprite: 'tepsi',
       scenes: [
@@ -70,7 +100,7 @@ export const gun01: Day = {
           kind: 'anlati',
           id: 'd1-o1',
           sprite: 'tepsi',
-          text: 'Yemekhane. Tepsi, sıra, kaşık şıngırtısı. Yanına oturan adam elini uzattı: "Emre. Müteahhitim. Yani sivilde. Burada neysem oyum artık."',
+          text: 'Yemekhane. Tepsi, sıra, kaşık şıngırtısı. Üniformanın içinde herkes birbirine benziyor. Yanına oturan adam elini uzattı: "Emre. Müteahhitim. Yani sivilde. Burada neysem oyum artık."',
           choices: [
             {
               id: 'd1-emre-tanis',
@@ -89,44 +119,8 @@ export const gun01: Day = {
       ],
     },
     {
-      id: 'd1-kogus',
-      from: '13:30',
-      to: '15:00',
-      title: 'Koğuş Yerleşimi',
-      sprite: 'ranzaDaginik',
-      scenes: [
-        {
-          kind: 'anlati',
-          id: 'd1-y1',
-          sprite: 'ranzaDaginik',
-          speaker: 'Onbaşı Recep',
-          text: 'Bu koğuş yirmi sekiz kişilik. Ranzanız, dolabınız, askınız numaralı. Bugün yerleşeceksiniz, yarın sabah 05:30’da bu koğuş bambaşka görünecek.',
-        },
-        {
-          kind: 'anlati',
-          id: 'd1-y2',
-          sprite: 'postal',
-          text: 'Ranzanı buldun. Alt kat. Dolabın dar ve derin. Çarşıda ne aldıysan buraya sığacak, almadıklarını da yirmi sekiz gün boyunca arayacaksın.',
-          choices: [
-            {
-              id: 'd1-yerlesim-duzenli',
-              label: 'Dolabı baştan düzenli yerleştir',
-              effect: { disiplin: 8, enerji: -6 },
-              outcome: 'Yarın sabahki telaşta bunu kendine teşekkür edeceksin.',
-            },
-            {
-              id: 'd1-yerlesim-hizli',
-              label: 'Çabuk tık, sonra bakarsın',
-              effect: { disiplin: -4, enerji: 4, moral: 3 },
-              outcome: 'Torbayı dolaba boşalttın. Yarın sabah bu dolabı açmak istemeyeceksin.',
-            },
-          ],
-        },
-      ],
-    },
-    {
       id: 'd1-tanitim',
-      from: '15:00',
+      from: '14:00',
       to: '17:00',
       title: 'Bölge Tanıtımı',
       sprite: 'kisla',

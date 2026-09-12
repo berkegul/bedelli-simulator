@@ -15,6 +15,8 @@ import { kaydet, sil, yukle } from '../engine/save';
 import { blokSonu, dakikaya, sahneSaati } from '../engine/zaman';
 import { olayYaz } from '../engine/bulut';
 import { sigaraIzni, telefonIzni } from '../engine/kurallar';
+import type { DolapDuzeni, Kusur } from '../engine/types';
+import { denetimSonucu } from '../content/denetim';
 import {
   KAYIT_ADI,
   ROL_ADI,
@@ -137,6 +139,10 @@ export type Store = {
   stats: Stats;
   para: number;
   envanter: Envanter;
+  /** İlk gün dolaba ne nereye kondu. Dördüncü gün denetimi buna bakıyor. */
+  dolapDuzeni: DolapDuzeni | null;
+  /** Sabah ya da gece rutininden kalan, içtimada/yoklamada bakılacak işler. */
+  bekleyenKusurlar: Kusur[];
   dostluk: Record<ArkadasId, number>;
   gorulmusDiyaloglar: string[];
   rehber: RehberKisi[];
@@ -201,6 +207,10 @@ export type Store = {
   gunuBaslat: () => void;
   ileri: () => void;
   secimYap: (c: Choice) => void;
+  /** Dolap yerleşimi bitti: düzen kayda geçer, seçimin etkisi uygulanır. */
+  dolapKapat: (c: Choice, duzen: DolapDuzeni) => void;
+  /** Denetim bitti: kusurlar ve varsa şınav skoru etkiye çevrilir, liste boşalır. */
+  denetimBitir: (cezaSkoru: number | null) => void;
   miniBaslat: () => void;
   miniBitir: (score: number) => void;
   sonucuKapat: () => void;
@@ -235,6 +245,8 @@ const ilkDurum = {
   stats: { ...BASLANGIC_STATS },
   para: BASLANGIC_PARA,
   envanter: {} as Envanter,
+  dolapDuzeni: null as DolapDuzeni | null,
+  bekleyenKusurlar: [] as Kusur[],
   dostluk: { ...BOS_DOSTLUK },
   gorulmusDiyaloglar: [] as string[],
   rehber: [] as RehberKisi[],
@@ -286,6 +298,8 @@ export const useGame = create<Store>((set, get) => ({
       stats: k.stats,
       para: k.para,
       envanter: k.envanter ?? {},
+      dolapDuzeni: k.dolapDuzeni ?? null,
+      bekleyenKusurlar: k.bekleyenKusurlar ?? [],
       dostluk: { ...BOS_DOSTLUK, ...(k.dostluk ?? {}) },
       gorulmusDiyaloglar: k.gorulmusDiyaloglar ?? [],
       rehber: (k.rehber ?? []).map((kisi) => ({
@@ -467,6 +481,18 @@ export const useGame = create<Store>((set, get) => ({
     uygulaEtki(set, get, c.effect, c.outcome);
   },
 
+  dolapKapat(c, duzen) {
+    // Önce düzen: uygulaEtki kaydı yazarken düzen de onunla birlikte gidiyor.
+    set({ dolapDuzeni: duzen });
+    uygulaEtki(set, get, c.effect, c.outcome);
+  },
+
+  denetimBitir(cezaSkoru) {
+    const { etki, metin } = denetimSonucu(get().bekleyenKusurlar, cezaSkoru);
+    set({ bekleyenKusurlar: [] });
+    uygulaEtki(set, get, etki, metin);
+  },
+
   miniBaslat() {
     set({ miniAktif: true });
   },
@@ -476,6 +502,16 @@ export const useGame = create<Store>((set, get) => ({
     const sahne = gunGetir(gun)?.blocks[blokIndex]?.scenes[sahneIndex];
     if (!sahne || sahne.kind !== 'mini') return;
     set({ miniAktif: false });
+    // Sabah ve gece rutinleri hemen değil, içtimada/yoklamada denetleniyor.
+    // Aynı iş iki kez yapılırsa (geliştirmeden tekrar) son sonuç geçerli.
+    if (sahne.denetimde) {
+      set({
+        bekleyenKusurlar: [
+          ...get().bekleyenKusurlar.filter((k) => k.kaynak !== sahne.game),
+          { kaynak: sahne.game, puan: score },
+        ],
+      });
+    }
     uygulaEtki(set, get, sahne.reward(score), sahne.verdict(score));
   },
 
@@ -520,6 +556,8 @@ export const useGame = create<Store>((set, get) => ({
       nikotin: get().profil.sigaraIciyor ? Math.min(100, get().nikotin + 15) : 0,
       gelenArama: null,
       bekleyenArama: [],
+      // Dünden denetlenmemiş iş kalmışsa yeni güne taşınmıyor.
+      bekleyenKusurlar: [],
     });
     gunlukDolapEtkisi(set, get);
     gunBasiTelefon(set, get);
@@ -1316,6 +1354,8 @@ function persist(get: () => Store) {
     stats: s.stats,
     para: s.para,
     envanter: s.envanter,
+    dolapDuzeni: s.dolapDuzeni,
+    bekleyenKusurlar: s.bekleyenKusurlar,
     dostluk: s.dostluk,
     gorulmusDiyaloglar: s.gorulmusDiyaloglar,
     rehber: s.rehber,
