@@ -4,14 +4,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { C, SP } from '../theme';
 import { SPRITES } from '../art';
 import { YAZILMIS_GUN_SAYISI } from '../content';
-import { useGame } from '../store/gameStore';
+import { useSecili } from '../store/secici';
 import { CentikTakvim } from '../ui/CentikTakvim';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
 
 export function IcerikSonuEkrani() {
-  const g = useGame();
+  const g = useSecili('anaMenu', 'bitenGunler', 'gun');
   const inset = useSafeAreaInsets();
 
   return (

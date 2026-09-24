@@ -12,7 +12,8 @@ import {
   secenekleriHazirla,
 } from '../../content/telefon';
 import type { Gorusme, Rol } from '../../content/telefon';
-import { telefonDurumuOku, useGame } from '../../store/gameStore';
+import { telefonDurumuOku } from '../../store/gameStore';
+import { useSecili } from '../../store/secici';
 import { PixelButton } from '../../ui/PixelButton';
 import { PixelText } from '../../ui/PixelText';
 import { GorusmePaneli } from '../../screens/Paneller';
@@ -37,7 +38,7 @@ const ROL_RENK: Record<Rol, string> = {
  * seçeneklerin açılacağı görünüyor — oyunu oynamadan.
  */
 export function BolumTelefon() {
-  const g = useGame();
+  const g = useSecili('aktifGorusme', 'gelistirmeAtla', 'gun', 'kisiAra', 'rehber');
   const [gun, setGun] = useState(g.gun);
   const [rol, setRol] = useState<Rol>('anne');
   const [ayrinti, setAyrinti] = useState<Gorusme | null>(null);

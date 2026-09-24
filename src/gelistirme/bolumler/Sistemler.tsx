@@ -15,7 +15,7 @@ import { sigaraIzni, telefonIzni, blokAnahtari } from '../../engine/kurallar';
 import { GUNLER } from '../../content';
 import { sil } from '../../engine/save';
 import type { StatKey } from '../../engine/types';
-import { useGame } from '../../store/gameStore';
+import { useSecili } from '../../store/secici';
 import { PixelButton } from '../../ui/PixelButton';
 import { PixelText } from '../../ui/PixelText';
 import { Baslik, Cikti, Kart, Kutu, Satir, Sayi, Secenekler } from '../parcalar';
@@ -96,7 +96,7 @@ function Hava({ geri }: { geri: () => void }) {
 }
 
 function Stat({ geri }: { geri: () => void }) {
-  const g = useGame();
+  const g = useSecili('para', 'stats');
   const [key, setKey] = useState<StatKey>('disiplin');
   const [degisim, setDegisim] = useState(10);
 
@@ -180,7 +180,7 @@ function Izin({ geri }: { geri: () => void }) {
 }
 
 function Uyku({ geri }: { geri: () => void }) {
-  const g = useGame();
+  const g = useSecili('stats');
   const [moral, setMoral] = useState(g.stats.moral);
   const [enerji, setEnerji] = useState(g.stats.enerji);
   const [tokluk, setTokluk] = useState(g.stats.tokluk);
@@ -224,7 +224,7 @@ function Uyku({ geri }: { geri: () => void }) {
 }
 
 function Kayit({ geri }: { geri: () => void }) {
-  const g = useGame();
+  const g = useSecili('bitenGunler', 'envanter', 'gorulmusGorusmeler', 'gun', 'hafiza', 'rehber');
   const [cikti, setCikti] = useState<string[]>([]);
   return (
     <View style={{ gap: SP.lg }}>

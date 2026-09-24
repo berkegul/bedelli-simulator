@@ -14,7 +14,8 @@ import {
 import { sigaraIzni, telefonIzni } from '../engine/kurallar';
 import type { ArkadasId, KayitRolu } from '../engine/types';
 import { KALITE_ADI, esya, kullanilabilirler } from '../content/esyalar';
-import { telefonDurumuOku, useGame } from '../store/gameStore';
+import { telefonDurumuOku } from '../store/gameStore';
+import { useSecili } from '../store/secici';
 import { DukkanListesi } from '../ui/DukkanListesi';
 import { DersSahnesi } from './DersSahnesi';
 import { PixelButton } from '../ui/PixelButton';
@@ -44,7 +45,7 @@ function PanelKabuk({
   kapat?: () => void;
   kapatLabel?: string;
 }) {
-  const g = useGame();
+  const g = useSecili('panelAc', 'para');
   const inset = useSafeAreaInsets();
 
   return (
@@ -93,7 +94,7 @@ function PanelKabuk({
 }
 
 export function KantinPaneli() {
-  const g = useGame();
+  const g = useSecili('envanter', 'para', 'profil', 'satinAl');
   return (
     <PanelKabuk baslik="KANTİN" alt="Fiyatlar burada tartışmaya açık değil">
       <DukkanListesi
@@ -108,7 +109,7 @@ export function KantinPaneli() {
 }
 
 export function DolapPaneli() {
-  const g = useGame();
+  const g = useSecili('envanter', 'esyaKullan', 'gun', 'panelAc');
   const dolu = Object.entries(g.envanter).filter(([, v]) => (v?.adet ?? 0) > 0);
   const kullanilir = kullanilabilirler(g.envanter);
 
@@ -210,7 +211,7 @@ export function DolapPaneli() {
 }
 
 export function RehberPaneli() {
-  const g = useGame();
+  const g = useSecili('blokIndex', 'envanter', 'gun', 'kisiAra', 'kisiEkle', 'miniAktif', 'rehber');
   const [ad, setAd] = useState('');
   const [yakinlik, setYakinlik] = useState('');
   const [tur, setTur] = useState<KayitRolu>('ev');
@@ -341,7 +342,7 @@ export function RehberPaneli() {
  * eşya — dolap koğuşta kalır, bunlar seninle gelir.
  */
 export function CepPaneli() {
-  const g = useGame();
+  const g = useSecili('blokIndex', 'cepteIzmarit', 'envanter', 'gun', 'izmaritAt', 'miniAktif', 'panelAc', 'profil', 'sigaraIc');
   const telefonVar = (g.envanter.kamerasizTelefon?.adet ?? 0) > 0;
   const dal = g.envanter.sigara?.adet ?? 0;
   // Cep her yerden açılır ama içindekiler her yerde kullanılmaz.
@@ -452,7 +453,7 @@ export function CepPaneli() {
 
 /** Sigara bitti, elinde izmarit kaldı. Kolay yol her zaman temiz yol değil. */
 export function IzmaritPaneli() {
-  const g = useGame();
+  const g = useSecili('izmaritKarar');
   return (
     <PanelKabuk baslik="ELİNDE İZMARİT" alt="Sigara bitti">
       <View style={{ alignItems: 'center', paddingVertical: SP.md }}>
@@ -478,7 +479,7 @@ export function IzmaritPaneli() {
 
 /** Yakalandın: izmariti topla ve yerden özür dile. */
 export function IzmaritCezasiPaneli() {
-  const g = useGame();
+  const g = useSecili('izmaritCezasiBitir');
   const [adim, setAdim] = useState(0);
 
   const basamaklar = [
@@ -544,7 +545,7 @@ const OTURAN_SPRITE: Record<ArkadasId, 'oturanEmre' | 'oturanTolga' | 'oturanSer
  * konuşabilir ya da hiç girmeden geçebilirsin.
  */
 export function OturmaAlaniPaneli() {
-  const g = useGame();
+  const g = useSecili('arkadasaGit', 'bugunDinlenildi', 'envanter', 'golgedeDinlen', 'gun', 'profil', 'sigaraIc');
   const oturanlar = oturmaAlanindakiler(g.gun);
   const dal = g.envanter.sigara?.adet ?? 0;
 
@@ -633,7 +634,7 @@ export function OturmaAlaniPaneli() {
  * boyunca gizli birikiyor, kapanışta bir kere işleniyor.
  */
 export function GorusmePaneli() {
-  const g = useGame();
+  const g = useSecili('aktifGorusme', 'gorusmeCevapla', 'gorusmeKapat', 'rehber');
   const gorusme = g.aktifGorusme;
   const kaydirma = useRef<ScrollView>(null);
 
@@ -770,7 +771,7 @@ export function Ant41Paneli() {
 }
 
 export function SigaraIstegiPaneli() {
-  const g = useGame();
+  const g = useSecili('aktifIstek', 'dostluk', 'envanter', 'sigaraVer');
   const id = g.aktifIstek;
   if (!id) return null;
   const kisi = arkadas(id);
@@ -810,7 +811,7 @@ export function SigaraIstegiPaneli() {
 }
 
 export function MuhabbetPaneli() {
-  const g = useGame();
+  const g = useSecili('aktifDiyalog', 'diyalogSec', 'dostluk');
   const d = g.aktifDiyalog;
 
   return (

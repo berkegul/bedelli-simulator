@@ -5,7 +5,7 @@ import { gunGetir } from "../content";
 import { sprite } from "../art";
 import { MINI_BASLIK, MiniOyun } from "../minigames";
 import { saate } from "../engine/zaman";
-import { useGame } from "../store/gameStore";
+import { useSecili } from "../store/secici";
 import { Daktilo } from "../ui/Daktilo";
 import { PixelButton } from "../ui/PixelButton";
 import { PixelPanel } from "../ui/PixelPanel";
@@ -35,7 +35,7 @@ import { TanitimSahnesi } from "./TanitimSahnesi";
 import { YolSahnesi } from "./YolSahnesi";
 
 export function OyunEkrani() {
-  const g = useGame();
+  const g = useSecili('bekleyenKusurlar', 'blokIndex', 'denetimBitir', 'dolapDuzeni', 'dolapKapat', 'envanter', 'gun', 'ileri', 'miniAktif', 'miniBaslat', 'miniBitir', 'nikotin', 'panel', 'para', 'profil', 'saat', 'sahneIndex', 'secimYap', 'sonuc', 'sonucuKapat', 'stats', 'yemekYe', 'yoldaVar');
   const gunData = gunGetir(g.gun);
   const blok = gunData?.blocks[g.blokIndex];
   const sahne = blok?.scenes[g.sahneIndex];

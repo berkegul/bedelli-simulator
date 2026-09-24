@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BORDER, C, SP } from '../theme';
-import { useGame } from '../store/gameStore';
+import { useSecili } from '../store/secici';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelText } from '../ui/PixelText';
 import { Baslik, Kart } from './parcalar';
@@ -100,7 +100,7 @@ const BOLUMLER: {
 ];
 
 export function GelistirmeEkrani() {
-  const g = useGame();
+  const g = useSecili('anaMenu', 'blokIndex', 'gun', 'para', 'sahneIndex');
   const inset = useSafeAreaInsets();
   const [acik, setAcik] = useState<BolumId | null>(null);
 

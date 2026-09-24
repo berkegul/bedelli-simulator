@@ -4,7 +4,7 @@ import Svg, { Line, Rect } from 'react-native-svg';
 import { BORDER, C, SP } from '../theme';
 import { sprite, type SpriteKey } from '../art';
 import { arkadas, avludakiler, oturmaAlanindakiler } from '../content/arkadaslar';
-import { useGame } from '../store/gameStore';
+import { useSecili } from '../store/secici';
 import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
 
@@ -34,7 +34,7 @@ type Nokta = {
  * konuşuyorsun.
  */
 export function KislaHaritasi() {
-  const g = useGame();
+  const g = useSecili('arkadasaGit', 'cepteIzmarit', 'dostluk', 'envanter', 'gun', 'panelAc');
   const telefonVar = (g.envanter.kamerasizTelefon?.adet ?? 0) > 0;
   const dal = g.envanter.sigara?.adet ?? 0;
   // Akşamları bir kısmı bankta oturuyor; avluda ayakta duranlar kalanlar.

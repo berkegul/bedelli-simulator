@@ -3,7 +3,7 @@ import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { C, SP } from '../theme';
 import { SPRITES } from '../art';
-import { useGame } from '../store/gameStore';
+import { useSecili } from '../store/secici';
 import { YAZILMIS_GUN_SAYISI } from '../content';
 import { BEDAVA_GUN } from '../monetization/entitlements';
 import { CentikTakvim } from '../ui/CentikTakvim';
@@ -14,7 +14,7 @@ import { PixelText } from '../ui/PixelText';
 import { GELISTIRME_ACIK } from '../gelistirme/ayar';
 
 export function MenuEkrani() {
-  const g = useGame();
+  const g = useSecili('bitenGunler', 'blokIndex', 'devamEt', 'gelistirmeAc', 'gun', 'kayitVar', 'profil', 'sahneIndex', 'yeniOyun');
   const inset = useSafeAreaInsets();
   const devamEdilebilir =
     g.kayitVar || g.bitenGunler.length > 0 || g.blokIndex > 0 || g.sahneIndex > 0 || !!g.profil.ad;

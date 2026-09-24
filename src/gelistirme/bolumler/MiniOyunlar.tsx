@@ -5,7 +5,7 @@ import { MINI_BASLIK, MiniOyun } from '../../minigames';
 import { GUNLER } from '../../content';
 import type { MiniGameId, Scene } from '../../engine/types';
 import { applyEffect } from '../../engine/stats';
-import { useGame } from '../../store/gameStore';
+import { useSecili } from '../../store/secici';
 import { PixelButton } from '../../ui/PixelButton';
 import { PixelText } from '../../ui/PixelText';
 import { Baslik, Cikti, Kart, Kutu, Satir, Sayi } from '../parcalar';
@@ -61,7 +61,7 @@ function sahneleriBul(id: MiniGameId) {
  * hangi sonuç cümlesine dönüştüğünü aynı ekranda görüyorsun.
  */
 export function BolumMiniOyunlar() {
-  const g = useGame();
+  const g = useSecili('gelistirmeAtla', 'para', 'stats');
   const [secili, setSecili] = useState<MiniGameId | null>(null);
   const [zorluk, setZorluk] = useState(50);
   const [oynaniyor, setOynaniyor] = useState(false);

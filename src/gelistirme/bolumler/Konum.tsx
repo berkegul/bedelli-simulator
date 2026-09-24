@@ -7,7 +7,7 @@ import { havaDurumu, havaEtkisi } from '../../engine/hava';
 import { BAKIS_ADI, GUZERGAH_BAKIS, type Bakis } from '../../engine/yuruyus';
 import { saate } from '../../engine/zaman';
 import { sprite } from '../../art';
-import { useGame } from '../../store/gameStore';
+import { useSecili } from '../../store/secici';
 import { PixelButton } from '../../ui/PixelButton';
 import { PixelSprite } from '../../ui/PixelSprite';
 import { PixelText } from '../../ui/PixelText';
@@ -23,7 +23,7 @@ const GUZERGAHLAR = Object.entries(YOLLAR);
  * yürürken ne olduğunu görmek için 28 günü oynamak gerekmiyor.
  */
 export function BolumKonum() {
-  const g = useGame();
+  const g = useSecili('blokIndex', 'gelistirmeAtla', 'gun', 'saat');
   const [secili, setSecili] = useState<string | null>(null);
   const [gun, setGun] = useState(g.gun);
   const [blok, setBlok] = useState(g.blokIndex);

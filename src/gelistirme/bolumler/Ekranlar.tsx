@@ -3,7 +3,8 @@ import { View } from 'react-native';
 import { C, SP } from '../../theme';
 import { GUNLER } from '../../content';
 import { BEDAVA_GUN } from '../../monetization/entitlements';
-import { useGame, type Ekran } from '../../store/gameStore';
+import { type Ekran } from '../../store/gameStore';
+import { useSecili } from '../../store/secici';
 import { PixelText } from '../../ui/PixelText';
 import { Baslik, Kart, Kutu } from '../parcalar';
 
@@ -14,7 +15,7 @@ type Kayit = { id: Ekran; ad: string; alt: string; hazirla?: () => Partial<Recor
  * alanına bakıyor; buradan doğrudan o duruma atlanıyor.
  */
 export function BolumEkranlar() {
-  const g = useGame();
+  const g = useSecili('blokIndex', 'ekran', 'gelistirmeAtla', 'gun', 'sahneIndex');
 
   const EKRANLAR: Kayit[] = [
     { id: 'menu', ad: 'Ana menü', alt: 'Çentik takvim, devam et, baştan başla' },

@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { C, SP , BORDER } from '../theme';
 import { gunGetir } from '../content';
 import { blokSonu, kalanSure, saate } from '../engine/zaman';
-import { useGame } from '../store/gameStore';
+import { useSecili } from '../store/secici';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelText } from '../ui/PixelText';
 import { KislaHaritasi } from './KislaHaritasi';
@@ -11,7 +11,7 @@ import { ROL_ADI } from '../content/telefon';
 
 /** İki saat serbest. Ne yapacağın tamamen sana kalmış. */
 export function SerbestSahnesi() {
-  const g = useGame();
+  const g = useSecili('blokIndex', 'gun', 'ileri', 'saat');
   const blok = gunGetir(g.gun)?.blocks[g.blokIndex];
   // Serbest zaman biten bir kaynak: telefon kuyruğu kırk dakika yiyor,
   // ağacın altında oturmak on beş. Kalanı görmeden karar verilemiyor.
@@ -48,7 +48,7 @@ export function SerbestSahnesi() {
  * aramak sana kalıyor.
  */
 function GelenArama() {
-  const g = useGame();
+  const g = useSecili('bekleyenArama', 'gelenArama', 'gelenAramayiAc', 'gelenAramayiGecistir', 'rehber');
   const kisi = g.gelenArama
     ? g.rehber.find((k) => k.id === g.gelenArama!.kisiId)
     : undefined;

@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BORDER, C, SP } from '../theme';
 import { gunGetir } from '../content';
 import { STAT_ORDER, gunNotu } from '../engine/stats';
-import { useGame } from '../store/gameStore';
+import { useSecili } from '../store/secici';
 import { CentikTakvim } from '../ui/CentikTakvim';
 import { PixelButton } from '../ui/PixelButton';
 import { GokyuzuGecisi } from '../ui/GokyuzuGecisi';
@@ -20,7 +20,7 @@ const NOT_RENK: Record<string, string> = {
 };
 
 export function GunSonuEkrani() {
-  const g = useGame();
+  const g = useSecili('anaMenu', 'bitenGunler', 'gun', 'sonrakiGun', 'stats');
   const inset = useSafeAreaInsets();
   const not = gunNotu(g.stats);
   const gunData = gunGetir(g.gun);

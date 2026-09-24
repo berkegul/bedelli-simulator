@@ -5,7 +5,7 @@ import { GUNLER } from '../../content';
 import type { Kusur, Scene } from '../../engine/types';
 import { denetimSonucu } from '../../content/denetim';
 import { DenetimSahnesi } from '../../screens/DenetimSahnesi';
-import { useGame } from '../../store/gameStore';
+import { useSecili } from '../../store/secici';
 import { PixelButton } from '../../ui/PixelButton';
 import { PixelText } from '../../ui/PixelText';
 import { YemekSahnesi } from '../../screens/YemekSahnesi';
@@ -68,7 +68,7 @@ function tumSahneler(): Kayit[] {
  * canlı önizlemesi olanlar burada açılıyor, olmayanlara atlanıyor.
  */
 export function BolumSahneler() {
-  const g = useGame();
+  const g = useSecili('dolapDuzeni', 'envanter', 'gelistirmeAtla', 'stats');
   const [tur, setTur] = useState<Tur | null>(null);
   const [onizleme, setOnizleme] = useState<Kayit | null>(null);
   const [cikti, setCikti] = useState<string[]>([]);

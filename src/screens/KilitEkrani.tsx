@@ -5,7 +5,7 @@ import { BORDER, C, SP } from '../theme';
 import { SPRITES } from '../art';
 import { TOPLAM_GUN } from '../engine/stats';
 import { BEDAVA_GUN } from '../monetization/entitlements';
-import { useGame } from '../store/gameStore';
+import { useSecili } from '../store/secici';
 import { CentikTakvim } from '../ui/CentikTakvim';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelSprite } from '../ui/PixelSprite';
@@ -16,7 +16,7 @@ import { PixelText } from '../ui/PixelText';
  * IAP çağrısına bağlanacak. Bkz. src/monetization/entitlements.ts
  */
 export function KilitEkrani() {
-  const g = useGame();
+  const g = useSecili('anaMenu', 'bitenGunler', 'gun');
   const inset = useSafeAreaInsets();
 
   return (

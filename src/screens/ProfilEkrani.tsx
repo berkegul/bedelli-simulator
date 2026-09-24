@@ -3,7 +3,7 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BORDER, C, SP } from '../theme';
 import { SPRITES } from '../art';
-import { useGame } from '../store/gameStore';
+import { useSecili } from '../store/secici';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelInput } from '../ui/PixelInput';
 import { KayitSecici } from '../ui/KayitSecici';
@@ -13,7 +13,7 @@ import type { KayitRolu } from '../engine/types';
 
 /** Kışlaya girmeden önce: kimsin, sigara içiyor musun, kimleri arayacaksın. */
 export function ProfilEkrani() {
-  const g = useGame();
+  const g = useSecili('kisiEkle', 'kisiSil', 'profil', 'profilKaydet', 'rehber');
   const inset = useSafeAreaInsets();
   const [ad, setAd] = useState(g.profil.ad);
   const [sigara, setSigara] = useState(g.profil.sigaraIciyor);

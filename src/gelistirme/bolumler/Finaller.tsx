@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { C, SP } from '../../theme';
 import { epilog, finalKartlari } from '../../content/telefon';
-import { telefonDurumuOku, useGame } from '../../store/gameStore';
+import { telefonDurumuOku } from '../../store/gameStore';
+import { useSecili } from '../../store/secici';
 import { PixelText } from '../../ui/PixelText';
 import { Baslik, Cikti, Kutu, Satir, Sayi } from '../parcalar';
 
@@ -12,7 +13,7 @@ import { Baslik, Cikti, Kutu, Satir, Sayi } from '../parcalar';
  * bir oyuncu aynı anda hem kavuşma hem tükenme kartı alabilir.
  */
 export function BolumFinaller() {
-  const g = useGame();
+  const g = useSecili('hafiza');
   const canli = telefonDurumuOku();
 
   const [anne, setAnne] = useState(canli.iliski.anne);

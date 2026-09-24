@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BORDER, C, SP } from '../theme';
-import { useGame } from '../store/gameStore';
+import { useSecili } from '../store/secici';
 import { DukkanListesi } from '../ui/DukkanListesi';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelText } from '../ui/PixelText';
@@ -12,7 +12,7 @@ import { PixelText } from '../ui/PixelText';
  * Oyunun ilk gerçek kararı bu ekranda veriliyor.
  */
 export function CarsiEkrani() {
-  const g = useGame();
+  const g = useSecili('carsiyiBitir', 'envanter', 'para', 'profil', 'satinAl');
   const inset = useSafeAreaInsets();
 
   return (

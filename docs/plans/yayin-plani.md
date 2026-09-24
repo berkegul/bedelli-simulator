@@ -294,7 +294,7 @@ bunun yanında paralel yürür.
   tuşuyla atlanamıyor. Android paketi derleniyor. Cihazda deneme: Berke'nin
   Android telefonu ya da emülatör (Expo Go yeterli).
 
-#### S8 · store bölme + seçiciler ⬜ (D2)
+#### S8 · store bölme + seçiciler ✅ (D2)
 - **Adımlar:**
   1. `gameStore.ts` zustand dilimlerine: `akis` (ekran, gün, blok, sahne),
      `ekonomi` (para, envanter, kantin), `sigara`, `telefon`, `sosyal`
@@ -304,6 +304,19 @@ bunun yanında paralel yürür.
      `useGeriSayim` 100 ms → 250 ms + görüntü shared value ile.
 - **Kabul:** davranış değişmez (testler + web'de bir tam gün). React
   DevTools'ta mini oyun sırasında `OyunEkrani` yeniden çizilmiyor.
+- **Sonuç:** `gameStore.ts` 1420 → 54 satır. `store/tipler.ts`,
+  `ilkDurum.ts`, `yardimcilar.ts` ve `dilimler/{akis,telefon,ekonomi,avlu}.ts`.
+  Metot gövdeleri betikle, yorumlarıyla birlikte satır satır taşındı
+  (yeniden birleştirme orijinale eşit doğrulandı); kullanılmayan importlar
+  `tsc --noUnusedLocals` çıktısıyla ayıklandı. Dışarıya açık API aynı.
+  `store/secici.ts` → `useSecili('gun', 'para', …)`: 32 bileşen artık yalnızca
+  kullandığı alanlara abone; `Pick<Store, K>` döndüğü için seçilmemiş alan
+  okunursa tsc hata veriyor. İkisi (`gelistirme` Durum ve Paneller) `g`'yi
+  bütün olarak geçirdiği için dokunulmadı. Doğrulama: 97 test, tohumlu denge
+  çıktısı bölme öncesiyle birebir aynı, tarayıcıda menü → künye → çarşı →
+  gün başı → sahneler → Cep/Durum panelleri, konsol temiz.
+  **Yapılmayan:** plandaki "her karede setState" dönüşümü (YatakToplama rAF,
+  geri sayım) S12'ye kaldı; React DevTools ölçümü yapılmadı.
 
 #### S12 · React Compiler lint uyarıları ⬜ (D2, S6 + S8 ile)
 - **Durum:** `react-hooks/refs` (51), `immutability` (38),
