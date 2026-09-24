@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Pressable, View } from "react-native";
 import Svg, { Line, Rect } from "react-native-svg";
 import { BORDER, C, SP } from "../theme";
@@ -11,20 +11,10 @@ import {
 import { useSecili } from "../store/secici";
 import { PixelSprite } from "../ui/PixelSprite";
 import { PixelText } from "../ui/PixelText";
+import { DUVARLAR, PikselKatman, ZEMINLER, type Piksel } from "../ui/sahne";
 
 const HARITA_YUKSEKLIK = 360;
 
-/** Avlunun renkleri: asfalt, içtima alanının açık betonu, çim, duvar. */
-const ZEMIN = {
-  asfalt: "#2A2719",
-  beton: "#37321F",
-  derz: "#221F14",
-  cizgi: "#5A5236",
-  cim: "#34401F",
-  cimKoyu: "#2A3419",
-  duvar: "#4A3F2A",
-  duvarDerz: "#2E2719",
-};
 
 const ARKADAS_SPRITE: Record<string, SpriteKey> = {
   emre: "askerEmre",
@@ -57,7 +47,39 @@ const OTURAN_SPRITE: Record<string, SpriteKey> = {
  * haritadan seçiyorsun; arkadaşlar da avluda duruyor ve üstlerine gidip
  * konuşuyorsun.
  */
+/** Harita zemininin hücresi: sprite'ların 3 katlı ölçeğiyle aynı ızgara. */
+const U = 3;
+
+/**
+ * Avlu zemini sahne kitinin dokularıyla: her yer sıkışmış toprak, ortada
+ * beton içtima alanı ve ona inen yollar, sol altta çim, üstte tuğla duvar.
+ */
+function AvluZemini({ en }: { en: number }) {
+  const W = Math.ceil(en / U);
+  const H = Math.ceil(HARITA_YUKSEKLIK / U);
+  const pikseller = useMemo<Piksel[]>(() => {
+    if (!W) return [];
+    const alan = (x: number, y: number, w: number, h: number) => ({
+      x: Math.round(x * W),
+      y: Math.round(y * H),
+      w: Math.round(w * W),
+      h: Math.round(h * H),
+    });
+    return [
+      ...ZEMINLER.toprak({ x: 0, y: 0, w: W, h: H }, 7),
+      ...ZEMINLER.beton(alan(0.26, 0.3, 0.5, 0.36), 8),
+      ...ZEMINLER.beton(alan(0.12, 0.26, 0.04, 0.74), 9),
+      ...ZEMINLER.beton(alan(0.68, 0.26, 0.04, 0.05), 10),
+      ...ZEMINLER.cim(alan(0, 0.64, 0.34, 0.36), 11),
+      ...DUVARLAR.tugla({ x: 0, y: 0, w: W, h: 5 }, 12),
+    ];
+  }, [W, H]);
+  if (!W) return null;
+  return <PikselKatman pikseller={pikseller} u={U} w={W} h={H} />;
+}
+
 export function KislaHaritasi() {
+  const [en, setEn] = useState(0);
   const g = useSecili(
     "arkadasaGit",
     "cepteIzmarit",
@@ -170,6 +192,7 @@ export function KislaHaritasi() {
       </View>
 
       <View
+        onLayout={(e) => setEn(Math.round(e.nativeEvent.layout.width))}
         style={{
           height: HARITA_YUKSEKLIK,
           borderWidth: BORDER,
@@ -182,71 +205,21 @@ export function KislaHaritasi() {
         <View
           style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
         >
-          <Svg width="100%" height="100%">
-            <Rect x={0} y={0} width="100%" height="100%" fill={ZEMIN.asfalt} />
-            {/* Kışla duvarı */}
-            <Rect x={0} y={0} width="100%" height={12} fill={ZEMIN.duvar} />
-            {Array.from({ length: 24 }, (_, i) => (
-              <Line
-                key={`d${i}`}
-                x1={`${(100 / 24) * i + (i % 2 ? 2 : 0)}%`}
-                y1={0}
-                x2={`${(100 / 24) * i + (i % 2 ? 2 : 0)}%`}
-                y2={12}
-                stroke={ZEMIN.duvarDerz}
-                strokeWidth={2}
-              />
-            ))}
-            <Rect x={0} y={12} width="100%" height={2} fill={ZEMIN.duvarDerz} />
-            {/* İçtima alanı: açık beton, derzli, sıra çizgileri */}
-            <Rect x="26%" y="30%" width="50%" height="36%" fill={ZEMIN.beton} />
-            {Array.from({ length: 5 }, (_, i) => (
-              <Line
-                key={`b${i}`}
-                x1={`${26 + i * 10}%`}
-                y1="30%"
-                x2={`${26 + i * 10}%`}
-                y2="66%"
-                stroke={ZEMIN.derz}
-                strokeWidth={1}
-              />
-            ))}
-            <Line
-              x1="26%"
-              y1="48%"
-              x2="76%"
-              y2="48%"
-              stroke={ZEMIN.derz}
-              strokeWidth={1}
-            />
+          <AvluZemini en={en} />
+          {/* Bayrak direği ve sıra çizgisi dokunun üstünde */}
+          <Svg width="100%" height="100%" style={{ position: "absolute" }}>
             <Line
               x1="30%"
               y1="62%"
               x2="72%"
               y2="62%"
-              stroke={ZEMIN.cizgi}
+              stroke="#8A7F5C"
               strokeWidth={2}
               strokeDasharray="6 4"
             />
-            {/* Koğuştan ve kantinden inen yollar */}
-            <Rect x="12%" y="26%" width="4%" height="74%" fill={ZEMIN.beton} />
-            <Rect x="68%" y="26%" width="4%" height="4%" fill={ZEMIN.beton} />
-            {/* Oturma alanının çimi */}
-            <Rect x={0} y="64%" width="34%" height="36%" fill={ZEMIN.cim} />
-            {Array.from({ length: 14 }, (_, i) => (
-              <Rect
-                key={`c${i}`}
-                x={`${2 + ((i * 37) % 30)}%`}
-                y={`${66 + ((i * 53) % 32)}%`}
-                width={2}
-                height={4}
-                fill={ZEMIN.cimKoyu}
-              />
-            ))}
-            {/* Bayrak direği */}
             <Rect x="47%" y="7%" width={2} height="20%" fill={C.canvasDim} />
             <Rect x="47%" y="7%" width={18} height={11} fill={C.rust} />
-            <Rect x="46%" y="26%" width={10} height={3} fill={ZEMIN.cizgi} />
+            <Rect x="46%" y="26%" width={10} height={3} fill="#5A5236" />
           </Svg>
         </View>
 
