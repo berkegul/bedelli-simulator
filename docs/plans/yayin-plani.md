@@ -283,11 +283,16 @@ bunun yanında paralel yürür.
   oynandı (tek sonuç), İçtima tur ortasında kapatıldı (geç çağrı yok,
   konsol temiz). Lint uyarısı 100'de kaldı.
 
-#### S7 · Android geri tuşu ⬜ (D1)
+#### S7 · Android geri tuşu ✅ kod · cihaz testi bekliyor (D1)
 - **Adımlar:** `App.tsx`'e `BackHandler` dinleyicisi. Sıra: panel açıksa
   paneli kapat → oyun ekranındaysa duraklatma menüsünü aç (C3 gelene
   kadar menüye dön) → menüdeyse varsayılan davranış (çıkış).
 - **Kabul:** Android cihazda panel açıkken geri → panel kapanıyor.
+- **Sonuç:** karar mantığı saf fonksiyon (`ui/geriTusu.ts`, 5 test),
+  dinleyici `ui/useGeriTusu.ts`. Görüşme paneli `gorusmeKapat` ile kapanıyor
+  (etkiler uygulansın); sigara isteği, izmarit kararı ve izmarit cezası geri
+  tuşuyla atlanamıyor. Android paketi derleniyor. Cihazda deneme: Berke'nin
+  Android telefonu ya da emülatör (Expo Go yeterli).
 
 #### S8 · store bölme + seçiciler ⬜ (D2)
 - **Adımlar:**
@@ -590,5 +595,6 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 
 | Tarih | Kayıt |
 |---|---|
+| 2026-09-24 | D1 kod olarak bitti. Ek bulunan hatalar: nöbet cezası puana hiç yansımıyordu (S6), yarım görüşme kartı "Devam et"te siliniyordu (S5). Cihaz testleri: S1/S2 Firebase projesiyle (M4), S7 Android'de. |
 | 2026-09-24 | Web yayın hedefi değil (Berke): Y4 ve K4 kaldırıldı, web geliştirme önizlemesi olarak kalıyor. |
 | 2026-09-24 | İlk inceleme: 3 kritik veri hatası (S1–S3), içerik 5/28, telefon 28/28. Plan yazıldı. |
