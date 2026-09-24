@@ -81,9 +81,12 @@ ondan sonra başlar. Süreler tek kişilik yoğun çalışma için kaba tahmin.
 | **D1 · Zemin** | Veri kaybettiren hataları kapat, test altyapısını kur | S11, S9, S1, S2, S3, S4, S5, S6, S7 | 2–3 gün |
 | **D2 · İçerik hazırlığı** | 23 gün yazılmadan önce çelişkileri, aracı ve şablonu hazırla | I4, S10, S13, I12, I13, S8, S12, I10, §4 takvimi | 3–4 gün |
 | **D3 · İkinci hafta + ses** | Gün 6–12, ses, ayarlar, duraklatma | I5, C1, C2, C3 | 5–7 gün |
-| **D4 · Üçüncü hafta + para** | Gün 13–19, satın alma, dev build | I6, Y1, M2, M3, C4, C7 | 6–8 gün |
-| **D5 · Son hafta + uyum** | Gün 20–28, finaller, ölçüm, KVKK, cila | I11, I7, I8, I9, M4, M5, M6, C5, C6, Y2, Y3 | 7–10 gün |
-| **D6 · Yayın** | İç test, mağaza incelemesi, lansman | Y5, Y6, Y7 | 1–2 hafta (inceleme süresi dahil) |
+| **D4 · Görsel dil** | Ekranlar formdan oyuna: büyük sahne, diyalog kutusu, dünyaya ait menü/künye/çarşı, tepsi ve avlu, okunabilirlik, geçişler | G1–G8 (C4, C5 dahil) | 6–9 gün |
+| **D5 · Üçüncü hafta** | Gün 13–19, öğreticiler | I6, C7 | 5–7 gün |
+| **D6 · Son hafta + son** | Gün 20–28, yemin, karne, finaller, erişilebilirlik, S12b | I11, I7, I8, I9, C6, S12b | 7–10 gün |
+| **D7 · Ölçüm, uyum, altyapı** | Firebase, KVKK, crash raporlama, EAS, ikon, mağaza görselleri | M4, M5, M6, Y1, Y2, Y3 | 4–6 gün |
+| **D8 · Ücretlendirme** | Model, kilit yeri, IAP (Berke: en son) | M1, M2, M3 | 3–5 gün |
+| **D9 · Yayın** | İç test, mağaza incelemesi, lansman | Y5, Y6, Y7 | 1–2 hafta (inceleme süresi dahil) |
 
 Kritik yol içerik yazımıdır: I4 → I5 → I6 → I7 → I8 → I9 → Y5. Diğer her iş
 bunun yanında paralel yürür.
@@ -106,6 +109,28 @@ bunun yanında paralel yürür.
 | T8 Firebase katmanı | 🟡 | Kod hazır, anahtar yok. S1–S3 bitmeden anahtar girilmez. |
 
 ---
+
+### G · Görsel dil (D4)
+
+İnceleme (telefon genişliğinde, 24 Eyl): palet, fontlar ve sprite'lar
+tutarlı ama ekranlar oyun değil form gibi. Sahne ince bir şerit, ekranın
+çoğu metin kutusu; menü, künye ve çarşı dünyanın dışında; tepsi ve avlu
+taslak gibi; küçük soluk metin çok; hareket yok.
+
+| Kart | İş | Kabul |
+|---|---|---|
+| G1 | **Oyun ekranı:** sahne ekranın ~%40'ı, sprite'lar büyük; anlatı altta RPG diyalog kutusu (konuşanın portresi ve adı sekmesi), seçimler kutunun içinde; stat şeridi sade | 1. ve 9. günün birer bloğu önce/sonra ekran görüntüsüyle Berke'ye gösterilir |
+| G2 | **Menü:** nizamiye sahnesi ve saatine göre gökyüzü; seçenekler kışla tabelası/künye kartı gibi; çentik takvimi duvarda | |
+| G3 | **Künye:** askerî form kâğıdı (kaput bezi zemin, damga, daktilo alanları) | |
+| G4 | **Çarşı:** dükkân tezgâhı; ürün kartı sade, kalite seçimi tek sıra | |
+| G5 | **Tepsi:** yemekler bölmelerde çizili (seçilmeyen soluk) | |
+| G6 | **Avlu haritası:** etiket çakışması yok, daha büyük, zemin detayı | |
+| G7 | **Okunabilirlik:** en küçük metin boyutu yükselir, soluk metin azalır, kontrast kontrolü | |
+| G8 | **Hareket:** ekran geçişleri, stat değişiminde sayma, mini oyun sonucunda derece damgası (C4); geniş ekranda oyun alanı sınırlı (C5) | |
+
+Yöntem: önce G1 (oyunun %80'i bu ekranda geçiyor) prototip olarak
+yapılıp Berke'ye gösterilir; onayla yön oturunca diğer ekranlar aynı dile
+geçer.
 
 ### S · Sağlamlaştırma
 
@@ -771,6 +796,7 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 
 | Tarih | Kayıt |
 |---|---|
+| 2026-09-24 | Berke: ücretlendirme en sona; önce görsel tasarım (oyun "form gibi" görünüyor), sonra gün 13–28. Dalgalar yeniden sıralandı (D4 görsel dil … D8 ücretlendirme). |
 | 2026-09-24 | D3 bitti ve main'e birleşti: gün 6–12, sentezlenmiş sesler, ayarlar, mola. |
 | 2026-09-24 | I5: gün 6–12 yazıldı; 12 günlük denge ayarı (tepsi, dinlenme, gece, TAKDİR 80). |
 | 2026-09-24 | D2 bitti ve main'e birleşti. Ek: denge ayarı (S13), hafıza koşullu sahneler (I13), yol sahnesi Skia çökmesi. S12'nin riskli kalanı S12b olarak D5'e. |
