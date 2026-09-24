@@ -368,7 +368,11 @@ const MEKANLAR: Record<string, Mekan> = {
 
 export function mekanBul(blokId: string): Mekan | undefined {
   const anahtar = blokId.replace(/^d\d+-/, '');
-  return MEKANLAR[anahtar];
+  const mekan = MEKANLAR[anahtar];
+  // Aynı kapı son gün ters yönde: sevkiyat değil terhis, kalabalık aileler.
+  if (mekan && anahtar === 'nizamiye' && blokId.startsWith('d28-'))
+    return { ...mekan, mevcut: 'TERHİS', kalabalik: 14 };
+  return mekan;
 }
 
 /** Kalabalık her karede aynı yerde dursun diye sabit, tohumlu dağınıklık. */
