@@ -119,14 +119,14 @@ taslak gibi; küçük soluk metin çok; hareket yok.
 
 | Kart | İş | Kabul |
 |---|---|---|
-| G1 | **Oyun ekranı:** sahne ekranın ~%40'ı, sprite'lar büyük; anlatı altta RPG diyalog kutusu (konuşanın portresi ve adı sekmesi), seçimler kutunun içinde; stat şeridi sade | 1. ve 9. günün birer bloğu önce/sonra ekran görüntüsüyle Berke'ye gösterilir |
-| G2 | **Menü:** nizamiye sahnesi ve saatine göre gökyüzü; seçenekler kışla tabelası/künye kartı gibi; çentik takvimi duvarda | |
-| G3 | **Künye:** askerî form kâğıdı (kaput bezi zemin, damga, daktilo alanları) | |
-| G4 | **Çarşı:** dükkân tezgâhı; ürün kartı sade, kalite seçimi tek sıra | |
-| G5 | **Tepsi:** yemekler bölmelerde çizili (seçilmeyen soluk) | |
-| G6 | **Avlu haritası:** etiket çakışması yok, daha büyük, zemin detayı | |
-| G7 | **Okunabilirlik:** en küçük metin boyutu yükselir, soluk metin azalır, kontrast kontrolü | |
-| G8 | **Hareket:** ekran geçişleri, stat değişiminde sayma, mini oyun sonucunda derece damgası (C4); geniş ekranda oyun alanı sınırlı (C5) | |
+| G1 | **Oyun ekranı:** sahne ekranın ~%40'ı, sprite'lar büyük; anlatı altta RPG diyalog kutusu (konuşanın portresi ve adı sekmesi), seçimler kutunun içinde; stat şeridi sade | 1. ve 9. günün birer bloğu önce/sonra ekran görüntüsüyle Berke'ye gösterilir ✅ |
+| G2 | **Menü:** nizamiye sahnesi ve saatine göre gökyüzü; seçenekler kışla tabelası/künye kartı gibi; çentik takvimi duvarda | ✅ |
+| G3 | **Künye:** askerî form kâğıdı (kaput bezi zemin, damga, daktilo alanları) | ✅ |
+| G4 | **Çarşı:** dükkân tezgâhı; ürün kartı sade, kalite seçimi tek sıra | ✅ |
+| G5 | **Tepsi:** yemekler bölmelerde çizili (seçilmeyen soluk) | ✅ |
+| G6 | **Avlu haritası:** etiket çakışması yok, daha büyük, zemin detayı | ✅ |
+| G7 | **Okunabilirlik:** en küçük metin boyutu yükselir, soluk metin azalır, kontrast kontrolü | ✅ |
+| G8 | **Hareket:** ekran geçişleri, stat değişiminde sayma, mini oyun sonucunda derece damgası (C4); geniş ekranda oyun alanı sınırlı (C5) | ✅ |
 
 Yöntem: önce G1 (oyunun %80'i bu ekranda geçiyor) prototip olarak
 yapılıp Berke'ye gösterilir; onayla yön oturunca diğer ekranlar aynı dile
@@ -645,13 +645,13 @@ geçer.
   ayarlar → panel → mola aç/kapat → ana menü/çıkış (9 test). Oyun ekranı
   kapanınca mola sıfırlanıyor. Tarayıcıda mola aç/devam/ana menü çalışıyor.
 
-#### C4 · geçişler + stat animasyonu ⬜ (D4)
+#### C4 · geçişler + stat animasyonu ✅ (D4)
 - Üst düzey ekranlar arası 150 ms karartma (`App.tsx` ekran değişimi).
   `Cetele`'de stat değişince sayı sayma + renk yanıp sönmesi. Mini oyun
   sonunda derece damgası (MÜKEMMEL / TAMAM / ZAYIF). Hepsi hareket azaltma
   açıksa atlanır.
 
-#### C5 · tablet genişliği ⬜ (D5)
+#### C5 · tablet genişliği ✅ (D4, G7 ile)
 - Oyun alanı en fazla 480 pt genişlikte ortalanır, kenarlar zemin rengi.
 - **Kabul:** iPad simülatöründe dikey düzen bozulmuyor.
 
@@ -796,6 +796,7 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 
 | Tarih | Kayıt |
 |---|---|
+| 2026-09-24 | D4 bitti ve main'e birleşti: G1 büyük sahne + diyalog kutusu (Berke onayladı), G2 nizamiye menüsü, G3 sevk belgesi, G4 alışveriş listesi, G5 tepsi, G6 avlu, G7 okunabilirlik + 480 genişlik (C5), G8 geçiş/sayaç/damga (C4). Sıradaki: D5 gün 13–19. |
 | 2026-09-24 | Berke: ücretlendirme en sona; önce görsel tasarım (oyun "form gibi" görünüyor), sonra gün 13–28. Dalgalar yeniden sıralandı (D4 görsel dil … D8 ücretlendirme). |
 | 2026-09-24 | D3 bitti ve main'e birleşti: gün 6–12, sentezlenmiş sesler, ayarlar, mola. |
 | 2026-09-24 | I5: gün 6–12 yazıldı; 12 günlük denge ayarı (tepsi, dinlenme, gece, TAKDİR 80). |
