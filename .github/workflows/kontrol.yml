@@ -28,6 +28,10 @@ jobs:
         run: npm run telefon:dogrula
       - name: Sprite'lar
         run: npm run sprite
+      # Eksik yerel modül (expo-asset gibi) ya da SDK dışı sürüm, Expo Go'da
+      # görünmeyip gerçek derlemede çöküyor; burada yakalanıyor.
+      - name: Expo doktoru
+        run: npx expo-doctor
 
       - name: Web derlemesi
         run: npx expo export -p web
