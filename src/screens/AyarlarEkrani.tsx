@@ -138,6 +138,7 @@ export function AyarlarEkrani() {
               <Pressable
                 key={h.id}
                 accessibilityRole="radio"
+                accessibilityLabel={`Metin hızı: ${h.ad}`}
                 accessibilityState={{ selected: a.metinHizi === h.id }}
                 onPress={() => a.degistir({ metinHizi: h.id })}
                 style={{

@@ -81,6 +81,7 @@ export function SilahSokme({ onBitti, zorluk = 0 }: MiniOyunProps) {
             <Pressable
               key={p}
               accessibilityRole="button"
+              accessibilityLabel={sokuldu ? `${p}, söküldü` : p}
               accessibilityState={{ disabled: sokuldu }}
               disabled={sokuldu}
               onPress={() => sec(p)}

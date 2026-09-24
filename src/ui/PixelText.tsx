@@ -37,5 +37,7 @@ export function PixelText({
     textAlign: center ? 'center' : 'left',
   };
 
-  return <Text {...rest} style={[s, style]} />;
+  // Sistemde büyük yazı açıkken piksel font 1.3 kata kadar büyüyor; ötesinde
+  // sabit yükseklikli şeritler ve düğmeler taşıyordu (C6).
+  return <Text maxFontSizeMultiplier={1.3} {...rest} style={[s, style]} />;
 }

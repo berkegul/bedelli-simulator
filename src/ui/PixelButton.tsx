@@ -30,6 +30,7 @@ export function PixelButton({ label, onPress, tur = 'ana', disabled, style }: Pr
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={label}
       accessibilityState={{ disabled: !!disabled }}
       hitSlop={HIT_SLOP}
       disabled={disabled}
