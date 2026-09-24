@@ -152,7 +152,7 @@ export const DIYALOGLAR: Diyalog[] = [
       '"Kızım üç yaşında. Beni görmeden yatıyor artık. Karım videoya alıyor, ben de burada telefonda izliyorum." Sesi normalden alçak.',
     secenekler: [
       {
-        label: '"Yirmi beş gün kaldı Emre."',
+        label: '"Az kaldı Emre. Beraber sayıyoruz."',
         outcome: 'Başını salladı, gözlerini sildi, sonra kalkıp çay koydu. Bahsi kapattınız.',
         dostluk: 12,
         moral: 4,

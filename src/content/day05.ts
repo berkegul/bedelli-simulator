@@ -7,8 +7,8 @@ export const gun05: Day = {
   blocks: [
     {
       id: 'd5-kalkis',
-      from: '06:00',
-      to: '06:30',
+      from: '05:30',
+      to: '06:00',
       title: 'Kalkış',
       sprite: 'ranzaDaginik',
       scenes: [
@@ -42,8 +42,8 @@ export const gun05: Day = {
     },
     {
       id: 'd5-ictima',
-      from: '06:30',
-      to: '07:00',
+      from: '06:00',
+      to: '06:30',
       title: 'Sabah İçtiması',
       sprite: 'asker',
       scenes: [
@@ -72,8 +72,8 @@ export const gun05: Day = {
     },
     {
       id: 'd5-mintika',
-      from: '07:00',
-      to: '07:30',
+      from: '06:30',
+      to: '07:00',
       title: 'Mıntıka Temizliği',
       sprite: 'postal',
       scenes: [
@@ -87,8 +87,8 @@ export const gun05: Day = {
     },
     {
       id: 'd5-kahvalti',
-      from: '07:30',
-      to: '08:30',
+      from: '07:00',
+      to: '08:00',
       title: 'Kahvaltı',
       sprite: 'tepsi',
       scenes: [
@@ -102,7 +102,7 @@ export const gun05: Day = {
     },
     {
       id: 'd5-ders',
-      from: '08:30',
+      from: '08:00',
       to: '12:00',
       title: 'ANT-41 Dersi',
       sprite: 'defter',

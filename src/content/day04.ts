@@ -7,8 +7,8 @@ export const gun04: Day = {
   blocks: [
     {
       id: 'd4-kalkis',
-      from: '06:00',
-      to: '06:30',
+      from: '05:30',
+      to: '06:00',
       title: 'Kalkış',
       sprite: 'ranzaDaginik',
       scenes: [
@@ -37,8 +37,8 @@ export const gun04: Day = {
     },
     {
       id: 'd4-ictima',
-      from: '06:30',
-      to: '07:00',
+      from: '06:00',
+      to: '06:30',
       title: 'Sabah İçtiması',
       sprite: 'asker',
       scenes: [
@@ -60,8 +60,8 @@ export const gun04: Day = {
     },
     {
       id: 'd4-denetim',
-      from: '07:00',
-      to: '07:30',
+      from: '06:30',
+      to: '07:00',
       title: 'Denetim Hazırlığı',
       sprite: 'postal',
       scenes: [
@@ -95,8 +95,8 @@ export const gun04: Day = {
     },
     {
       id: 'd4-kahvalti',
-      from: '07:30',
-      to: '08:30',
+      from: '07:00',
+      to: '08:00',
       title: 'Kahvaltı',
       sprite: 'tepsi',
       scenes: [
@@ -110,7 +110,7 @@ export const gun04: Day = {
     },
     {
       id: 'd4-egitim-sabah',
-      from: '08:30',
+      from: '08:00',
       to: '12:00',
       title: 'Denetim ve Eğitim',
       sprite: 'cavus',
@@ -223,19 +223,19 @@ export const gun04: Day = {
           id: 'd4-ai1',
           sprite: 'cavus',
           speaker: 'Çavuş Kaya',
-          text: 'Bölük denetimden geçti. Hafta sonu izni duruyor. Bu akşam nöbet listesi çıktı ve bu gece ilk nöbetiniz var. 02:00–04:00.',
+          text: 'Bölük denetimden geçti. Hafta sonu izni duruyor. Nöbet listesi panoya asıldı. Alıştırma bitince başlıyor; herkes kendi saatine baksın.',
           choices: [
             {
               id: 'd4-nobet-kabul',
               label: 'Kabul et, listeye bak',
               effect: { disiplin: 6, moral: -4 },
-              outcome: 'Adın 02:00’de. Gecenin en kötü saati ve herkes bunu biliyor.'
+              outcome: 'Adın 02:00–04:00 arasında. Gecenin en kötü saati ve herkes bunu biliyor. İlki gelecek hafta.'
             },
             {
               id: 'd4-nobet-takas',
               label: 'Serkan ile saat takası yap',
-              effect: { disiplin: -4, moral: 6, para: -80, enerji: 6 },
-              outcome: 'Serkan 02:00’yi aldı, sen 22:00’yi. Bu adam gerçekten bir ekonomi kurmuş.'
+              effect: { disiplin: -4, moral: 6, para: -80 },
+              outcome: 'Serkan 02:00’yi aldı, sen 22:00’yi. Daha nöbet başlamadan saat pazarı kurulmuş; bu adam gerçekten bir ekonomi kurmuş.'
             },
           ]
         },
@@ -252,7 +252,7 @@ export const gun04: Day = {
           kind: 'anlati',
           id: 'd4-ay1',
           sprite: 'tepsi',
-          text: 'Etli nohut. Emre zeytin saymayı bıraktığını söyledi: "Üç gün oldu. Artık gün saymıyorum, sadece yemek sayıyorum. Daha az acıtıyor."'
+          text: 'Etli nohut. Emre zeytin saymayı bıraktığını söyledi: "Dün bıraktım. Artık gün saymıyorum, sadece yemek sayıyorum. Daha az acıtıyor."'
         },
       ]
     },
@@ -266,7 +266,7 @@ export const gun04: Day = {
         {
           kind: 'anlati',
           id: 'd4-s1',
-          text: 'Üç gün bitiyor. Yirmi beş gün duruyor. Koğuşta ilk defa gerçek bir rahatlama var — denetim geçti, izin duruyor.'
+          text: 'Dört gün bitiyor. Yirmi dört gün duruyor. Koğuşta ilk defa gerçek bir rahatlama var — denetim geçti, izin duruyor.'
         },
       ]
     },
@@ -281,7 +281,7 @@ export const gun04: Day = {
           kind: 'anlati',
           id: 'd4-sy1',
           sprite: 'ay',
-          text: 'Yoklama bitti. Yarın dördüncü gün. Ranzana uzandın ve fark ettin: bu sabah düdükten önce uyanmışsın. Vücudun buraya alışmaya başlıyor.'
+          text: 'Yoklama bitti. Yarın beşinci gün. Ranzana uzandın ve fark ettin: bu sabah düdükten önce uyanmışsın. Vücudun buraya alışmaya başlıyor.'
         },
       ]
     },

@@ -8,8 +8,8 @@ export const gun03: Day = {
   blocks: [
     {
       id: 'd3-kalkis',
-      from: '06:00',
-      to: '06:30',
+      from: '05:30',
+      to: '06:00',
       title: 'Kalkış',
       sprite: 'ranzaDaginik',
       scenes: [
@@ -28,7 +28,7 @@ export const gun03: Day = {
           reward: (s) => ({ disiplin: Math.round(-5 + s * 15), moral: Math.round(-2 + s * 5) }),
           verdict: (s) =>
             s > 0.85
-              ? 'İkinci gün, ilk günden hızlısın. Fark ediliyor.'
+              ? 'İkinci sabah, ilkinden hızlısın. Fark ediliyor.'
               : s > 0.55
                 ? 'Yetişti. Kenarı hâlâ tam oturmuyor ama yetişti.'
                 : 'Onbaşı geçerken battaniyeyi çekti. Bir daha.'
@@ -41,8 +41,8 @@ export const gun03: Day = {
     },
     {
       id: 'd3-ictima',
-      from: '06:30',
-      to: '07:00',
+      from: '06:00',
+      to: '06:30',
       title: 'Sabah İçtiması',
       sprite: 'asker',
       scenes: [
@@ -71,8 +71,8 @@ export const gun03: Day = {
     },
     {
       id: 'd3-mintika',
-      from: '07:00',
-      to: '07:30',
+      from: '06:30',
+      to: '07:00',
       title: 'Mıntıka Temizliği',
       sprite: 'postal',
       scenes: [
@@ -86,8 +86,8 @@ export const gun03: Day = {
     },
     {
       id: 'd3-kahvalti',
-      from: '07:30',
-      to: '08:30',
+      from: '07:00',
+      to: '08:00',
       title: 'Kahvaltı',
       sprite: 'tepsi',
       scenes: [
@@ -101,7 +101,7 @@ export const gun03: Day = {
     },
     {
       id: 'd3-egitim-sabah',
-      from: '08:30',
+      from: '08:00',
       to: '12:00',
       title: 'Temel Eğitim',
       sprite: 'asker',

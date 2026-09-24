@@ -6,6 +6,7 @@ import { gun02 } from './day02';
 import { gun03 } from './day03';
 import { gun04 } from './day04';
 import { gun05 } from './day05';
+import { gunGorevleri } from './gorevTakvimi';
 import { geceRutini, sabahDenetimi, sabahRutini } from './rutin';
 
 /**
@@ -132,10 +133,11 @@ function blokZenginlestir(b: TimeBlock): TimeBlock {
 
 /**
  * Günün tekrar eden düzenini kıran görevler. Hepsi gün numarasından
- * türetiliyor — rastgele ama her oynayışta aynı, yani kayıttan dönünce
+ * (görev takviminden) türetiliyor: her oynayışta aynı, kayıttan dönünce
  * karşına başka bir gün çıkmıyor.
  */
 function gunlukGorevler(g: Day): Day {
+  const gorev = gunGorevleri(g);
   const bloklar = g.blocks.map((b) => {
     const anahtar = b.id.replace(/^d\d+-/, '');
 
@@ -175,9 +177,8 @@ function gunlukGorevler(g: Day): Day {
       return { ...b, scenes: [...b.scenes, izmarit] };
     }
 
-    // İlk üç gün alıştırma dönemi: bölge tanınır, düzen oturur, ceza yazılmaz.
-    // Ceza dördüncü günden sonra ve dört günde bir, akşam içtimasında okunur.
-    if (anahtar === 'aksam-ictima' && g.day >= 4 && g.day % 4 === 2) {
+    // Ceza akşam içtimasında okunur; hangi gün olduğu görev takviminde.
+    if (anahtar === 'aksam-ictima' && gorev.ceza) {
       const ceza: Scene = {
         kind: 'mini',
         id: `${b.id}-ceza`,
@@ -201,8 +202,8 @@ function gunlukGorevler(g: Day): Day {
       return { ...b, scenes: [...b.scenes, ceza] };
     }
 
-    // Nöbet listesine ancak alıştırma bitince giriyorsun.
-    if (anahtar === 'son-yoklama' && g.day >= 5 && g.day % 3 === 0) {
+    // Nöbet listesi 4. gün asılıyor, ilk nöbet 10. gece (görev takvimi).
+    if (anahtar === 'son-yoklama' && gorev.nobet) {
       const nobet: Scene = {
         kind: 'mini',
         id: `${b.id}-nobet`,

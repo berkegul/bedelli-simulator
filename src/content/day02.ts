@@ -8,8 +8,8 @@ export const gun02: Day = {
   blocks: [
     {
       id: 'd2-kalkis',
-      from: '06:00',
-      to: '06:30',
+      from: '05:30',
+      to: '06:00',
       title: 'Kalkış',
       sprite: 'ranzaDaginik',
       scenes: [
@@ -77,8 +77,8 @@ export const gun02: Day = {
     },
     {
       id: 'd2-ictima',
-      from: '06:30',
-      to: '07:00',
+      from: '06:00',
+      to: '06:30',
       title: 'Sabah İçtiması',
       sprite: 'asker',
       scenes: [
@@ -110,8 +110,8 @@ export const gun02: Day = {
     },
     {
       id: 'd2-mintika',
-      from: '07:00',
-      to: '07:30',
+      from: '06:30',
+      to: '07:00',
       title: 'Mıntıka Temizliği',
       sprite: 'postal',
       scenes: [
@@ -125,8 +125,8 @@ export const gun02: Day = {
     },
     {
       id: 'd2-kahvalti',
-      from: '07:30',
-      to: '08:30',
+      from: '07:00',
+      to: '08:00',
       title: 'Kahvaltı',
       sprite: 'tepsi',
       scenes: [
@@ -140,7 +140,7 @@ export const gun02: Day = {
     },
     {
       id: 'd2-egitim-sabah',
-      from: '08:30',
+      from: '08:00',
       to: '12:00',
       title: 'Temel Eğitim',
       sprite: 'asker',
@@ -324,7 +324,7 @@ export const gun02: Day = {
           kind: 'anlati',
           id: 'd2-sy2',
           sprite: 'ay',
-          text: 'Ranzana uzandın. Tavan çok yakın. Bugün 05:00’te bir otobüsteydin ve şimdi 28 günün 1’i bitti. Yirmi yedi tane daha var.'
+          text: 'Ranzana uzandın. Tavan hâlâ çok yakın ama artık yabancı değil. Bugün yatağı kendin topladın, içtimada adını kendin söyledin. 28 günün ikisi bitti. Yirmi altı tane daha var.'
         },
       ]
     },

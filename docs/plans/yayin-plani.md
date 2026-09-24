@@ -63,7 +63,7 @@ Berke telefonda dener. Sonuç bu belgedeki karta yazılır.
 |---|---|---|---|---|
 | K1 | Para kazanma modeli | ücretsiz + tek seferlik kilit açma / peşin ücretli / reklamlı | Ücretsiz + kilit açma. Ölçüm verisi bununla toplanır, mağazada indirme bariyeri yok. | M1, M2, M3 |
 | K2 | Kaç gün ücretsiz | 5 / 7 | **7.** Telefonun "bir hafta oldu" eşiği (g07) kilidin önünde kalır; oyuncu ilk duygusal geri dönüşü görüp duvara çarpar. | M2 |
-| K3 | Kalkış saati | 05:00 (telefon g02) / 05:30 (menü, `ilkDurum.saat`, README) / 06:00 (gün dosyaları) | README'deki gerçek program 05:30 diyor; gerçek programa sadık kalınacaksa 05:30. | I4 |
+| K3 | Kalkış saati | 05:00 (telefon g02) / 05:30 (menü, `ilkDurum.saat`, README) / 06:00 (gün dosyaları) | ✅ **05:30** (24 Eyl, öneriyle; Berke işi devretti). | I4 |
 | ~~K4~~ | ~~Web'de satış~~ | — | Kapandı (24 Eyl): web yayınlanmıyor. | — |
 | K5 | Yemin töreni günü | 21 / 26 | 26. Telefon g26 "duygusal yükseliş" günü; törende aile izleyici. | I7, I11 |
 | K6 | Hesaplar | Apple Developer (99$/yıl), Google Play Console (25$ bir kez), Firebase projesi, Sentry | Hepsi Berke adına açılmalı; Claude kurulum adımlarını hazırlar. | M4, M6, Y1, Y5 |
@@ -334,7 +334,7 @@ bunun yanında paralel yürür.
 
 ### İ · İçerik
 
-#### I4 · tutarlılık düzeltmesi ⬜ (D2, K3 kararından sonra)
+#### I4 · tutarlılık düzeltmesi ✅ (D2, K3 kararından sonra)
 - **Çelişkiler:**
   - İlk nöbet: `day04.ts:226` "bu gece ilk nöbetiniz", motor 6. gün,
     telefon g10 "ilk gece nöbeti".
@@ -356,6 +356,17 @@ bunun yanında paralel yürür.
      g02 buna bağlanır.
 - **Kabul:** `rg "05:00|05:30|06:00"` çıktısı tek bir kalkış saati
   gösteriyor; `telefon:dogrula` geçiyor.
+- **Sonuç:** 2–5. günlerde zincir 05:30 kalkış → 06:00 içtima → 06:30
+  mıntıka/denetim → 07:00 kahvaltı → 08:00 eğitim. Tanıtımdaki öğün saatleri
+  07:00 / 12:00 / 17:30. Görev takvimi `content/gorevTakvimi.ts`'e indi;
+  `Day.gorevler` ile gün dosyası ezebilir. 4. günde nöbet listesi yalnızca
+  asılıyor (takas seçeneğinin anlık enerji etkisi kaldırıldı). g05
+  görüşmesi ders + talim gününe uyduruldu. **Ek bulunan:** gün sayımları
+  kaymıştı (2. gün "28 günün 1'i bitti", 4. gün "Üç gün bitiyor… Yarın
+  dördüncü gün"); düzeltildi. 3. günden sonra her gün açılabilen Emre
+  diyaloğundaki sabit "Yirmi beş gün kaldı" sayısız hâle getirildi.
+  5 yeni test (takvim, ilk nöbet, kalkış saati). Tarayıcıda 2. gün
+  05:30'da açılıyor.
 
 #### I12 · kullanılmayan işaretler ⬜ (D2)
 - **Sorun:** `telefon:dogrula` 70 işaretin yazılıp hiç okunmadığını söylüyor.
@@ -595,6 +606,7 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 
 | Tarih | Kayıt |
 |---|---|
+| 2026-09-24 | Berke işi devretti (commit/push serbest). K3 → 05:30 uygulandı. |
 | 2026-09-24 | D1 kod olarak bitti. Ek bulunan hatalar: nöbet cezası puana hiç yansımıyordu (S6), yarım görüşme kartı "Devam et"te siliniyordu (S5). Cihaz testleri: S1/S2 Firebase projesiyle (M4), S7 Android'de. |
 | 2026-09-24 | Web yayın hedefi değil (Berke): Y4 ve K4 kaldırıldı, web geliştirme önizlemesi olarak kalıyor. |
 | 2026-09-24 | İlk inceleme: 3 kritik veri hatası (S1–S3), içerik 5/28, telefon 28/28. Plan yazıldı. |

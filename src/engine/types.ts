@@ -249,5 +249,10 @@ export type Day = {
   title: string;
   /** Gün açılış kartındaki tek cümlelik ton belirleyici. */
   epigraph?: string;
+  /**
+   * O günün nöbet ve ceza görevini takvimden (content/gorevTakvimi.ts)
+   * farklı yapmak için. Verilmezse takvim geçerli.
+   */
+  gorevler?: { nobet?: boolean; ceza?: boolean };
   blocks: TimeBlock[];
 };

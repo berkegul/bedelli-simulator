@@ -7,6 +7,7 @@ import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { GUNLER, gunGetir, YAZILMIS_GUN_SAYISI } from './index';
 import { dakikaya } from '../engine/zaman';
+import { gunGorevleri } from './gorevTakvimi';
 
 test('günler 1\'den başlayıp boşluksuz sıralı', () => {
   GUNLER.forEach((g, i) => assert.equal(g.day, i + 1));
@@ -57,3 +58,39 @@ for (const g of GUNLER) {
     });
   });
 }
+
+describe('görev takvimi', () => {
+  test('ilk nöbet 10. gece, ondan önce nöbet yok', () => {
+    for (let gun = 1; gun < 10; gun++) assert.notEqual(gunGorevleri({ day: gun }).nobet, true, `${gun}. gün`);
+    assert.equal(gunGorevleri({ day: 10 }).nobet, true);
+  });
+
+  test('aynı gün hem nöbet hem ceza yok', () => {
+    for (let gun = 1; gun <= 28; gun++) {
+      const g = gunGorevleri({ day: gun });
+      assert.ok(!(g.nobet && g.ceza), `${gun}. gün`);
+    }
+  });
+
+  test('gün dosyası takvimi ezebilir', () => {
+    assert.equal(gunGorevleri({ day: 10, gorevler: { nobet: false } }).nobet, false);
+    assert.equal(gunGorevleri({ day: 11, gorevler: { ceza: true } }).ceza, true);
+  });
+
+  test('yazılı günlere eklenen nöbet ve ceza sahneleri takvimle aynı', () => {
+    for (const g of GUNLER) {
+      const idler = g.blocks.flatMap((b) => b.scenes.map((s) => s.id));
+      const beklenen = gunGorevleri(g);
+      assert.equal(idler.some((id) => id.endsWith('-nobet')), !!beklenen.nobet, `${g.day}. gün nöbet`);
+      assert.equal(idler.some((id) => id.endsWith('-ceza')), !!beklenen.ceza, `${g.day}. gün ceza`);
+    }
+  });
+});
+
+test('kalkış 2. günden itibaren her gün 05:30', () => {
+  // Kalkış saati metinlerde, menüde ve açılış saatinde 05:30 geçiyor (K3).
+  for (const g of GUNLER.filter((g) => g.day >= 2)) {
+    const kalkis = g.blocks.find((b) => b.id === `d${g.day}-kalkis`);
+    assert.equal(kalkis?.from, '05:30', `${g.day}. gün`);
+  }
+});

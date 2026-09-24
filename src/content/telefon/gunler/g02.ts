@@ -1,6 +1,6 @@
 import type { Gorusme } from '../tipler';
 
-/** GÜN 2 — YABANCILIK. 05:00 kalkış, ilk içtima. Kanka bugün ilk kez arıyor. */
+/** GÜN 2 — YABANCILIK. 05:30 kalkış, ilk içtima. Kanka bugün ilk kez arıyor. */
 export const GUN_02: Gorusme[] = [
   {
     id: 'g02-anne',
@@ -48,7 +48,7 @@ export const GUN_02: Gorusme[] = [
             id: 'anlat',
             label: 'Sıra, yoklama, sayım — tek tek anlat',
             cevap:
-              '"Yani sırada duruyorsunuz." Özetledi. "Bunun için mi beşte kalkıyorsunuz?" Haklı aslında.',
+              '"Yani sırada duruyorsunuz." Özetledi. "Bunun için mi beş buçukta kalkıyorsunuz?" Haklı aslında.',
             etki: { iliski: 5, moral: 3 },
             isaret: { ad: 'anlatan', deger: 'evet' },
             sonraki: 'c',
@@ -80,7 +80,7 @@ export const GUN_02: Gorusme[] = [
           },
           {
             id: 'usudum',
-            label: '"Üşüdüm. Sabah beşte hava buz gibiydi."',
+            label: '"Üşüdüm. Sabah beş buçukta hava buz gibiydi."',
             cevap: '"Biliyordum!" Bunu kazanmış gibi söyledi. "Koli yollayacağım ben sana."',
             etki: { iliski: 5, moral: 2 },
             isaret: { ad: 'usume_sikayeti', deger: 'evet' },

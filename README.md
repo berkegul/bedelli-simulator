@@ -17,7 +17,7 @@ kişiler) → çarşıdan hazırlık alışverişi → 28 gün.
 | 2–3 | **Alıştırma.** Düzen oturuyor; bölük işi, ceza ve nöbet yok. |
 | 4 | Denetim. Görev rotasyonu başlıyor. |
 | 5 | **ANT-41 nezaket dersi.** Sahaya çıkılmıyor, sınıfta geçiyor. |
-| 6+ | Yazılacak. Nöbet listesi bu günden itibaren işliyor. |
+| 6+ | Yazılacak. Takvim: `docs/plans/yayin-plani.md` §4. İlk nöbet 10. gece. |
 
 Sevk günü bilerek gündüz başlıyor — asker kışlaya gece varmaz. İlk üç günün
 alıştırma olması da `gunlukGorevler()` içinde gün numarasına bağlı.
@@ -150,12 +150,15 @@ Yeni mekan eklemek: `MEKANLAR` sözlüğüne blok kimliğiyle bir giriş yaz,
 
 ### Günlük görevler
 
-Aynı düzen 28 gün tekrar etmesin diye günden türetilen görevler var
-(`gunlukGorevler()` — rastgele ama deterministik, kayıttan dönünce değişmez):
+Aynı düzen 28 gün tekrar etmesin diye günlere dağıtılmış görevler var.
+Hangi gün ne olduğu `src/content/gorevTakvimi.ts` içinde, telefonun gün
+temalarıyla hizalı; bir gün dosyası `gorevler` alanıyla kendi gününü
+değiştirebilir:
 
-- **Akşam içtimasında bölük işi**: üç günde üçü avlu temizliği (`izmarit`),
-  dördüncüsü ceza şınavı (`ceza`).
-- **Üç günde bir gece nöbeti** (`nobet`): uyanıklık çubuğu sürekli düşer,
+- **Mıntıka**: 2. günden itibaren her sabah avlu temizliği (`izmarit`).
+- **Akşam içtimasında ceza şınavı** (`ceza`): 6, 14 ve 18. günler.
+- **Gece nöbeti** (`nobet`): liste 4. gün asılır, ilk nöbet 10. gece;
+  sonra 13, 16, 19, 22 ve 25. geceler. Uyanıklık çubuğu sürekli düşer,
   dokunarak ayakta tutarsın. Arada devriye geçer — o an ayağa kalkmazsan
   ceza yazılır. İki iş aynı anda: uykuyla ve devriyeyle uğraşmak.
 

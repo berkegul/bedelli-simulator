@@ -1,7 +1,7 @@
 import type { Gorusme } from '../tipler';
 
 /**
- * GÜN 5 — RİTİM. İlk uzun eğitim, gerçek yorgunluk.
+ * GÜN 5 — RİTİM. Sabah ANT-41 dersi, öğleden sonra talim; ilk gerçek yorgunluk.
  * Bugünün asıl işi `cikis_plani` ve `ilk_gorecek` işaretlerini koymak:
  * ikisi de 20. ve 22. günlerde geri dönüyor. Aynı soruyu iki karakter
  * kendi ağzıyla soruyor, cevaplar ayrı saklanıyor.
@@ -22,8 +22,8 @@ export const GUN_05: Gorusme[] = [
         secenekler: [
           {
             id: 'yorgun',
-            label: '"Hasta değilim, yorgunum. Bugün çok yürüdük."',
-            cevap: '"Ne kadar yürüdünüz?" "Bilmiyorum." "Nasıl bilmezsin oğlum?"',
+            label: '"Hasta değilim, yorgunum. Sabah ders, öğleden sonra talim."',
+            cevap: '"Ders mi? Askerde ders mi olur?" "Olurmuş anne." "Ne dersi?" "Nezaket." Uzun bir sessizlik.',
             etki: { iliski: 4, moral: 2 },
             sonraki: 'b',
           },

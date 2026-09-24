@@ -45,7 +45,7 @@ const DURAKLAR: Durak[] = [
     x: 58,
     y: 6,
     metin:
-      'Üç öğün: 06:30, 12:00, 18:00. Sıraya girmeden tepsi alınmaz, tepsi elde yürünmez. Ne kadar yiyeceğine sen karar verirsin ama öğünler arası uzun.',
+      'Üç öğün: 07:00, 12:00, 17:30. Sıraya girmeden tepsi alınmaz, tepsi elde yürünmez. Ne kadar yiyeceğine sen karar verirsin ama öğünler arası uzun.',
   },
   {
     id: 'ictima',
