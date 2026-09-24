@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Pressable, View } from 'react-native';
+import { Animated, Pressable, View, useWindowDimensions } from 'react-native';
 import { Bildirim, Siddet, bildir, titret } from '../ui/haptik';
 import { BORDER, C, SP } from '../theme';
 import { PixelText } from '../ui/PixelText';
@@ -120,8 +120,12 @@ export function SilahSokme({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const sureSiniri = 26000 - zorluk * 7000;
 
   // Masa: ölçek tüfeğin boyuna göre, tam sayı.
-  const [en, setEn] = useState(0);
-  const u = en ? Math.max(2, Math.floor((en - 8) / TUFEK_EN)) : 0;
+  // Ölçüm gelene kadar pencereden tahmin: ilk karede de tüfek çizilsin
+  // (web'de onLayout geç ya da 0 gelebiliyor, alan boş kahverengi kalıyordu).
+  const pencere = useWindowDimensions().width;
+  const [olculen, setEn] = useState(0);
+  const en = olculen > 0 ? olculen : Math.min(pencere, 480) - 2 * SP.lg;
+  const u = en > 0 ? Math.max(2, Math.floor((en - 8) / TUFEK_EN)) : 0;
   const Wc = u ? Math.ceil(en / u) : 0;
   const Hc = TUFEK_BOY + 26;
   const ox = Math.floor((Wc - TUFEK_EN) / 2);
@@ -181,6 +185,7 @@ export function SilahSokme({ onBitti, zorluk = 0 }: MiniOyunProps) {
       <View
         onLayout={(e) => setEn(Math.round(e.nativeEvent.layout.width))}
         style={{
+          width: '100%',
           height: Hc * (u || 2),
           borderWidth: BORDER,
           borderColor: C.ink,
