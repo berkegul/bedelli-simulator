@@ -45,6 +45,19 @@ npx expo start --web    # tarayıcı (hızlı bakış için)
 
 **Windows'ta kuruyorsan** adım adım anlatım için [KURULUM.md](KURULUM.md).
 
+## Kontroller
+
+```bash
+npm run typecheck        # uygulama + testler/araçlar
+npm run lint
+npm test                 # motor ve içerik yapısı (node:test + tsx)
+npm run telefon:dogrula
+npm run sprite
+```
+
+Hepsi `.github/workflows/kontrol.yml` içinde her push'ta koşuyor. Yayına
+giden iş listesi: `docs/plans/yayin-plani.md`.
+
 ## Oyun nasıl kurulu
 
 Bir **gün**, kullanıcının verdiği gerçek programa karşılık gelen **zaman

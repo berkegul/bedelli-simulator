@@ -1,11 +1,10 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { C, SP } from '../theme';
+import { C, SP , BORDER } from '../theme';
 import { gunGetir } from '../content';
 import { kalanGun } from '../engine/stats';
 import { useGame } from '../store/gameStore';
-import { BORDER } from '../theme';
 import { PixelButton } from '../ui/PixelButton';
 import { GokyuzuGecisi } from '../ui/GokyuzuGecisi';
 import { PixelText } from '../ui/PixelText';

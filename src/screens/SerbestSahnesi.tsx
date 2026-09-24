@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { C, SP } from '../theme';
+import { C, SP , BORDER } from '../theme';
 import { gunGetir } from '../content';
 import { blokSonu, kalanSure, saate } from '../engine/zaman';
 import { useGame } from '../store/gameStore';
@@ -8,7 +8,6 @@ import { PixelButton } from '../ui/PixelButton';
 import { PixelText } from '../ui/PixelText';
 import { KislaHaritasi } from './KislaHaritasi';
 import { ROL_ADI } from '../content/telefon';
-import { BORDER } from '../theme';
 
 /** İki saat serbest. Ne yapacağın tamamen sana kalmış. */
 export function SerbestSahnesi() {

@@ -1,0 +1,35 @@
+name: Kontrol
+
+on:
+  push:
+    branches: [main, 'yayin/**']
+  pull_request:
+
+jobs:
+  kontrol:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # postinstall, Skia'nın canvaskit.wasm dosyasını public/ altına kopyalıyor.
+      - run: npm ci
+
+      - name: Tip denetimi (uygulama + test/araç)
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Birim testleri
+        run: npm test
+      - name: Telefon içeriği
+        run: npm run telefon:dogrula
+      - name: Sprite'lar
+        run: npm run sprite
+
+      - name: Web derlemesi
+        run: npx expo export -p web
+      - name: canvaskit.wasm derlemede mi
+        run: test -f dist/canvaskit.wasm

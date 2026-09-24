@@ -2,5 +2,8 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true
-  }
+  },
+  // Testler ve araçlar Node'da koşuyor; onlar tsconfig.node.json ile
+  // denetleniyor. Node tipleri uygulama koduna sızmasın (setTimeout vb.).
+  "exclude": ["node_modules", "**/*.test.ts", "tools"]
 }

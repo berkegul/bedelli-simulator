@@ -15,7 +15,20 @@ import { kaydet, sil, yukle } from '../engine/save';
 import { blokSonu, dakikaya, sahneSaati } from '../engine/zaman';
 import { olayYaz } from '../engine/bulut';
 import { sigaraIzni, telefonIzni } from '../engine/kurallar';
-import type { DolapDuzeni, Kusur } from '../engine/types';
+import type { DolapDuzeni, Kusur ,
+  ArkadasId,
+  Choice,
+  Effect,
+  Envanter,
+  EsyaId,
+  KayitRolu,
+  Kalite,
+  Profil,
+  RehberKisi,
+  Rol,
+  Scene,
+  Stats,
+} from '../engine/types';
 import { denetimSonucu } from '../content/denetim';
 import {
   KAYIT_ADI,
@@ -38,21 +51,6 @@ import {
   type Replik,
   type TelefonDurumu,
 } from '../content/telefon';
-import type {
-  ArkadasId,
-  Choice,
-  Effect,
-  Envanter,
-  EsyaId,
-  KayitRolu,
-  Kalite,
-  Profil,
-  RehberKisi,
-  Rol,
-  Scene,
-  Stats,
-  YakinlikTuru,
-} from '../engine/types';
 import { gunOynanabilirMi } from '../monetization/entitlements';
 import { havaDurumu, havaEtkisi } from '../engine/hava';
 import { yonelme } from '../engine/turkce';

@@ -32,8 +32,9 @@ Durum işaretleri: ✅ bitti · 🟡 sürüyor · ⬜ bekliyor · ❓ karar bekl
 
 | Kontrol | Komut | Ne zaman |
 |---|---|---|
-| Tip | `npx tsc --noEmit` | her iş |
-| Birim testleri | `npm test` (S9'dan sonra) | her iş |
+| Tip (test + araç) | `npm run typecheck` | her iş |
+| Lint | `npm run lint` (0 hata) | her iş |
+| Birim testleri | `npm test` | her iş |
 | Telefon içeriği | `npm run telefon:dogrula` | içerik veya telefon motoruna dokunan iş |
 | Web derlemesi | `npx expo export -p web` | her iş |
 | Native derlemesi | `npx expo export -p ios` | native modül eklenen veya platforma özel kod içeren iş |
@@ -74,7 +75,7 @@ ondan sonra başlar. Süreler tek kişilik yoğun çalışma için kaba tahmin.
 | Dalga | Amaç | İşler | Tahmin |
 |---|---|---|---|
 | **D1 · Zemin** | Veri kaybettiren hataları kapat, test altyapısını kur | S11, S9, S1, S2, S3, S4, S5, S6, S7 | 2–3 gün |
-| **D2 · İçerik hazırlığı** | 23 gün yazılmadan önce çelişkileri, aracı ve şablonu hazırla | I4, S10, I12, S8, I10, §4 takvimi | 3–4 gün |
+| **D2 · İçerik hazırlığı** | 23 gün yazılmadan önce çelişkileri, aracı ve şablonu hazırla | I4, S10, I12, S8, S12, I10, §4 takvimi | 3–4 gün |
 | **D3 · İkinci hafta + ses** | Gün 6–12, ses, ayarlar, duraklatma | I5, C1, C2, C3 | 5–7 gün |
 | **D4 · Üçüncü hafta + para** | Gün 13–19, satın alma, dev build | I6, Y1, M2, M3, C4, C7 | 6–8 gün |
 | **D5 · Son hafta + uyum** | Gün 20–28, finaller, ölçüm, KVKK, cila | I11, I7, I8, I9, M4, M5, M6, C5, C6, Y2, Y3, Y4 | 7–10 gün |
@@ -104,7 +105,7 @@ bunun yanında paralel yürür.
 
 ### S · Sağlamlaştırma
 
-#### S11 · sprite-onizle hatası ⬜ (D1)
+#### S11 · sprite-onizle hatası ✅ (D1)
 - **Sorun:** `tools/sprite-onizle.py:28` boş bir sprite tanımında
   `max()` boş diziyle çağrılıyor ve script çöküyor.
 - **Adımlar:** boş `rows` dizisi olan tanımı bul (`ASKER_ARKA_SAG` sonrası).
@@ -112,8 +113,11 @@ bunun yanında paralel yürür.
   "⚠ boş" uyarısı ekle, çökmesin.
 - **Kabul:** `python3 tools/sprite-onizle.py` sonuna kadar koşuyor, hatalı
   sprite varsa uyarıyla listeliyor.
+- **Sonuç:** sprite bozuk değildi, araç türetilmiş tanımları (`...ARKA_GOVDE`,
+  `rows: TISORT.rows`) göremiyordu. Araç tsx'e taşındı (`npm run sprite`),
+  modülü doğrudan içe aktarıyor: 56 yerine 82 sprite doğrulanıyor, hepsi temiz.
 
-#### S9 · test + lint + CI ⬜ (D1, S11'den sonra)
+#### S9 · test + lint + CI ✅ (D1, S11'den sonra)
 - **Adımlar:**
   1. Test koşucusu olarak `node:test` + `tsx` (zaten kurulu, RN dönüşümü
      gerektirmiyor): `"test": "node --import tsx --test src/**/*.test.ts"`.
@@ -126,6 +130,11 @@ bunun yanında paralel yürür.
   4. `.github/workflows/kontrol.yml`: `npm ci` → `tsc` → `npm test` →
      `telefon:dogrula` → `sprite-onizle` → `expo export -p web`.
 - **Kabul:** CI yeşil, `npm test` en az 20 test koşuyor.
+- **Sonuç:** 48 test (stats, türkçe ekler, zaman, hava, içerik yapısı).
+  `npm run typecheck` iki aşamalı: uygulama `tsconfig.json`, test ve araçlar
+  `tsconfig.node.json` (TS 6 Node tiplerini kendiliğinden yüklemiyor; uygulama
+  koduna sızmasınlar diye ayrıldı). Lint 0 hata, 100 uyarı: hepsi React
+  Compiler kuralı, S12'ye bırakıldı. `.github/workflows/kontrol.yml`.
 
 #### S1 · kalıcı anonim kimlik 🔴 ⬜ (D1)
 - **Sorun:** `engine/bulut.ts:24` `getAuth(app)` React Native'de kalıcılık
@@ -235,6 +244,17 @@ bunun yanında paralel yürür.
      `useGeriSayim` 100 ms → 250 ms + görüntü shared value ile.
 - **Kabul:** davranış değişmez (testler + web'de bir tam gün). React
   DevTools'ta mini oyun sırasında `OyunEkrani` yeniden çizilmiyor.
+
+#### S12 · React Compiler lint uyarıları ⬜ (D2, S6 + S8 ile)
+- **Durum:** `react-hooks/refs` (51), `immutability` (38),
+  `set-state-in-effect` (6), `purity` (5) uyarı seviyesinde. Çoğu
+  `useRef(new Animated.Value)` ve Reanimated shared value atamaları;
+  bugün doğru çalışıyor ama React Compiler açılırsa bozulur.
+- **Adımlar:** S6 ve S8 dosyalara dokunurken: RN `Animated` → Reanimated
+  (`OyunEkrani`, `Tepsi`), shared value'da `.value =` yerine `.set()`,
+  render sırasında `Date.now()` ve ref okuma → effect / olay işleyici.
+- **Kabul:** `npm run lint` 0 uyarı; `eslint.config.js`'teki dört kural
+  `error`'a çekilir.
 
 #### S10 · denge simülasyonu tsx ⬜ (D2)
 - **Sorun:** `tools/denge-analizi.py`, `stats.ts`'i elle kopyalıyor, rutin /

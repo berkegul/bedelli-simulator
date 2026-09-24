@@ -12,7 +12,7 @@ import {
   secenekleriHazirla,
 } from '../content/telefon';
 import { sigaraIzni, telefonIzni } from '../engine/kurallar';
-import type { ArkadasId } from '../engine/types';
+import type { ArkadasId, KayitRolu } from '../engine/types';
 import { KALITE_ADI, esya, kullanilabilirler } from '../content/esyalar';
 import { telefonDurumuOku, useGame } from '../store/gameStore';
 import { DukkanListesi } from '../ui/DukkanListesi';
@@ -22,7 +22,6 @@ import { PixelInput } from '../ui/PixelInput';
 import { KayitSecici } from '../ui/KayitSecici';
 import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
-import type { KayitRolu, Rol } from '../engine/types';
 
 const ARKADAS_SPRITE: Record<ArkadasId, 'askerEmre' | 'askerTolga' | 'askerSerkan'> = {
   emre: 'askerEmre',

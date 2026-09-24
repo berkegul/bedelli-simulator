@@ -16,7 +16,7 @@ import { telefonDurumuOku, useGame } from '../../store/gameStore';
 import { PixelButton } from '../../ui/PixelButton';
 import { PixelText } from '../../ui/PixelText';
 import { GorusmePaneli } from '../../screens/Paneller';
-import { Baslik, Cikti, Kart, Kutu, Satir, Sayi, Secenekler } from '../parcalar';
+import { Baslik, Cikti, Kart, Kutu, Satir, Secenekler } from '../parcalar';
 
 const ROLLER: Rol[] = ['anne', 'baba', 'sevgili', 'kanka', 'kardes', 'es', 'akraba'];
 const GUNLER_28 = Array.from({ length: 28 }, (_, i) => i + 1);

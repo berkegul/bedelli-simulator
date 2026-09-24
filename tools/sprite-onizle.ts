@@ -14,7 +14,7 @@
 import * as S from '../src/art/sprites';
 import type { SpriteDef } from '../src/ui/PixelSprite';
 
-const argumanlar: string[] = process.argv.slice(2);
+const argumanlar = process.argv.slice(2);
 const goster = argumanlar.includes('--goster');
 const suzgec = argumanlar.find((a) => !a.startsWith('--'))?.toUpperCase();
 

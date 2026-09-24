@@ -1,7 +1,6 @@
 import { TOPLAM_GUN } from '../../engine/stats';
-import { sayiYaziyla } from './motor';
+import { sayiYaziyla , kosulTutar } from './motor';
 import type { Hafiza, Kosul, TelefonDurumu } from './tipler';
-import { kosulTutar } from './motor';
 
 /**
  * 28. günün finali tek bir sahne değil: koşulu tutan kartlar sırayla

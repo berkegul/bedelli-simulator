@@ -24,7 +24,6 @@ type Alt = 'hava' | 'stat' | 'izin' | 'nikotin' | 'kayit';
 
 /** Sistemler: oyunun arka planında sessizce çalışan hesaplar. */
 export function BolumSistemler() {
-  const g = useGame();
   const [alt, setAlt] = useState<Alt | null>(null);
 
   if (!alt) {
