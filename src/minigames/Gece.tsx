@@ -1,16 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { BORDER, C, SP } from '../theme';
-import { sprite, type SpriteKey } from '../art';
+import { type SpriteKey } from '../art';
 import { GECE_KARELERI, GIYINME_ASAMALARI } from '../art/sprites';
 import { BOLGE_ADI } from '../content/dolap';
 import type { DolapBolgesi, DolapDuzeni, Envanter, EsyaId } from '../engine/types';
 import { DolapCizimi, SECILMEZ, planKur, yuva } from '../screens/DolapYerlesimi';
 import { useGame } from '../store/gameStore';
 import { Siddet, titret } from '../ui/haptik';
-import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
 import { useGeriSayim } from './geriSayim';
+import { AskerDurusu, KogusFonu, RanzaCizimi } from './KogusFonu';
 import { TasinanParca } from './TasinanParca';
 import { clamp01, type MiniOyunProps } from './types';
 
@@ -310,7 +310,14 @@ export function Gece({ onBitti, zorluk = 0 }: MiniOyunProps) {
       >
         {plan && (
           <>
+            {/* Koğuş gece: tek tavan lambası, ranzalar karanlıkta */}
+            <KogusFonu en={en} yukseklik={altY + ALT_BOY} zeminY={plan.dolap.h - 6} gece />
             <DolapCizimi plan={plan} />
+            {/* Dolabın metali de lambanın dışında kalan loşlukta; eşyalar üstte, okunaklı */}
+            <View
+              pointerEvents="none"
+              style={{ position: 'absolute', top: 0, left: 0, right: 0, height: plan.dolap.h, backgroundColor: '#0B1026', opacity: 0.28 }}
+            />
 
             {ACILAN.map((yer) => {
               const r = plan.bolgeler.find((b) => b.id === yer)!;
@@ -328,7 +335,7 @@ export function Gece({ onBitti, zorluk = 0 }: MiniOyunProps) {
                     top: r.y,
                     width: r.w,
                     height: r.h,
-                    backgroundColor: kapali ? (bakiyor ? '#262418' : '#12110C') : 'transparent',
+                    backgroundColor: kapali ? (bakiyor ? '#262418' : '#100F0A') : 'transparent',
                     borderWidth: secili ? 1 : 0,
                     borderStyle: 'dashed',
                     borderColor: C.line,
@@ -360,18 +367,11 @@ export function Gece({ onBitti, zorluk = 0 }: MiniOyunProps) {
                 top: ranza.y,
                 width: ranza.w,
                 height: ranza.h,
-                backgroundColor: C.surface,
-                borderWidth: BORDER,
-                borderColor: secili ? C.brass : C.ink,
-                padding: SP.sm,
+                borderWidth: secili ? BORDER : 0,
+                borderColor: C.brass,
               }}
             >
-              <PixelText font="command" size="micro" color={C.canvasDim}>
-                RANZA
-              </PixelText>
-              <View style={{ position: 'absolute', left: SP.sm, bottom: SP.sm }}>
-                <PixelSprite sprite={sprite('ranzaToplu')} scale={2} opacity={0.5} />
-              </View>
+              <RanzaCizimi kutu={ranza} vurgulu={secili} />
             </Pressable>
 
             {/* Sen */}
@@ -384,18 +384,18 @@ export function Gece({ onBitti, zorluk = 0 }: MiniOyunProps) {
                 height: govde.h,
                 borderWidth: 1,
                 borderStyle: 'dashed',
-                borderColor: C.line,
+                borderColor: '#4A4430',
                 alignItems: 'center',
                 justifyContent: 'flex-end',
-                paddingBottom: SP.sm,
+                paddingBottom: SP.xs,
               }}
             >
-              <View style={{ position: 'absolute', top: SP.xs, right: SP.sm }}>
-                <PixelText font="command" size="micro" color={C.canvasFaint}>
+              <View style={{ position: 'absolute', top: SP.xs, right: SP.sm, backgroundColor: C.ink, paddingHorizontal: 4 }}>
+                <PixelText font="command" size="micro" color={C.canvasDim}>
                   ÜSTÜN
                 </PixelText>
               </View>
-              <PixelSprite sprite={kare} scale={5} />
+              <AskerDurusu kare={kare} />
             </View>
 
             {/* Üstündeki sıradaki parça: tut, yerine götür */}

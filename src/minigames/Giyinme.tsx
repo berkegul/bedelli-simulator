@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { BORDER, C, SP } from '../theme';
-import { sprite, type SpriteKey } from '../art';
+import { C, SP } from '../theme';
+import { type SpriteKey } from '../art';
 import { GIYINME_ASAMALARI } from '../art/sprites';
 import { BOLGE_ADI } from '../content/dolap';
 import type { DolapBolgesi, DolapDuzeni, Envanter } from '../engine/types';
 import { DolapCizimi, KUTU, SECILMEZ, planKur, yuva } from '../screens/DolapYerlesimi';
 import { useGame } from '../store/gameStore';
 import { Siddet, titret } from '../ui/haptik';
-import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
+import { AskerDurusu, KogusFonu, RanzaCizimi } from './KogusFonu';
 import { TasinanParca } from './TasinanParca';
 import { clamp01, type MiniOyunProps } from './types';
 
@@ -237,6 +237,8 @@ export function Giyinme({ onBitti, zorluk = 0 }: MiniOyunProps) {
       >
         {plan && (
           <>
+            {/* Koğuş sabahı: dolabın arkasında duvar, önünde karo, pencereden ışık */}
+            <KogusFonu en={en} yukseklik={altY + ALT_BOY} zeminY={plan.dolap.h - 6} gece={false} />
             <DolapCizimi plan={plan} />
 
             {/* Kapalı raflar: bakana kadar içi görünmüyor */}
@@ -255,7 +257,9 @@ export function Giyinme({ onBitti, zorluk = 0 }: MiniOyunProps) {
                     top: r.y,
                     width: r.w,
                     height: r.h,
-                    backgroundColor: bakiyor ? '#262418' : '#12110C',
+                    backgroundColor: bakiyor ? '#262418' : '#15130D',
+                    borderWidth: 1,
+                    borderColor: '#2E2B1F',
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
@@ -279,18 +283,9 @@ export function Giyinme({ onBitti, zorluk = 0 }: MiniOyunProps) {
                 top: ranza.y,
                 width: ranza.w,
                 height: ranza.h,
-                backgroundColor: C.surface,
-                borderWidth: BORDER,
-                borderColor: C.ink,
-                padding: SP.sm,
               }}
             >
-              <PixelText font="command" size="micro" color={C.canvasDim}>
-                RANZA
-              </PixelText>
-              <View style={{ position: 'absolute', left: SP.sm, bottom: SP.sm }}>
-                <PixelSprite sprite={sprite('ranzaToplu')} scale={2} opacity={0.5} />
-              </View>
+              <RanzaCizimi kutu={ranza} />
             </View>
 
             {/* Sen: parçaları buraya sürükle */}
@@ -303,18 +298,18 @@ export function Giyinme({ onBitti, zorluk = 0 }: MiniOyunProps) {
                 height: govde.h,
                 borderWidth: 1,
                 borderStyle: 'dashed',
-                borderColor: C.line,
+                borderColor: '#5A5238',
                 alignItems: 'center',
                 justifyContent: 'flex-end',
-                paddingBottom: SP.sm,
+                paddingBottom: SP.xs,
               }}
             >
-              <View style={{ position: 'absolute', top: SP.xs, left: SP.sm }}>
-                <PixelText font="command" size="micro" color={C.canvasFaint}>
+              <View style={{ position: 'absolute', top: SP.xs, left: SP.sm, backgroundColor: C.ink, paddingHorizontal: 4 }}>
+                <PixelText font="command" size="micro" color={C.canvasDim}>
                   ÜSTÜN
                 </PixelText>
               </View>
-              <PixelSprite sprite={GIYINME_ASAMALARI[Math.min(asama, SIRA.length)]} scale={5} />
+              <AskerDurusu kare={GIYINME_ASAMALARI[Math.min(asama, SIRA.length)]} />
             </View>
 
             {kalanlar
