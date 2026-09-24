@@ -117,7 +117,8 @@ export function YemekSahnesi({ gun, blokIndex, ogun, tokluk, onYe }: Props) {
         </PixelText>
       </View>
 
-      <View style={{ gap: SP.sm }}>
+      {/* Tepsinin yanında kısa liste: iki sütun, tokluk değeriyle */}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm }}>
         {menu.map((y, i) => {
           const acik = secili.includes(i);
           return (
@@ -130,14 +131,16 @@ export function YemekSahnesi({ gun, blokIndex, ogun, tokluk, onYe }: Props) {
                 setSecili((s) => (s.includes(i) ? s.filter((x) => x !== i) : [...s, i]))
               }
               style={{
+                flexBasis: '47%',
+                flexGrow: 1,
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: SP.md,
+                gap: SP.sm,
                 borderWidth: BORDER,
                 borderColor: acik ? C.olive : C.ink,
                 backgroundColor: acik ? C.surfaceHi : C.surface,
                 paddingVertical: SP.sm,
-                paddingHorizontal: SP.md,
+                paddingHorizontal: SP.sm,
               }}
             >
               <View

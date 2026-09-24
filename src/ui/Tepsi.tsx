@@ -5,7 +5,7 @@ import { BORDER, C, SP } from '../theme';
 import type { Yemek } from '../content/menu';
 import { PixelText } from './PixelText';
 
-export const TEPSI_YUKSEKLIK = 186;
+export const TEPSI_YUKSEKLIK = 210;
 
 /** Paslanmaz tepsi tonları — paletin çelik ailesinden, parlak metal yok. */
 const METAL = {
@@ -314,8 +314,10 @@ function Goz({
           left: 0,
           right: 0,
           bottom: 0,
-          opacity: giris,
-          transform: [{ scale: giris.interpolate({ inputRange: [0, 1], outputRange: [0.55, 1] }) }],
+          // Seçilmemiş yemek de gözünde duruyor, soluk ve küçük: oyuncu ne
+          // sunulduğunu görüyor. Eskiden boş gri kutular taslak gibi duruyordu.
+          opacity: giris.interpolate({ inputRange: [0, 1], outputRange: [0.32, 1] }),
+          transform: [{ scale: giris.interpolate({ inputRange: [0, 1], outputRange: [0.82, 1] }) }],
         }}
       >
         <Porsiyon ad={yemek.ad} stil={stil} />
