@@ -6,6 +6,8 @@ import type { ArkadasId } from '../../engine/types';
 import { useSecili } from '../../store/secici';
 import { PixelButton } from '../../ui/PixelButton';
 import { PixelText } from '../../ui/PixelText';
+import { MekanSeridi } from '../../ui/MekanSeridi';
+import { saate } from '../../engine/zaman';
 
 export const ARKADAS_SPRITE: Record<ArkadasId, 'askerEmre' | 'askerTolga' | 'askerSerkan'> = {
   emre: 'askerEmre',
@@ -20,6 +22,7 @@ export function PanelKabuk({
   children,
   kapat,
   kapatLabel = 'Geri dön',
+  sahne,
 }: {
   baslik: string;
   alt?: string;
@@ -27,8 +30,13 @@ export function PanelKabuk({
   /** Görüşme paneli gibi kapanışı kendi yöneten paneller için. */
   kapat?: () => void;
   kapatLabel?: string;
+  /**
+   * Başlığın altında yerin kendisi: mekan anahtarı (MekanSeridi) ve saat.
+   * Panel bir form değil, bir yer; kantine giren tezgâhı görüyor.
+   */
+  sahne?: { mekan: string; saat?: string };
 }) {
-  const g = useSecili('panelAc', 'para');
+  const g = useSecili('panelAc', 'para', 'saat');
   const inset = useSafeAreaInsets();
 
   return (
@@ -64,10 +72,20 @@ export function PanelKabuk({
       </View>
 
       <ScrollView
-        contentContainerStyle={{ padding: SP.lg, gap: SP.lg }}
+        contentContainerStyle={{ paddingBottom: SP.lg, gap: SP.lg }}
         keyboardShouldPersistTaps="handled"
       >
-        {children}
+        {sahne && (
+          <MekanSeridi
+            blokId={`d0-${sahne.mekan}`}
+            saat={sahne.saat ?? saate(g.saat)}
+            carpan={1}
+            cercevesiz
+          />
+        )}
+        <View style={{ paddingHorizontal: SP.lg, paddingTop: sahne ? 0 : SP.lg, gap: SP.lg }}>
+          {children}
+        </View>
       </ScrollView>
 
       <View style={{ padding: SP.lg, paddingBottom: inset.bottom + SP.lg, backgroundColor: C.ink }}>

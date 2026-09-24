@@ -34,6 +34,8 @@ type Mekan = {
 
 /** Mekâna göre zemin: içtima betonda, eğitim poligonda, yemekhane karoda. */
 const ZEMIN_TURU: Record<string, ZeminTuru> = {
+  kantin: 'karo',
+  ankesor: 'beton',
   carsi: 'asfalt',
   nizamiye: 'asfalt',
   ictima: 'beton',
@@ -272,6 +274,42 @@ const MEKANLAR: Record<string, Mekan> = {
       { sprite: 'agac', olcek: 2, x: 48 },
       { sprite: 'ankesor', olcek: 1, x: 70 },
       { sprite: 'askerEmre', olcek: 2, x: 84 },
+    ],
+  },
+  // Kantin içi: tezgâh, arkada raflar, sırada bekleyenler.
+  kantin: {
+    ad: 'Kantin',
+    ic: true,
+    kalabalik: 8,
+    mevcut: 'SIRA',
+    duvar: 'tugla',
+    ogeler: [
+      { sprite: 'dolapSirasi', olcek: 2, x: 4, taban: TABAN_ZEMIN + 30, arka: true },
+      { sprite: 'pencere', olcek: 2, x: 70, taban: TABAN_ZEMIN + 34, arka: true },
+      { sprite: 'sigara', olcek: 2, x: 12, taban: TABAN_ZEMIN + 40 },
+      { sprite: 'atistirmalik', olcek: 2, x: 22, taban: TABAN_ZEMIN + 40 },
+      { sprite: 'enerjiIcecegi', olcek: 2, x: 32, taban: TABAN_ZEMIN + 40 },
+      { sprite: 'kontor', olcek: 2, x: 42, taban: TABAN_ZEMIN + 40 },
+      { sprite: 'sivil', olcek: 2, x: 26, taban: TABAN_ZEMIN + 12 },
+      { sprite: 'yemekhaneMasa', olcek: 3, x: 14, taban: TABAN_ZEMIN - 2 },
+      { sprite: 'asker', olcek: 2, x: 62 },
+      { sprite: 'askerSerkan', olcek: 2, x: 80 },
+    ],
+  },
+  // Ankesör başı: akşam kuyruğu, kulübe, kontör kartı.
+  ankesor: {
+    ad: 'Ankesör',
+    ic: false,
+    kalabalik: 6,
+    mevcut: 'KUYRUK',
+    ogeler: [
+      { sprite: 'kisla', olcek: 2, x: 50, taban: TABAN_ZEMIN + 26, arka: true },
+      { sprite: 'agac', olcek: 2, x: 4 },
+      { sprite: 'ankesor', olcek: 3, x: 24 },
+      { sprite: 'asker', olcek: 2, x: 42 },
+      { sprite: 'askerTolga', olcek: 2, x: 58 },
+      { sprite: 'askerEmre', olcek: 2, x: 72 },
+      { sprite: 'askerSirt', olcek: 2, x: 88 },
     ],
   },
   // 7. gün pazar düzeni: çamaşır yıkanıp ipe asılıyor.
