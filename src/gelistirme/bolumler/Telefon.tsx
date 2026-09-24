@@ -16,7 +16,7 @@ import { telefonDurumuOku } from '../../store/gameStore';
 import { useSecili } from '../../store/secici';
 import { PixelButton } from '../../ui/PixelButton';
 import { PixelText } from '../../ui/PixelText';
-import { GorusmePaneli } from '../../screens/Paneller';
+import { GorusmePaneli } from '../../screens/panel';
 import { Baslik, Cikti, Kart, Kutu, Satir, Secenekler } from '../parcalar';
 
 const ROLLER: Rol[] = ['anne', 'baba', 'sevgili', 'kanka', 'kardes', 'es', 'akraba'];

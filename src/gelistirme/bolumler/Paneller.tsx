@@ -18,7 +18,7 @@ import {
   OturmaAlaniPaneli,
   RehberPaneli,
   SigaraIstegiPaneli,
-} from '../../screens/Paneller';
+} from '../../screens/panel';
 import { Baslik, Kart, Kutu } from '../parcalar';
 
 type Kayit = {

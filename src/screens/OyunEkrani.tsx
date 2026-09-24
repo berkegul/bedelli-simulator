@@ -29,7 +29,7 @@ import {
   OturmaAlaniPaneli,
   RehberPaneli,
   SigaraIstegiPaneli,
-} from "./Paneller";
+} from "./panel";
 import { SerbestSahnesi } from "./SerbestSahnesi";
 import { YemekSahnesi } from "./YemekSahnesi";
 import { DenetimSahnesi } from "./DenetimSahnesi";
