@@ -7,6 +7,7 @@ import { PixelSprite, type SpriteDef } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
 import { useZamanlayici } from '../ui/useZamanlayici';
 import { clamp01, type MiniOyunProps } from './types';
+import { sesCal } from '../ses';
 
 const MERMI = 5;
 /** Hedef ızgarası: HUCRE × HUCRE piksel, her piksel PX nokta. */
@@ -148,6 +149,7 @@ export function Atis({ onBitti, zorluk = 0 }: MiniOyunProps) {
     const n = konum(Date.now());
     const puan = isabetPuani(n.x, n.y);
     titret(Siddet.Heavy);
+    sesCal('atis');
     tepme.current = 34;
     setSon(puan);
 

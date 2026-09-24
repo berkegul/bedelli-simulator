@@ -33,12 +33,21 @@ import { DersSahnesi } from "./DersSahnesi";
 import { DolapDenetimi, DolapYerlesimi } from "./DolapYerlesimi";
 import { TanitimSahnesi } from "./TanitimSahnesi";
 import { YolSahnesi } from "./YolSahnesi";
+import { ambiyansCal, sesCal } from "../ses";
 
 export function OyunEkrani() {
   const g = useSecili('bekleyenKusurlar', 'blokIndex', 'denetimBitir', 'dolapDuzeni', 'dolapKapat', 'envanter', 'gun', 'ileri', 'miniAktif', 'miniBaslat', 'miniBitir', 'nikotin', 'panel', 'para', 'profil', 'saat', 'sahneIndex', 'secimYap', 'sonuc', 'sonucuKapat', 'stats', 'yemekYe', 'yoldaVar');
   const gunData = gunGetir(g.gun);
   const blok = gunData?.blocks[g.blokIndex];
   const sahne = blok?.scenes[g.sahneIndex];
+
+  // Ortam sesi bloğa göre: serbest zamanda avlu rüzgârı, gece yoklamasında
+  // cırcır böcekleri; diğer bloklarda sessizlik. Ekrandan çıkınca susuyor.
+  const blokAnahtari = blok?.id.replace(/^d\d+-/, '');
+  useEffect(() => {
+    ambiyansCal(blokAnahtari === 'serbest' ? 'avlu' : blokAnahtari === 'son-yoklama' ? 'gece' : null);
+  }, [blokAnahtari]);
+  useEffect(() => () => ambiyansCal(null), []);
 
   const [yazildi, setYazildi] = useState(false);
   const [atla, setAtla] = useState(false);
@@ -93,7 +102,14 @@ export function OyunEkrani() {
       >
         {g.miniAktif && sahne.kind === "mini" ? (
           <View style={{ flex: 1, padding: SP.lg, justifyContent: "center" }}>
-            <MiniOyun id={sahne.game} zorluk={zorluk} onBitti={g.miniBitir} />
+            <MiniOyun
+              id={sahne.game}
+              zorluk={zorluk}
+              onBitti={(skor) => {
+                sesCal(skor >= 0.6 ? 'basari' : 'basarisiz');
+                g.miniBitir(skor);
+              }}
+            />
           </View>
         ) : (
           <ScrollView
@@ -223,7 +239,10 @@ export function OyunEkrani() {
                     blokIndex={g.blokIndex}
                     ogun={sahne.ogun}
                     tokluk={g.stats.tokluk}
-                    onYe={g.yemekYe}
+                    onYe={(secilen) => {
+                      if (secilen.length) sesCal('tepsi');
+                      g.yemekYe(secilen);
+                    }}
                   />
                 )}
                 {!g.sonuc && metinBitti && sahne.kind === "serbest" && (

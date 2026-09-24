@@ -3,6 +3,7 @@ import { Pressable, View, type ViewStyle } from 'react-native';
 import { Siddet, titret } from './haptik';
 import { BORDER, C, HIT_SLOP, SP } from '../theme';
 import { PixelText } from './PixelText';
+import { sesCal } from '../ses';
 
 type Props = {
   label: string;
@@ -34,7 +35,10 @@ export function PixelButton({ label, onPress, tur = 'ana', disabled, style }: Pr
       disabled={disabled}
       onPressIn={() => {
         setBasili(true);
-        if (!disabled) titret(Siddet.Light);
+        if (!disabled) {
+          titret(Siddet.Light);
+          sesCal('tik');
+        }
       }}
       onPressOut={() => setBasili(false)}
       onPress={onPress}

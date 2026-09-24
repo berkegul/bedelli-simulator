@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BORDER, C, SP } from '../theme';
@@ -10,6 +10,7 @@ import { PixelButton } from '../ui/PixelButton';
 import { GokyuzuGecisi } from '../ui/GokyuzuGecisi';
 import { PixelText } from '../ui/PixelText';
 import { StatBar } from '../ui/StatBar';
+import { sesCal } from '../ses';
 
 const NOT_RENK: Record<string, string> = {
   'TAKDİR ALDI': C.brass,
@@ -21,6 +22,10 @@ const NOT_RENK: Record<string, string> = {
 
 export function GunSonuEkrani() {
   const g = useSecili('anaMenu', 'bitenGunler', 'gun', 'sonrakiGun', 'stats');
+  // Gün kapanırken sicil defterine damga.
+  useEffect(() => {
+    sesCal('damga');
+  }, []);
   const inset = useSafeAreaInsets();
   const not = gunNotu(g.stats);
   const gunData = gunGetir(g.gun);

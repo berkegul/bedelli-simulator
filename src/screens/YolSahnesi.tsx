@@ -58,6 +58,7 @@ import { isikDurumu } from '../ui/Gokyuzu';
 import { spriteResmi } from '../ui/skia/SkiaSprite';
 import { PixelText } from '../ui/PixelText';
 import { useZamanlayici } from '../ui/useZamanlayici';
+import { sesCal } from '../ses';
 
 const SAHNE_YUKSEKLIK = 244;
 
@@ -299,6 +300,7 @@ function Sahne({
       // Zemin ne kadar sertse dokunuş o kadar belirgin.
       if (zemin === 'cakil') titret(Siddet.Light);
       else secim();
+      sesCal(sol ? 'adim1' : 'adim2');
 
       if (!izBirakir) return;
       const k = konumBul(ox, oy, oolcek, oran);

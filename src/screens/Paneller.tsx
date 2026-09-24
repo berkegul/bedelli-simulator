@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BORDER, C, SP } from '../theme';
@@ -23,6 +23,7 @@ import { PixelInput } from '../ui/PixelInput';
 import { KayitSecici } from '../ui/KayitSecici';
 import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
+import { sesCal } from '../ses';
 
 const ARKADAS_SPRITE: Record<ArkadasId, 'askerEmre' | 'askerTolga' | 'askerSerkan'> = {
   emre: 'askerEmre',
@@ -636,6 +637,11 @@ export function OturmaAlaniPaneli() {
 export function GorusmePaneli() {
   const g = useSecili('aktifGorusme', 'gorusmeCevapla', 'gorusmeKapat', 'rehber');
   const gorusme = g.aktifGorusme;
+  // Hat açılışı: ankesörde kart düşüyor, kendi telefonunda zil çalıyor.
+  const ankesor = gorusme?.ankesor;
+  useEffect(() => {
+    sesCal(ankesor ? 'kontor' : 'telefon');
+  }, [ankesor]);
   const kaydirma = useRef<ScrollView>(null);
 
   if (!gorusme) return null;

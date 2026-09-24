@@ -8,6 +8,7 @@ import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
 import { clamp01, type MiniOyunProps } from './types';
 import { useZamanlayici } from '../ui/useZamanlayici';
+import { sesCal } from '../ses';
 
 const SURE = 26000;
 const DUSUS = 1.05; // uyanıklık / 100ms
@@ -63,6 +64,7 @@ export function Nobet({ onBitti, zorluk = 0 }: MiniOyunProps) {
           devriyeAni.current = Date.now();
           ayaktaMi.current = false;
           setFaz('devriye');
+          sesCal('devriye');
           bildir(Bildirim.Warning);
 
           // Tepki penceresi: bu süre içinde ayağa kalkmazsan yakalanırsın.

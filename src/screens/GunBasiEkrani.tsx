@@ -8,6 +8,7 @@ import { useSecili } from '../store/secici';
 import { PixelButton } from '../ui/PixelButton';
 import { GokyuzuGecisi } from '../ui/GokyuzuGecisi';
 import { PixelText } from '../ui/PixelText';
+import { sesCal } from '../ses';
 
 export function GunBasiEkrani() {
   const g = useSecili('dolapOzeti', 'gun', 'gunuBaslat');
@@ -66,7 +67,13 @@ export function GunBasiEkrani() {
             {gunData.epigraph}
           </PixelText>
         )}
-        <PixelButton label="Kalkışa hazırlan" onPress={g.gunuBaslat} />
+        <PixelButton
+          label="Kalkışa hazırlan"
+          onPress={() => {
+            sesCal('duduk');
+            g.gunuBaslat();
+          }}
+        />
       </View>
     </View>
   );

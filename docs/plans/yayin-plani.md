@@ -562,7 +562,7 @@ bunun yanında paralel yürür.
 
 ### C · Cila
 
-#### C1 · ses + müzik ⬜ (D3)
+#### C1 · ses + müzik ✅ (D3)
 - **Kütüphane:** `expo-audio` (v57'de iOS, Android, web destekli;
   web'de HTTPS ister ve ilk dokunuştan önce çalmaz).
 - **Adımlar:**
@@ -576,6 +576,19 @@ bunun yanında paralel yürür.
      susturur (oyun beklentisi bu).
 - **Kabul:** web'de ilk dokunuştan sonra ses var, telefonda sessiz modda
   yok, ayarlardan kapatılabiliyor.
+- **Sonuç:** `expo-audio`. Sesler `tools/ses-uret.ts` ile sentezleniyor
+  (`npm run ses`, tohumlu, 14 WAV, toplam ~540 KB; lisans notu
+  `assets/ses/LISANS.md`). Efektler: düğme tıkı, sabah düdüğü, sağ/sol
+  adım, tepsi, telefon zili / ankesör kartı, nöbette devriye, atış, mini
+  oyun sonucu (başarı/başarısız), gün sonu damgası. Ambiyans: serbest
+  zamanda avlu rüzgârı, son yoklamada cırcır böceği (döngü noktası çapraz
+  geçişli). Sesler arayüzden tetikleniyor, store saf kalıyor.
+  **Plugin varsayılanları kapatıldı:** expo-audio mikrofon izni
+  (RECORD_AUDIO / NSMicrophoneUsageDescription) ve arka planda oynatma
+  (UIBackgroundModes audio, ön plan servisi) ekliyordu; üçü de kapalı.
+  Tarayıcıda: doğru ses doğru olayda çağrılıyor (play() sayacıyla), konsol
+  temiz. Kulakla dinleme yapılamadı → Berke telefonda değerlendirecek;
+  ses değişikliği üreticide.
 
 #### C2 · ayarlar ekranı ⬜ (D3, C1'den sonra)
 - **Alanlar:** ses efektleri, ambiyans, titreşim, metin hızı (daktilo),
@@ -668,6 +681,8 @@ bunun yanında paralel yürür.
 ### Y · Yayın
 
 #### Y1 · eas.json + sürümleme ⬜ (D4)
+- Expo varsayılan izinleri daraltılacak (`android.blockedPermissions`):
+  READ/WRITE_EXTERNAL_STORAGE, SYSTEM_ALERT_WINDOW kullanılmıyor.
 - `eas.json` profilleri: `development` (dev client), `preview` (iç
   dağıtım), `production`. `cli.appVersionSource: remote` ile buildNumber /
   versionCode EAS'te. `expo-dev-client` eklenir.

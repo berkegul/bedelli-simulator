@@ -16,6 +16,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { C } from './src/theme';
 import { bulutuBosalt } from './src/engine/bulut';
 import { useGeriTusu } from './src/ui/useGeriTusu';
+import { sesHazirla } from './src/ses';
 import { useGame } from './src/store/gameStore';
 import { MenuEkrani } from './src/screens/MenuEkrani';
 import { ProfilEkrani } from './src/screens/ProfilEkrani';
@@ -48,6 +49,10 @@ export default function App() {
   }, [ilkYukleme]);
 
   useGeriTusu();
+
+  useEffect(() => {
+    void sesHazirla();
+  }, []);
 
   // Bulut yazmaları toplanıp aralıklı gidiyor; uygulama arka plana düşerken
   // sonuncusu beklemeden gönderilsin, oyuncu kapatınca kaybolmasın.
