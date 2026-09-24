@@ -131,6 +131,8 @@ taslak gibi; küçük soluk metin çok; hareket yok.
 | G10 | **Mini oyun sahneleri (D4b):** 13 oyunun her biri kendi mekânında (koğuş, dolap, avlu, içtima, arazi, poligon, lavabo, tören alanı, nöbet kulübesi) | ✅ |
 | G11 | **Karakterler (D4b):** asker yeniden çizildi (yüz, kep, cepler, kemer, kollar), Çavuş, yürüyüş ve sırt kareleri | ✅ |
 | G12 | **Gün başı / gün sonu (D4b):** koğuş sahnesi, tebeşir çentikler, not damgası | ✅ |
+| G13 | **Paneller (D4c):** panel başına dosya; kantin rafı ve fiyat etiketleri, cebin içi, sigara isteği ve izmarit avluda, ankesör kulübesi + kâğıt rehber, görüşmede hattın iki ucu, açık sac dolap, koğuşta muhabbet, gün batımında bank, ANT-41 sınıfı | ✅ |
+| G14 | **Yol ve yemekhane (D4c):** yolda dokulu zemin, ufuk, yol kenarı nesneleri, bulut; yemekhanede dağıtım bandı, kazanlar, aşçı, masa; avlu haritası dokulu; oturan askerler yeni gövdeyle; menüde büyük nizamiye | ✅ |
 
 Yöntem: önce G1 (oyunun %80'i bu ekranda geçiyor) prototip olarak
 yapılıp Berke'ye gösterilir; onayla yön oturunca diğer ekranlar aynı dile
@@ -863,6 +865,7 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 
 | Tarih | Kayıt |
 |---|---|
+| 2026-09-24 | D4c: paneller ve kalan sahneler aynı görsel dile geçti (dört paralel kol + web'de görsel kontrol). Not: web geliştirme sunucusu `CI=1` ile başlatılırsa dosya değişikliklerini izlemiyor; eski paketlerle başlamış sunucu `expo install --fix` sonrası yeniden başlatılmalı. |
 | 2026-09-24 | Berke: "grafik anlamında çok eksik, en iyi hâle getir", "mini oyunların sahneleri eksik, gerçekçiliği yok". D4b: sahne kiti; 13 mini oyun gerçek mekânlarında (dört paralel kol, görsel kontrol web'de); asker/Çavuş yeniden çizildi; oyun ekranında sahne %38; gökyüzü basamaklı + bulut; gün başı ve gün sonu koğuşta. README kuralı korundu: AI raster yok, zenginlik katmandan. |
 | 2026-09-24 | Berke: yemin töreni son gün olmalı (gerçekte törenden sonra aileyle çıkılıyor); yemin 26 → 28, K5 güncellendi. 26 genel prova günü oldu; 28'de sıra: dolap, tören, aileler, evrak ve künye, sivil, veda, nizamiye. 20–27'deki gün sayısı atıfları düzeltildi. |
 | 2026-09-24 | D7'nin kod tarafı bitti ve main'e birleşti: EAS ayarı, Firebase kuralları, KVKK onayı (bulut yedeği artık izne bağlı), hata raporlama katmanı, piksel ikon, mağaza metinleri. Kalanlar hesap ve hukuk: Firebase + Sentry + Apple/Play hesapları (K6), gizlilik metninin kontrolü, ilk derleme, ekran görüntüleri, cihazda S12b. |
