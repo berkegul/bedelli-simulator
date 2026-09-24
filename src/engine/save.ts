@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { bulutaYaz, bulutlaKarsilastir, buluttanOku } from './bulut';
+import { bulutaYaz, bulutlaKarsilastir, buluttanOku, bulutuSil } from './bulut';
 import type { ArkadasId, DolapDuzeni, Envanter, Kusur, Profil, RehberKisi, Rol, Stats } from './types';
 
 const KEY = 'bedelli.save.v3';
@@ -7,6 +7,14 @@ const KEY = 'bedelli.save.v3';
 const ESKI_KEYS = ['bedelli.save.v1'];
 /** v2 taşınabilir: telefon alanları varsayılanla doldurulur, rehber role çevrilir. */
 const V2_KEY = 'bedelli.save.v2';
+/**
+ * Oyuncu "baştan başla" dedi ama buluttaki kayıt henüz silinemedi (ağ yok).
+ * Bu işaret dururken buluttan geri yükleme yapılmaz; yoksa silinen oyun
+ * bir sonraki açılışta geri geliyordu.
+ */
+const SILINDI_KEY = 'bedelli.save.silindi';
+/** İşaretin bellekteki kopyası: her kayıtta diske sormamak için. */
+let silindiIsareti = false;
 
 export type SaveData = {
   version: 3;
@@ -47,6 +55,13 @@ export async function kaydet(data: KayitYuku) {
   const payload: SaveData = { ...data, version: 3, guncelleme: Date.now() };
   try {
     await AsyncStorage.setItem(KEY, JSON.stringify(payload));
+    // Yeni oyunun kaydı var ve buluta giden yazma eski kaydın üstüne
+    // yazacak: bekleyen silmeye artık gerek yok. İşaret kalsaydı, cihaz
+    // verisi bir gün silinince yeni oyunun yedeğini de sildirirdi.
+    if (silindiIsareti) {
+      silindiIsareti = false;
+      await AsyncStorage.removeItem(SILINDI_KEY);
+    }
   } catch {
     // Kayıt başarısızsa oyun oynanmaya devam eder; tek kayıp ilerleme olur.
   }
@@ -80,6 +95,12 @@ export async function yukle(): Promise<SaveData | null> {
     // düşer ve buluta bakarız
   }
 
+  // Oyuncu kaydı sildi ve bulut henüz silinemedi: geri getirme, yeniden sil.
+  if (await silinmeyiBekliyor()) {
+    void bulutuSilVeIsaretiKaldir();
+    return null;
+  }
+
   // Cihazda kayıt yok: telefon değişmiş olabilir, buluttaki yedeği getir.
   const bulut = await buluttanOku();
   if (bulut) {
@@ -92,10 +113,35 @@ export async function yukle(): Promise<SaveData | null> {
   return bulut;
 }
 
+/** Kaydı cihazdan ve buluttan siler. Bulut silinemezse işaret bırakır. */
 export async function sil() {
   try {
+    silindiIsareti = true;
+    await AsyncStorage.setItem(SILINDI_KEY, '1');
     await AsyncStorage.multiRemove([KEY, V2_KEY, ...ESKI_KEYS]);
   } catch {
     // yok sayılır
+  }
+  void bulutuSilVeIsaretiKaldir();
+}
+
+async function silinmeyiBekliyor() {
+  try {
+    silindiIsareti = (await AsyncStorage.getItem(SILINDI_KEY)) !== null;
+    return silindiIsareti;
+  } catch {
+    return false;
+  }
+}
+
+async function bulutuSilVeIsaretiKaldir() {
+  if (!(await bulutuSil())) return;
+  // Silme sürerken yeni oyun kaydedildiyse işaret zaten kalktı.
+  if (!silindiIsareti) return;
+  silindiIsareti = false;
+  try {
+    await AsyncStorage.removeItem(SILINDI_KEY);
+  } catch {
+    // işaret kalırsa bir sonraki açılışta silme yeniden denenir
   }
 }

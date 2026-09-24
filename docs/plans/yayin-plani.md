@@ -188,7 +188,7 @@ bunun yanında paralel yürür.
   Firestore'da kabulü M4'te; `setDoc` davranışı belgeli olduğu için birim
   testi `firestoreIcin`'i sınıyor.
 
-#### S3 · yeni oyun: onay + bulut silme 🔴 ⬜ (D1, S2'den sonra)
+#### S3 · yeni oyun: onay + bulut silme 🔴 ✅ (D1, S2'den sonra)
 - **Sorun:** `MenuEkrani.tsx:50` "Baştan başla" onaysız siliyor;
   `save.ts:91` `sil()` buluta dokunmadığı için eski oyun geri geliyor.
 - **Adımlar:**
@@ -202,6 +202,14 @@ bunun yanında paralel yürür.
   3. `sifirla()` (`gameStore.ts`) aynı yolu kullanır.
 - **Kabul:** web'de: baştan başla → sayfayı yenile → profil ekranı, eski
   ad yok. Onay metni üç saniye sonra eski hâline dönüyor.
+- **Sonuç:** `ui/OnayliButon.tsx`; menüde "3. gündeki kayıt silinecek. Emin
+  misin?". `sil()` önce `bedelli.save.silindi` işaretini yazıyor, bulut
+  silinince kaldırıyor; işaret varken `yukle()` buluttan geri yüklemiyor ve
+  silmeyi yeniden deniyor. Yeni oyun kaydedilince işaret kalkıyor (yoksa
+  ileride yeni oyunun yedeğini sildirebilirdi). `save.test.ts` AsyncStorage
+  ve bulutu taklit ederek ağsız silme senaryosunu sınıyor; işaret kontrolü
+  kapatılınca iki test düşüyor (doğrulandı). Tarayıcıda: tek dokunuş soru,
+  3 sn sonra geri dönüş, çift dokunuş silme, yenilemede eski oyun yok.
 
 #### S4 · kayıt doğrulama + sürüm zinciri ⬜ (D1)
 - **Sorun:** `save.ts:61` `JSON.parse(raw) as SaveData` dışında kontrol yok.

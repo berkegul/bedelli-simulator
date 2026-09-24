@@ -7,6 +7,7 @@ import { useGame } from '../store/gameStore';
 import { YAZILMIS_GUN_SAYISI } from '../content';
 import { BEDAVA_GUN } from '../monetization/entitlements';
 import { CentikTakvim } from '../ui/CentikTakvim';
+import { OnayliButon } from '../ui/OnayliButon';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
@@ -46,11 +47,15 @@ export function MenuEkrani() {
 
       <View style={{ gap: SP.sm }}>
         {devamEdilebilir && <PixelButton label="Devam et" onPress={g.devamEt} />}
-        <PixelButton
-          label={devamEdilebilir ? 'Baştan başla' : 'Sevk kâğıdını al'}
-          tur={devamEdilebilir ? 'sessiz' : 'ana'}
-          onPress={() => void g.yeniOyun()}
-        />
+        {devamEdilebilir ? (
+          <OnayliButon
+            label="Baştan başla"
+            onayLabel={`${g.gun}. gündeki kayıt silinecek. Emin misin?`}
+            onPress={() => void g.yeniOyun()}
+          />
+        ) : (
+          <PixelButton label="Sevk kâğıdını al" onPress={() => void g.yeniOyun()} />
+        )}
       </View>
 
       {GELISTIRME_ACIK && (

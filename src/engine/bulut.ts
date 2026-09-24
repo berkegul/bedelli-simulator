@@ -132,6 +132,23 @@ export function bekleyenYazmayiIptalEt() {
 }
 
 /**
+ * Buluttaki kaydı siler. Başarılıysa true: çağıran, silme işaretini
+ * kaldırabilir. Ağ yoksa false; işaret kalır ve silme sonra yeniden denenir.
+ */
+export async function bulutuSil(): Promise<boolean> {
+  bekleyenYazmayiIptalEt();
+  const o = await oturum();
+  if (!o) return !firebaseKurulu();
+  try {
+    const { deleteDoc, doc } = await import('firebase/firestore');
+    await deleteDoc(doc(o.db as never, 'oyuncular', o.uid));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Cihazda kayıt yoksa buluttan geri yükler — telefon değiştiren oyuncu için.
  * Açılışı tuttuğu için süreli: ağ yavaşsa oyun cihazdan temiz başlar.
  */

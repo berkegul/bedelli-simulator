@@ -42,7 +42,7 @@
     "telefon:simule": "tsx src/content/telefon/simule.ts",
     "postinstall": "setup-skia-web",
     "sprite": "tsx tools/sprite-onizle.ts",
-    "test": "node --import tsx --test \"src/**/*.test.ts\"",
+    "test": "node --import tsx --experimental-test-module-mocks --test \"src/**/*.test.ts\"",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
     "lint": "expo lint"
   },
