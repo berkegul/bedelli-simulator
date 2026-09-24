@@ -429,7 +429,7 @@ bunun yanında paralel yürür.
 - **Not:** gün işaretlerinin gün dosyalarında okunabilmesi için sahneye
   hafıza koşulu gerekiyor → I13.
 
-#### I13 · gün sahnelerinde telefon hafızası ⬜ (D2, I5'ten önce)
+#### I13 · gün sahnelerinde telefon hafızası ✅ (D2, I5'ten önce)
 - **Neden:** telefonda anlatılan şey (bot olayı, atış sonucu, koli)
   ertesi gün koğuşta karşına çıkmalı; bugün gün sahneleri hafızayı okuyamıyor.
 - **Adımlar:** `Scene`'e opsiyonel `kosul?: Kosul` (telefon motorunun
@@ -439,6 +439,12 @@ bunun yanında paralel yürür.
   indirmesin (her blokta en az bir koşulsuz sahne).
 - **Kabul:** örnek: 12. gün sahnesi `komik_olay` konmuşsa açılıyor; oynanış
   testi iki yolda da günü bitiriyor.
+- **Sonuç:** `Scene` ortak `kosul?: Kosul` aldı; `content/index.ts`
+  `acikSahne()` saf fonksiyonu, store `ileri`, blok geçişi ve gün başında
+  koşulsuz ilk sahneye atlıyor. Şablon (`{deger:…}`) eklenmedi: işaret
+  değerleri kimlik (`bot`), metin değil; koşullu sahne varyantları yeterli.
+  3 test (açılır / atlanır / her blokta koşulsuz sahne). Gerçek içerikte
+  ilk kullanım I5'te (gün 7, 10–12).
 
 #### I10 · atış mini oyunu ⬜ (D2)
 - **Tasarım:** nişangâh dikey salınıyor (nefes), oyuncu basılı tutunca

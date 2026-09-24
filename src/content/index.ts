@@ -7,6 +7,8 @@ import { gun03 } from './day03';
 import { gun04 } from './day04';
 import { gun05 } from './day05';
 import { gunGorevleri } from './gorevTakvimi';
+import { kosulTutar } from './telefon/motor';
+import type { TelefonDurumu } from './telefon/tipler';
 import { geceRutini, sabahDenetimi, sabahRutini } from './rutin';
 
 /**
@@ -249,6 +251,18 @@ export const YAZILMIS_GUN_SAYISI = GUNLER.length;
 
 export function gunGetir(no: number): Day | undefined {
   return GUNLER.find((g) => g.day === no);
+}
+
+/**
+ * Bloğun `bas` sırasından itibaren koşulu tutan ilk sahne. Koşulsuz sahne
+ * her zaman açık; hiçbiri açık değilse null. Her blokta en az bir koşulsuz
+ * sahne olması içerik testinde zorunlu, o yüzden blok başında null dönmez.
+ */
+export function acikSahne(blok: TimeBlock, bas: number, durum: TelefonDurumu): number | null {
+  for (let i = bas; i < blok.scenes.length; i++) {
+    if (kosulTutar(blok.scenes[i].kosul, durum)) return i;
+  }
+  return null;
 }
 
 /**

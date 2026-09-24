@@ -5,7 +5,7 @@
  */
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { GUNLER, gunGetir, YAZILMIS_GUN_SAYISI } from './index';
+import { GUNLER, acikSahne, gunGetir, YAZILMIS_GUN_SAYISI } from './index';
 import { dakikaya } from '../engine/zaman';
 import { gunGorevleri } from './gorevTakvimi';
 
@@ -93,4 +93,46 @@ test('kalkış 2. günden itibaren her gün 05:30', () => {
     const kalkis = g.blocks.find((b) => b.id === `d${g.day}-kalkis`);
     assert.equal(kalkis?.from, '05:30', `${g.day}. gün`);
   }
+});
+
+describe('koşullu sahneler', () => {
+  const durum = (hafiza: Record<string, { deger: string; gun: number }> = {}) =>
+    ({
+      gun: 12,
+      iliski: {},
+      gerilim: {},
+      ozlem: 0,
+      moral: 50,
+      disiplin: 50,
+      hafiza,
+      telefonVar: true,
+      sigaraIcen: false,
+      sevgiliVar: true,
+    }) as unknown as Parameters<typeof acikSahne>[2];
+
+  const blok = {
+    id: 'd12-serbest',
+    from: '18:30',
+    to: '21:00',
+    title: '',
+    scenes: [
+      { kind: 'anlati', id: 'a', text: 'her zaman' },
+      { kind: 'anlati', id: 'b', text: 'bot', kosul: { isaret: 'komik_olay', isaretDeger: 'bot' } },
+      { kind: 'anlati', id: 'c', text: 'her zaman' },
+    ],
+  } as unknown as Parameters<typeof acikSahne>[0];
+
+  test('işaret konmuşsa koşullu sahne açılır', () => {
+    assert.equal(acikSahne(blok, 1, durum({ komik_olay: { deger: 'bot', gun: 11 } })), 1);
+  });
+
+  test('işaret yoksa koşullu sahne atlanır', () => {
+    assert.equal(acikSahne(blok, 1, durum()), 2);
+    assert.equal(acikSahne(blok, 3, durum()), null);
+  });
+
+  test('yazılı her blokta en az bir koşulsuz sahne var', () => {
+    for (const g of GUNLER)
+      for (const b of g.blocks) assert.ok(b.scenes.some((s) => !s.kosul), b.id);
+  });
 });

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { GUNLER, gunGetir } from '../content';
+import { GUNLER, acikSahne, gunGetir } from '../content';
 import { arkadas, uygunDiyaloglar, type Diyalog } from '../content/arkadaslar';
 import { ESYALAR, esya, fiyat, gunlukEsyaEtkisi } from '../content/esyalar';
 import type { Yemek } from '../content/menu';
@@ -455,14 +455,16 @@ export const useGame = create<Store>((set, get) => ({
     if (!gunData) return;
 
     const blok = gunData.blocks[blokIndex];
-    if (sahneIndex + 1 < blok.scenes.length) {
+    // Koşulu tutmayan sahneler (telefon hafızasına bağlı olanlar) atlanıyor.
+    const sonraki = acikSahne(blok, sahneIndex + 1, telefonDurumu(get));
+    if (sonraki !== null) {
       set({
-        sahneIndex: sahneIndex + 1,
+        sahneIndex: sonraki,
         sonuc: null,
         miniAktif: false,
         // Sahne ilerledi, saat de ilerler. Bu blokta eylemlerle kazanılmış
         // fazladan dakikalar varsa geri alınmaz — saat geriye akmaz.
-        saat: Math.min(blokSonu(blok), Math.max(get().saat, sahneSaati(blok, sahneIndex + 1))),
+        saat: Math.min(blokSonu(blok), Math.max(get().saat, sahneSaati(blok, sonraki))),
       });
     } else if (blokIndex + 1 < gunData.blocks.length) {
       // Blok değişimi zamanın geçmesi demek: acıkırsın, sigara krizi büyür.
@@ -475,6 +477,7 @@ export const useGame = create<Store>((set, get) => ({
         stats: blokGecisi(get().stats),
         nikotin: profil.sigaraIciyor ? Math.min(100, get().nikotin + NIKOTIN_ARTIS) : 0,
       });
+      ilkAcikSahneye(set, get);
       krizCezasi(set, get);
     } else {
       const { stats, bitenGunler } = get();
@@ -576,6 +579,7 @@ export const useGame = create<Store>((set, get) => ({
       // Dünden denetlenmemiş iş kalmışsa yeni güne taşınmıyor.
       bekleyenKusurlar: [],
     });
+    ilkAcikSahneye(set, get);
     gunlukDolapEtkisi(set, get);
     gunBasiTelefon(set, get);
     persist(get);
@@ -1360,6 +1364,15 @@ function gunlukDolapEtkisi(set: (p: Partial<Store>) => void, get: () => Store) {
   const { etki, satirlar } = gunlukEsyaEtkisi(envanter);
   const sonrasi = applyEffect(stats, para, etki);
   set({ stats: sonrasi.stats, para: sonrasi.para, dolapOzeti: satirlar });
+}
+
+/** Blok başında koşulu tutmayan sahneler varsa ilk açık sahneye geçer. */
+function ilkAcikSahneye(set: (p: Partial<Store>) => void, get: () => Store) {
+  const { gun, blokIndex } = get();
+  const blok = gunGetir(gun)?.blocks[blokIndex];
+  if (!blok) return;
+  const ilk = acikSahne(blok, 0, telefonDurumu(get)) ?? 0;
+  if (ilk !== get().sahneIndex) set({ sahneIndex: ilk, saat: sahneSaati(blok, ilk) });
 }
 
 function persist(get: () => Store) {

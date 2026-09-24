@@ -1,5 +1,6 @@
 import type { SpriteKey } from '../art';
 import type { Bakis } from './yuruyus';
+import type { Kosul } from '../content/telefon/tipler';
 
 export type StatKey = 'kondisyon' | 'disiplin' | 'moral' | 'enerji' | 'tokluk';
 
@@ -139,7 +140,16 @@ export type OgunAdi = 'kahvalti' | 'ogle' | 'aksam';
 /** Mini oyun 0–1 arası bir başarı puanı döndürür; içerik onu etkiye çevirir. */
 export type MiniGameResult = { score: number; detail?: string };
 
-export type Scene =
+/**
+ * Her sahne türünde ortak. `kosul` telefon motorunun koşul dilini kullanıyor
+ * (content/telefon/tipler.ts): telefonda konan bir işaret, ilişki ya da gün
+ * aralığı. Koşulu tutmayan sahne oynanmadan atlanır; böylece telefonda
+ * anlatılan bot olayı ertesi gün koğuşta karşına çıkabiliyor.
+ */
+type SahneOrtak = { kosul?: Kosul };
+
+export type Scene = SahneOrtak &
+  (
   | {
       kind: 'anlati';
       id: string;
@@ -231,7 +241,8 @@ export type Scene =
       bakis: Bakis;
       /** Üniforma daha torbadaysa yürüyen sivil kıyafetle çiziliyor. */
       sivil?: boolean;
-    };
+    }
+  );
 
 export type TimeBlock = {
   id: string;

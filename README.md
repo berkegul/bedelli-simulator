@@ -237,6 +237,22 @@ Hepsi bu. Çentik takvimi, ilerleme, kayıt ve gün sonu notu kendiliğinden
 çalışır. Etki değerleri için ölçek: küçük tercih ±3, normal ±6, günü
 belirleyen tercih ±12. Enerji gün içinde tükenir, uykuda dolar.
 
+Bir sahne telefonda olan bir şeye bağlı olabilir. `kosul` alanı telefon
+motorunun koşul dilini kullanır; tutmayan sahne atlanır:
+
+```ts
+{
+  kind: 'anlati',
+  id: 'd12-bot-hikayesi',
+  kosul: { isaret: 'komik_olay', isaretDeger: 'bot' },
+  text: 'Emre bot hikâyesini senden duymuş, koğuşa sen anlatmışsın gibi anlatıyor.',
+}
+```
+
+Hangi telefon işaretinin hangi günde geri dönmesi planlandığı
+`src/content/telefon/isaretPlani.ts` içinde; `npm run telefon:dogrula`
+listeyi basar. Her blokta en az bir koşulsuz sahne olmalı (test bunu arar).
+
 Yazdıktan sonra dengeyi ölç:
 
 ```bash
