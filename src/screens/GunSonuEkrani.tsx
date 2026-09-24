@@ -1,16 +1,22 @@
 import React, { useEffect } from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BORDER, C, SP } from '../theme';
+import { C, SP } from '../theme';
 import { gunGetir } from '../content';
 import { STAT_ORDER, TOPLAM_GUN, gunNotu } from '../engine/stats';
 import { useSecili } from '../store/secici';
 import { CentikTakvim } from '../ui/CentikTakvim';
 import { PixelButton } from '../ui/PixelButton';
-import { GokyuzuGecisi } from '../ui/GokyuzuGecisi';
+import { MekanSeridi } from '../ui/MekanSeridi';
 import { PixelText } from '../ui/PixelText';
 import { StatBar } from '../ui/StatBar';
 import { sesCal } from '../ses';
+
+const GOLGE = {
+  textShadowColor: C.ink,
+  textShadowOffset: { width: 2, height: 2 },
+  textShadowRadius: 0,
+};
 
 const NOT_RENK: Record<string, string> = {
   'TAKDİR ALDI': C.brass,
@@ -27,65 +33,80 @@ export function GunSonuEkrani() {
     sesCal('damga');
   }, []);
   const inset = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
   const not = gunNotu(g.stats);
   const gunData = gunGetir(g.gun);
+  const k = height >= 720 ? 2 : 1;
+  const renk = NOT_RENK[not.ad] ?? C.canvas;
 
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: C.bg }}
-      contentContainerStyle={{
-        paddingTop: inset.top + SP.xl,
-        paddingBottom: inset.bottom + SP.xl,
-        paddingHorizontal: SP.xl,
-        gap: SP.xl,
-      }}
+      contentContainerStyle={{ paddingBottom: inset.bottom + SP.xl, gap: SP.xl }}
     >
-      {/* Gün batıyor: güneş iniyor, yıldızlar teker teker beliriyor */}
-      <View style={{ borderWidth: BORDER, borderColor: C.ink }}>
-        <GokyuzuGecisi yon="batim" yukseklik={120} />
-      </View>
-
-      <View style={{ alignItems: 'center', gap: SP.xs }}>
-        <PixelText font="command" size="body" color={C.canvasFaint} tracking={4}>
-          {`GÜN ${String(g.gun).padStart(2, '0')} KAPANDI`}
-        </PixelText>
-        <PixelText font="bodyMed" size="small" color={C.canvasDim}>
-          {gunData?.title}
-        </PixelText>
-      </View>
-
-      {/* Günün notu — askerî sicil dili */}
-      <View
-        style={{
-          borderWidth: BORDER,
-          borderColor: NOT_RENK[not.ad] ?? C.line,
-          paddingVertical: SP.lg,
-          alignItems: 'center',
-          gap: SP.xs,
-        }}
+      {/* Işıklar sönmek üzere: gece koğuşu, sicil damgası duvarda */}
+      <MekanSeridi
+        blokId={`d${g.gun}-son-yoklama`}
+        saat="21:50"
+        carpan={k}
+        ekYukseklik={Math.max(0, Math.round(height * 0.4) - 150 * k)}
+        cercevesiz
+        etiketsiz
       >
-        <PixelText font="command" size="h1" color={NOT_RENK[not.ad] ?? C.canvas} tracking={2}>
-          {not.ad}
-        </PixelText>
-        <PixelText font="bodyMed" size="small" color={C.canvasFaint}>
-          {`Gün ortalaması ${not.puan}`}
-        </PixelText>
-      </View>
+        <View
+          style={{
+            position: 'absolute',
+            top: inset.top + SP.lg,
+            left: 0,
+            right: 0,
+            alignItems: 'center',
+            gap: SP.xs,
+          }}
+        >
+          <PixelText font="command" size="body" color={C.canvasDim} tracking={4} style={GOLGE}>
+            {`GÜN ${String(g.gun).padStart(2, '0')} KAPANDI`}
+          </PixelText>
+          <PixelText font="bodyMed" size="small" color={C.canvasDim} style={GOLGE}>
+            {gunData?.title}
+          </PixelText>
+          <View
+            style={{
+              marginTop: SP.md,
+              borderWidth: 4,
+              borderColor: renk,
+              paddingHorizontal: SP.md,
+              paddingVertical: SP.xs,
+              backgroundColor: 'rgba(20,18,12,0.55)',
+              transform: [{ rotate: '-4deg' }],
+              alignItems: 'center',
+            }}
+          >
+            <PixelText font="command" size="h1" color={renk} tracking={2}>
+              {not.ad}
+            </PixelText>
+            <PixelText font="bodyMed" size="small" color={C.canvasDim}>
+              {`Gün ortalaması ${not.puan}`}
+            </PixelText>
+          </View>
+        </View>
+      </MekanSeridi>
 
-      <View style={{ gap: SP.md }}>
-        {STAT_ORDER.map((k) => (
-          <StatBar key={k} stat={k} value={g.stats[k]} />
-        ))}
-      </View>
+      <View style={{ paddingHorizontal: SP.xl, gap: SP.xl }}>
+        <View style={{ gap: SP.md }}>
+          {STAT_ORDER.map((k) => (
+            <StatBar key={k} stat={k} value={g.stats[k]} />
+          ))}
+        </View>
 
-      <CentikTakvim bitenGunler={g.bitenGunler} aktifGun={g.gun} />
+        <CentikTakvim bitenGunler={g.bitenGunler} aktifGun={g.gun} />
 
-      <View style={{ gap: SP.sm }}>
-        <PixelButton
-          label={g.gun >= TOPLAM_GUN ? 'Karneni al' : 'Yat, ertesi gün'}
-          onPress={g.sonrakiGun}
-        />
-        <PixelButton label="Ana menü" tur="sessiz" onPress={g.anaMenu} />
+        <View style={{ gap: SP.sm }}>
+          <PixelButton
+            label={g.gun >= TOPLAM_GUN ? 'Karneni al' : 'Yat, ertesi gün'}
+            onPress={g.sonrakiGun}
+          />
+          <PixelButton label="Ana menü" tur="sessiz" onPress={g.anaMenu} />
+        </View>
       </View>
     </ScrollView>
   );
