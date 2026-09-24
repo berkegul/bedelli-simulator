@@ -771,6 +771,7 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 
 | Tarih | Kayıt |
 |---|---|
+| 2026-09-24 | D3 bitti ve main'e birleşti: gün 6–12, sentezlenmiş sesler, ayarlar, mola. |
 | 2026-09-24 | I5: gün 6–12 yazıldı; 12 günlük denge ayarı (tepsi, dinlenme, gece, TAKDİR 80). |
 | 2026-09-24 | D2 bitti ve main'e birleşti. Ek: denge ayarı (S13), hafıza koşullu sahneler (I13), yol sahnesi Skia çökmesi. S12'nin riskli kalanı S12b olarak D5'e. |
 | 2026-09-24 | Berke işi devretti (commit/push serbest). K3 → 05:30 uygulandı. |
