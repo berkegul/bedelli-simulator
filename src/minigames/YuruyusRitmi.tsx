@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Bildirim, Siddet, bildir, secim, titret } from '../ui/haptik';
 import { BORDER, C, SP } from '../theme';
 import { ASKER_YAN, ASKER_YAN_ADIM, CAVUS_BAGIRIYOR, CAVUS_HAZIROL } from '../art/sahne/alan';
 import { PixelText } from '../ui/PixelText';
 import { PikselKatman, Sahne, benek, hash, type Piksel } from '../ui/sahne';
-import { useHareketAzalt } from '../ui/useHareketAzalt';
 import { Balon, Basan, zeminUstu } from './alanSahnesi';
 import { clamp01, type MiniOyunProps } from './types';
 import { useZamanlayici } from '../ui/useZamanlayici';
@@ -24,15 +23,6 @@ export function YuruyusRitmi({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const [isaretler, setIsaretler] = useState<number[]>([]);
   const [geriSayim, setGeriSayim] = useState(3);
   const [en, setEn] = useState(0);
-  // Manzaranın akışı: her vuruşta bir adım ileri, kısa bir kayışla.
-  const [ilerleme] = useState(() => new Animated.Value(0));
-  const azalt = useHareketAzalt();
-  // Zamanlayıcı etkisi yalnızca geri sayım bitince bir kez kuruluyor; ayar
-  // değişirse etkiyi yeniden çalıştırıp turu bozmasın diye ref'ten okunuyor.
-  const azaltRef = useRef(azalt);
-  useEffect(() => {
-    azaltRef.current = azalt;
-  }, [azalt]);
 
   const zamanlar = useRef<number[]>([]);
   const kullanilan = useRef<Set<number>>(new Set());
@@ -64,13 +54,6 @@ export function YuruyusRitmi({ onBitti, zorluk = 0 }: MiniOyunProps) {
         setTimeout(() => {
           setAktifVurus(i);
           setParlak(true);
-          if (azaltRef.current) ilerleme.setValue(i + 1);
-          else
-            Animated.timing(ilerleme, {
-              toValue: i + 1,
-              duration: 220,
-              useNativeDriver: true,
-            }).start();
           secim();
           z.sonra(200, () => setParlak(false));
         }, an - Date.now()),
@@ -88,7 +71,7 @@ export function YuruyusRitmi({ onBitti, zorluk = 0 }: MiniOyunProps) {
     );
 
     return () => zamanlayicilar.forEach(clearTimeout);
-  }, [geriSayim, onBitti, z, ilerleme]);
+  }, [geriSayim, onBitti, z]);
 
   const dokun = useCallback(() => {
     if (geriSayim > 0) return;
@@ -118,6 +101,7 @@ export function YuruyusRitmi({ onBitti, zorluk = 0 }: MiniOyunProps) {
   }, [geriSayim]);
 
   const ayak = aktifVurus % 2 === 0 ? 'SOL' : 'SAĞ';
+  const adim = aktifVurus + 1;
   const g = zeminUstu(SAHNE_H, U, ZEMIN_ORANI);
 
   return (
@@ -140,41 +124,37 @@ export function YuruyusRitmi({ onBitti, zorluk = 0 }: MiniOyunProps) {
         >
           {en > 0 && (
             <>
-              {/* Uzak tepeler yavaş, ağaçlar orta, yol kenarı hızlı: yürüdükçe manzara akıyor */}
+              {/*
+                Manzara her adımda bir hücre akıyor: uzak tepeler yavaş,
+                kavaklar orta, yol ve otlar hızlı. Kayma JS'te tam hücre;
+                web'de de yerli yerinde, piksel ızgarası bozulmuyor.
+              */}
               <Kayan
                 u={U}
                 en={en}
-                ilerleme={ilerleme}
+                adim={adim}
                 hiz={1}
-                top={g - 16 * U}
-                yukseklik={16}
+                top={g - 18 * U}
+                yukseklik={18}
                 uret={tepeler}
               />
               <Kayan
                 u={U}
                 en={en}
-                ilerleme={ilerleme}
-                hiz={3}
-                top={g - 20 * U}
-                yukseklik={20}
+                adim={adim}
+                hiz={2}
+                top={g - 22 * U}
+                yukseklik={22}
                 uret={agaclar}
               />
+              <Kayan u={U} en={en} adim={adim} hiz={4} top={g} yukseklik={ZH} uret={yol} />
               <Kayan
                 u={U}
                 en={en}
-                ilerleme={ilerleme}
+                adim={adim}
                 hiz={6}
-                top={g}
-                yukseklik={10}
-                uret={yolKenari}
-              />
-              <Kayan
-                u={U}
-                en={en}
-                ilerleme={ilerleme}
-                hiz={6}
-                top={g + 60}
-                yukseklik={14}
+                top={SAHNE_H - 12 * U}
+                yukseklik={12}
                 uret={onOtlar}
               />
             </>
@@ -296,6 +276,8 @@ export function YuruyusRitmi({ onBitti, zorluk = 0 }: MiniOyunProps) {
 const U = 3;
 const SAHNE_H = 250;
 const ZEMIN_ORANI = 0.4;
+/** Zeminin hücre yüksekliği (Sahne'nin hesabıyla aynı). */
+const ZH = Math.round(Math.ceil(SAHNE_H / U) * ZEMIN_ORANI);
 /** Kolondaki askerler (yüzde); BEN sensin. */
 const KOLON = [16, 34, 52, 70];
 const BEN = 2;
@@ -305,9 +287,9 @@ function tepeler(w: number, h: number): Piksel[] {
   const out: Piksel[] = [];
   for (let x = 0; x < w; x++) {
     const y1 = Math.round(h * 0.45 + Math.sin(x / 9) * 3 + Math.sin(x / 4.3) * 1.5);
-    out.push({ x, y: y1, w: 1, h: h - y1, c: '#55604A' });
+    out.push({ x, y: y1, w: 1, h: h - y1, c: '#6A7358' });
     const y2 = Math.round(h * 0.7 + Math.sin(x / 6 + 2) * 2);
-    out.push({ x, y: y2, w: 1, h: h - y2, c: '#4A5540' });
+    out.push({ x, y: y2, w: 1, h: h - y2, c: '#56604A' });
   }
   return out;
 }
@@ -332,22 +314,33 @@ function agaclar(w: number, h: number): Piksel[] {
   return out;
 }
 
-/** Yolun arka kenarı: ot sırası ve taşlar. */
-function yolKenari(w: number, h: number): Piksel[] {
-  const out: Piksel[] = [{ x: 0, y: 0, w, h: 2, c: '#46512A' }];
-  out.push(...benek({ x: 0, y: 0, w, h: 3 }, [{ c: '#5D6B34', oran: 0.25 }], 21, { w: 1, h: 2 }));
+/**
+ * Zeminin tamamı: arka kenarda ot sırası, ortada açık toprak yol ve iki
+ * tekerlek izi, ön kenarda koyu toprak. Sahnenin kendi zemini üstünü
+ * kapatıyor ki kadrajda boşluk kalmasın.
+ */
+function yol(w: number, h: number): Piksel[] {
+  const out: Piksel[] = [{ x: 0, y: 0, w, h, c: '#5B4B31' }];
+  out.push({ x: 0, y: 0, w, h: 3, c: '#46512A' });
+  out.push(...benek({ x: 0, y: 0, w, h: 4 }, [{ c: '#5D6B34', oran: 0.3 }], 21, { w: 1, h: 2 }));
+  // Yol şeridi
+  const y0 = 6;
+  const y1 = h - 7;
+  out.push({ x: 0, y: y0, w, h: y1 - y0, c: '#7A6446' });
   out.push(
     ...benek(
-      { x: 0, y: 4, w, h: h - 4 },
+      { x: 0, y: y0, w, h: y1 - y0 },
       [
-        { c: '#7C6E56', oran: 0.03 },
-        { c: '#4C3E27', oran: 0.08 },
+        { c: '#8A7654', oran: 0.08 },
+        { c: '#6A553A', oran: 0.08 },
+        { c: '#9A8A6A', oran: 0.015 },
       ],
       22,
     ),
   );
-  // Tekerlek izi
-  out.push({ x: 0, y: 6, w, h: 1, c: '#4C3E27', o: 0.7 });
+  out.push({ x: 0, y: y0 + 4, w, h: 1, c: '#5E4B32' }, { x: 0, y: y1 - 5, w, h: 1, c: '#5E4B32' });
+  out.push({ x: 0, y: y0, w, h: 1, c: '#4C3E27' }, { x: 0, y: y1, w, h: 1, c: '#4C3E27' });
+  out.push(...benek({ x: 0, y: y1 + 1, w, h: h - y1 - 1 }, [{ c: '#4C3E27', oran: 0.1 }], 23));
   return out;
 }
 
@@ -363,12 +356,13 @@ function onOtlar(w: number, h: number): Piksel[] {
 
 /**
  * Sonsuz kayan şerit: desen ekran genişliğinde üretilip yan yana iki kez
- * basılıyor; ilerleme × hız kadar sola kayıyor, genişlik kadar gidince başa.
+ * basılıyor; adım × hız hücre sola kayıyor, genişlik kadar gidince başa.
+ * İki kopya birbirine değdiği için döngüde boşluk kalmıyor.
  */
 function Kayan({
   u,
   en,
-  ilerleme,
+  adim,
   hiz,
   top,
   yukseklik,
@@ -376,28 +370,29 @@ function Kayan({
 }: {
   u: number;
   en: number;
-  ilerleme: Animated.Value;
+  adim: number;
   hiz: number;
   top: number;
   yukseklik: number;
   uret: (w: number, h: number) => Piksel[];
 }) {
-  const W = Math.ceil(en / u);
+  const W = Math.ceil(en / u) + 1;
   const desen = useMemo(() => uret(W, yukseklik), [W, yukseklik, uret]);
-  const kayma = Animated.multiply(Animated.modulo(Animated.multiply(ilerleme, hiz * u), W * u), -1);
+  const kayma = ((Math.max(0, adim) * hiz) % W) * u;
   return (
-    <Animated.View
+    <View
       pointerEvents="none"
       style={{
         position: 'absolute',
-        left: 0,
+        left: -kayma,
         top,
+        width: 2 * W * u,
+        height: yukseklik * u,
         flexDirection: 'row',
-        transform: [{ translateX: kayma }],
       }}
     >
       <PikselKatman pikseller={desen} u={u} w={W} h={yukseklik} />
       <PikselKatman pikseller={desen} u={u} w={W} h={yukseklik} />
-    </Animated.View>
+    </View>
   );
 }
