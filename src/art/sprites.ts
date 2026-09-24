@@ -26,6 +26,11 @@ const P = {
   n: C.steel,
   o: C.olive,
   h: '#565B36',
+  // Üniformanın ışık alan kenarı (ışık sol üstten) ve postal parlaması.
+  y: '#858C5A',
+  l: '#6B5140',
+  // Cep kapağı: üniformanın gölge tonu; soyunurken ayrıca silinebilsin.
+  q: '#4E5330',
 } as Record<string, string>;
 
 export const SOLDIER: SpriteDef = {
@@ -33,59 +38,47 @@ export const SOLDIER: SpriteDef = {
   rows: [
     '.....kkkkkk.....',
     '....khhhhhhk....',
-    '...kuuuuuuuuk...',
-    '...kssssssssk...',
-    '...kskssssksk...',
-    '...ksssSSsssk...',
-    '...kssskksssk...',
-    '....kssssssk....',
+    '...khhhhhhhhk...',
+    '...kUUUUUUUUk...',
+    '...ksssssssSk...',
+    '.kSsskssssksSSk.',
+    '..kssssSssssSk..',
+    '...ksssSSssSk...',
     '.....kSSSSk.....',
-    '...kuuuuuuuuk...',
-    '..kuuuuuuuuuuk..',
-    '.kUuuuuuuuuuuUk.',
-    '.kUummuuuuuuuUk.',
-    '.kUuuuuuuuuuuUk.',
-    '.kUubbbmmbbbuUk.',
-    '.kUsuuuuuuuusUk.',
-    '..kuuuuuuuuuuk..',
-    '..kuuuu..uuuuk..',
-    '..kuuuu..uuuuk..',
-    '..kuuuu..uuuuk..',
-    '..kUUUU..UUUUk..',
-    '..kbbbb..bbbbk..',
-    '..kbbbb..bbbbk..',
+    '..kyuuukkuuuUk..',
+    '.kyuuuusSuuuuUk.',
+    'kyukuuuuuuuukuUk',
+    'kyukqmquuqmqkuUk',
+    'kyukuuuUuuuUkuUk',
+    'kyukuuuuuuuUkuUk',
+    'ksskbbbmmbbbksSk',
+    '...kuuuuuuuUk...',
+    '...kuuukkuuUk...',
+    '...kuuukkuuUk...',
+    '...kuuUkkuuUk...',
+    '...kUUUkkUUUk...',
+    '..klbbbkklbbbk..',
+    '..kbbbbkkbbbbk..',
     '..kkkkk..kkkkk..',
   ],
 };
 
+/**
+ * Çavuş: askerin gövdesi, kırmızı bere ve pirinç rozet, omuzda pirinç
+ * apolet, bıyık. Aynı ızgara; yan yana durunca kim olduğu ilk bakışta belli.
+ */
 export const SERGEANT: SpriteDef = {
   palette: { ...P, h: C.rust },
-  rows: [
-    '.....kkkkkk.....',
-    '....krrrrrrk....',
-    '...kmrrrrrrmk...',
-    '...kssssssssk...',
-    '...kskssssksk...',
-    '...ksssSSsssk...',
-    '...kssskkkssk...',
-    '....kssssssk....',
-    '.....kSSSSk.....',
-    '...kuuuuuuuuk...',
-    '..kuuuuuuuuuuk..',
-    '.kUummmmmmmmuUk.',
-    '.kUummuuuummuUk.',
-    '.kUuuuuuuuuuuUk.',
-    '.kUubbbmmbbbuUk.',
-    '.kUsuuuuuuuusUk.',
-    '..kuuuuuuuuuuk..',
-    '..kuuuu..uuuuk..',
-    '..kuuuu..uuuuk..',
-    '..kuuuu..uuuuk..',
-    '..kUUUU..UUUUk..',
-    '..kbbbb..bbbbk..',
-    '..kbbbb..bbbbk..',
-    '..kkkkk..kkkkk..',
-  ],
+  rows: SOLDIER.rows.map((satir, i) => {
+    const degisen: Record<number, string> = {
+      1: '....krrrrrrk....',
+      2: '...kmrrrrrrrk...',
+      3: '...krrrrrrrrk...',
+      7: '...kssbbbbsSk...',
+      9: '..kmmuukkuummk..',
+    };
+    return degisen[i] ?? satir;
+  }),
 };
 
 export const BUNK_MESSY: SpriteDef = {
@@ -754,8 +747,18 @@ export const AGAC: SpriteDef = {
  * Koğuş arkadaşları aynı gövdeden türüyor; kep ve üniforma tonu değişiyor.
  * Küçük ölçekte bile birbirinden ayırt edilebilsinler diye kontrast yüksek.
  */
+/** Rengi açar: üniformanın ışık alan kenarı kendi kumaşından. */
+function acik(hex: string, oran = 0.18): string {
+  const n = parseInt(hex.slice(1), 16);
+  const kanal = (v: number) => Math.min(255, Math.round(v + (255 - v) * oran));
+  const r = kanal(n >> 16);
+  const g = kanal((n >> 8) & 255);
+  const b = kanal(n & 255);
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+}
+
 const arkadasVaryanti = (kep: string, uniforma: string, golge: string): SpriteDef => ({
-  palette: { ...P, h: kep, u: uniforma, U: golge },
+  palette: { ...P, h: kep, u: uniforma, U: golge, q: golge, y: acik(uniforma) },
   rows: SOLDIER.rows,
 });
 
@@ -997,38 +1000,20 @@ export const OTURAN_SERKAN = oturanVaryant('#8A7A2E', '#6E7444', '#4E5330');
 // geliyor. Gövdenin inip kalkması sprite'ta değil, sahnedeki salınımda.
 
 /** Gövde ve baş her karede aynı; yalnız bacaklar değişiyor. */
-const ON_GOVDE = [
-  '.....kkkkkk.....',
-  '....khhhhhhk....',
-  '...kuuuuuuuuk...',
-  '...kssssssssk...',
-  '...kskssssksk...',
-  '...ksssSSsssk...',
-  '...kssskksssk...',
-  '....kssssssk....',
-  '.....kSSSSk.....',
-  '...kuuuuuuuuk...',
-  '..kuuuuuuuuuuk..',
-  '.kUuuuuuuuuuuUk.',
-  '.kUummuuuuuuuUk.',
-  '.kUuuuuuuuuuuUk.',
-  '.kUubbbmmbbbuUk.',
-  '.kUsuuuuuuuusUk.',
-  '..kuuuuuuuuuuk..',
-];
+const ON_GOVDE = SOLDIER.rows.slice(0, 17);
 
 /** Sol ayak havada, sağ ayak basıyor. */
 export const ASKER_ADIM_SOL: SpriteDef = {
   palette: P,
   rows: [
     ...ON_GOVDE,
-    '..kuuuu..uuuuk..',
-    '..kuuuu..uuuuk..',
-    '..kUUUU..uuuuk..',
-    '..kbbbb..uuuuk..',
-    '..kkkkk..UUUUk..',
-    '.........bbbbk..',
-    '.........kkkkk..',
+    '...kuuukkuuUk...',
+    '...kuuukkuuUk...',
+    '...kUUUkkuuUk...',
+    '..klbbbkkuuUk...',
+    '..kkkkk.kUUUk...',
+    '.......klbbbk...',
+    '.......kkkkkk...',
   ],
 };
 
@@ -1037,13 +1022,13 @@ export const ASKER_ADIM_SAG: SpriteDef = {
   palette: P,
   rows: [
     ...ON_GOVDE,
-    '..kuuuu..uuuuk..',
-    '..kuuuu..uuuuk..',
-    '..kuuuu..UUUUk..',
-    '..kuuuu..bbbbk..',
-    '..kUUUU..kkkkk..',
-    '..kbbbb.........',
-    '..kkkkk.........',
+    '...kuuukkuuUk...',
+    '...kuuukkuuUk...',
+    '...kuuukkUUUk...',
+    '...kuuUkklbbbk..',
+    '...kUUUk.kkkkk..',
+    '..klbbbk........',
+    '..kkkkkk........',
   ],
 };
 
@@ -1057,32 +1042,32 @@ const ARKA_GOVDE = [
   '.....kkkkkk.....',
   '....khhhhhhk....',
   '...khhhhhhhhk...',
-  '...khhhhhhhhk...',
-  '...khhhhhhhhk...',
+  '...kUUUUUUUUk...',
+  '...kSbbbbbbSk...',
+  '..kSbbbbbbbbSk..',
+  '...kSbbbbbbSk...',
   '....kSSSSSSk....',
-  '....kssssssk....',
   '.....kSSSSk.....',
-  '.....kSSSSk.....',
-  '...kuuuuuuuuk...',
-  '..kuuuuuuuuuuk..',
-  '.kUuuuuuuuuuuUk.',
-  '.kUuuuuuuuuuuUk.',
-  '.kUuuukkuuuuuUk.',
-  '.kUubbbbbbbbuUk.',
-  '.kUsuuuuuuuusUk.',
-  '..kuuuuuuuuuuk..',
+  '..kyuuuuuuuuUk..',
+  '.kyuuuuuuuuuuUk.',
+  'kyukuuuuuuuukuUk',
+  'kyukuuuUUuuUkuUk',
+  'kyukuuuUUuuUkuUk',
+  'kyukuuuUUuuUkuUk',
+  'ksskbbbbbbbbksSk',
+  '...kuuuuuuuUk...',
 ];
 
 export const ASKER_ARKA: SpriteDef = {
   palette: P,
   rows: [
     ...ARKA_GOVDE,
-    '..kuuuu..uuuuk..',
-    '..kuuuu..uuuuk..',
-    '..kuuuu..uuuuk..',
-    '..kUUUU..UUUUk..',
-    '..kbbbb..bbbbk..',
-    '..kbbbb..bbbbk..',
+    '...kuuukkuuUk...',
+    '...kuuukkuuUk...',
+    '...kuuUkkuuUk...',
+    '...kUUUkkUUUk...',
+    '..klbbbkklbbbk..',
+    '..kbbbbkkbbbbk..',
     '..kkkkk..kkkkk..',
   ],
 };
@@ -1091,13 +1076,13 @@ export const ASKER_ARKA_SOL: SpriteDef = {
   palette: P,
   rows: [
     ...ARKA_GOVDE,
-    '..kuuuu..uuuuk..',
-    '..kuuuu..uuuuk..',
-    '..kUUUU..uuuuk..',
-    '..kbbbb..uuuuk..',
-    '..kkkkk..UUUUk..',
-    '.........bbbbk..',
-    '.........kkkkk..',
+    '...kuuukkuuUk...',
+    '...kuuukkuuUk...',
+    '...kUUUkkuuUk...',
+    '..klbbbkkuuUk...',
+    '..kkkkk.kUUUk...',
+    '.......klbbbk...',
+    '.......kkkkkk...',
   ],
 };
 
@@ -1105,13 +1090,13 @@ export const ASKER_ARKA_SAG: SpriteDef = {
   palette: P,
   rows: [
     ...ARKA_GOVDE,
-    '..kuuuu..uuuuk..',
-    '..kuuuu..uuuuk..',
-    '..kuuuu..UUUUk..',
-    '..kuuuu..bbbbk..',
-    '..kUUUU..kkkkk..',
-    '..kbbbb.........',
-    '..kkkkk.........',
+    '...kuuukkuuUk...',
+    '...kuuukkuuUk...',
+    '...kuuukkUUUk...',
+    '...kuuUkklbbbk..',
+    '...kUUUk.kkkkk..',
+    '..klbbbk........',
+    '..kkkkkk........',
   ],
 };
 
@@ -1143,9 +1128,9 @@ function sivilGiydir(def: SpriteDef): SpriteDef {
   return {
     palette: SIVIL_P,
     rows: def.rows.map((satir, i) => {
-      if (i < BAS_SONU) return cevir(satir, { h: 'H', u: 'H' });
-      if (i < GOVDE_SONU) return cevir(satir, { u: 'c', U: 'C', m: 'c', b: 'c' });
-      return cevir(satir, { u: 'j', U: 'J', b: 'e' });
+      if (i < BAS_SONU) return cevir(satir, { h: 'H', u: 'H', U: 'H', y: 'H' });
+      if (i < GOVDE_SONU) return cevir(satir, { u: 'c', U: 'C', m: 'c', b: 'c', y: 'c', q: 'c' });
+      return cevir(satir, { u: 'j', U: 'J', b: 'e', y: 'j', l: 'e' });
     }),
   };
 }
@@ -1259,19 +1244,19 @@ const AYAK_BASI = 21;
 function giyinmeKaresi(asama: number): SpriteDef {
   const cevir = (satir: string, harita: Record<string, string>) =>
     satir.replace(/./g, (ch) => harita[ch] ?? ch);
-  const ten = { u: 's', U: 'S', m: 's', b: 's' };
+  const ten = { u: 's', U: 'S', m: 's', b: 's', y: 's', l: 's', q: 's' };
   return {
     palette: GIYINME_P,
     rows: SOLDIER.rows.map((satir, i) => {
-      if (i < BAS_SONU) return asama >= 5 ? satir : cevir(satir, { h: 'H', u: 'H' });
-      if (i === KALCA) return asama >= 2 ? satir : cevir(satir, { u: 'x', U: 'x' });
+      if (i < BAS_SONU) return asama >= 5 ? satir : cevir(satir, { h: 'H', u: 'H', U: 'H', y: 'H' });
+      if (i === KALCA) return asama >= 2 ? satir : cevir(satir, { u: 'x', U: 'x', y: 'x' });
       if (i < GOVDE_SONU) {
         if (asama >= 5) return satir;
-        return cevir(satir, asama >= 1 ? { u: 'f', U: 'F', m: 'f', b: 'f' } : ten);
+        return cevir(satir, asama >= 1 ? { u: 'f', U: 'F', m: 'f', b: 'f', y: 'f', q: 'f' } : ten);
       }
       if (i < AYAK_BASI) return asama >= 2 ? satir : cevir(satir, ten);
       if (asama >= 4) return satir;
-      return cevir(satir, asama >= 3 ? { b: 'c' } : { b: 's' });
+      return cevir(satir, asama >= 3 ? { b: 'c', l: 'c' } : { b: 's', l: 's' });
     }),
   };
 }
