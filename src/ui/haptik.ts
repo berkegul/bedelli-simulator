@@ -8,18 +8,24 @@ import * as Haptics from 'expo-haptics';
  */
 const destekli = Platform.OS === 'ios' || Platform.OS === 'android';
 
+/** Ayarlardan kapatılabiliyor (ayarlar/index.ts). */
+let acik = true;
+export const titresimAyarla = (v: boolean) => {
+  acik = v;
+};
+
 export const titret = (
   siddet: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light,
 ) => {
-  if (destekli) void Haptics.impactAsync(siddet).catch(() => {});
+  if (destekli && acik) void Haptics.impactAsync(siddet).catch(() => {});
 };
 
 export const bildir = (tip: Haptics.NotificationFeedbackType) => {
-  if (destekli) void Haptics.notificationAsync(tip).catch(() => {});
+  if (destekli && acik) void Haptics.notificationAsync(tip).catch(() => {});
 };
 
 export const secim = () => {
-  if (destekli) void Haptics.selectionAsync().catch(() => {});
+  if (destekli && acik) void Haptics.selectionAsync().catch(() => {});
 };
 
 export const Siddet = Haptics.ImpactFeedbackStyle;

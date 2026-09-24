@@ -7,6 +7,7 @@ import { TUM_STATLAR, kalanGun, toklukDurumu } from '../engine/stats';
 import { STAT_META, type StatKey, type Stats } from '../engine/types';
 import { saate } from '../engine/zaman';
 import { useGame } from '../store/gameStore';
+import { useDuraklat } from '../ui/duraklat';
 import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
 import { StatBar } from '../ui/StatBar';
@@ -62,6 +63,7 @@ export function OyunKabugu({
   const inset = useSafeAreaInsets();
   const [acik, setAcik] = useState(false);
   const panelAc = useGame((s) => s.panelAc);
+  const duraklatAc = useDuraklat((s) => s.ac);
   const envanter = useGame((s) => s.envanter);
   const cepteIzmarit = useGame((s) => s.cepteIzmarit);
   const sigaraIciyor = useGame((s) => s.profil.sigaraIciyor);
@@ -162,6 +164,26 @@ export function OyunKabugu({
               />
               <PixelText font="command" size="body" color={cepDolu ? C.brass : C.canvasFaint}>
                 CEP
+              </PixelText>
+            </Pressable>
+          )}
+
+          {!cepKapali && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Mola ver"
+              hitSlop={HIT_SLOP}
+              onPress={duraklatAc}
+              style={{
+                borderWidth: BORDER,
+                borderColor: C.line,
+                backgroundColor: C.surface,
+                paddingHorizontal: SP.sm,
+                paddingVertical: SP.xs,
+              }}
+            >
+              <PixelText font="command" size="body" color={C.canvasDim}>
+                ||
               </PixelText>
             </Pressable>
           )}

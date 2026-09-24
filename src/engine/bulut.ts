@@ -183,10 +183,20 @@ export async function bulutlaKarsilastir(yerel: SaveData) {
 }
 
 /**
+ * Oyuncu kullanım verisine izin vermediyse (ya da henüz sorulmadıysa) hiçbir
+ * olay gönderilmiyor. Bulut yedeği bundan bağımsız: o oyuncunun kendi kaydı.
+ */
+let olcumIzni = false;
+export function olcumIzniAyarla(v: boolean) {
+  olcumIzni = v;
+}
+
+/**
  * Ölçüm olayı. Asıl merak edilen soru şu: oyuncular hangi günde bırakıyor?
  * Kilit ekranına kaç kişi geliyor? Satış kararları buna bakılarak verilecek.
  */
 export async function olayYaz(ad: string, veri: Record<string, unknown> = {}) {
+  if (!olcumIzni) return;
   const o = await oturum();
   if (!o) return;
   try {

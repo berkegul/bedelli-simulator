@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo } from 'react-native';
 import { PixelText } from './PixelText';
 import type { ComponentProps } from 'react';
+import { useHareketAzalt } from './useHareketAzalt';
+import { HARF_MS, useAyarlar } from '../ayarlar';
 
 type Props = Omit<ComponentProps<typeof PixelText>, 'children'> & {
   text: string;
-  /** Harf başına milisaniye. */
+  /** Harf başına milisaniye; verilmezse ayarlardaki metin hızı. */
   hiz?: number;
   /** true olduğunda kalan metni anında gösterir. */
   atla?: boolean;
@@ -16,10 +17,12 @@ type Props = Omit<ComponentProps<typeof PixelText>, 'children'> & {
  * Metni harf harf yazar. Hareket azaltma açıkken tek seferde gösterir —
  * efekt anlatının ritmi için var, okumanın önüne geçmemeli.
  */
-export function Daktilo({ text, hiz = 18, atla, onBitti, ...rest }: Props) {
+export function Daktilo({ text, hiz, atla, onBitti, ...rest }: Props) {
+  const ayarHizi = useAyarlar((a) => HARF_MS[a.metinHizi]);
+  const harfMs = hiz ?? ayarHizi;
   const [uzunluk, setUzunluk] = useState(0);
   const [yazilan, setYazilan] = useState(text);
-  const [azaltilmisHareket, setAzaltilmisHareket] = useState(false);
+  const azaltilmisHareket = useHareketAzalt();
 
   const bildirildi = useRef(false);
   const onBittiRef = useRef(onBitti);
@@ -34,25 +37,16 @@ export function Daktilo({ text, hiz = 18, atla, onBitti, ...rest }: Props) {
     bildirildi.current = false;
   }
 
-  useEffect(() => {
-    let canli = true;
-    void AccessibilityInfo.isReduceMotionEnabled().then((v) => canli && setAzaltilmisHareket(v));
-    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setAzaltilmisHareket);
-    return () => {
-      canli = false;
-      sub.remove();
-    };
-  }, []);
 
   useEffect(() => {
-    if (azaltilmisHareket || atla) {
+    if (azaltilmisHareket || atla || harfMs === 0) {
       setUzunluk(text.length);
       return;
     }
     if (uzunluk >= text.length) return;
-    const t = setTimeout(() => setUzunluk((n) => n + 1), hiz);
+    const t = setTimeout(() => setUzunluk((n) => n + 1), harfMs);
     return () => clearTimeout(t);
-  }, [uzunluk, text, hiz, atla, azaltilmisHareket]);
+  }, [uzunluk, text, harfMs, atla, azaltilmisHareket]);
 
   useEffect(() => {
     if (yazilan === text && uzunluk >= text.length && !bildirildi.current) {

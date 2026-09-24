@@ -7,6 +7,7 @@ import { useSecili } from '../store/secici';
 import { YAZILMIS_GUN_SAYISI } from '../content';
 import { BEDAVA_GUN } from '../monetization/entitlements';
 import { CentikTakvim } from '../ui/CentikTakvim';
+import { useAyarlar } from '../ayarlar';
 import { OnayliButon } from '../ui/OnayliButon';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelSprite } from '../ui/PixelSprite';
@@ -56,6 +57,7 @@ export function MenuEkrani() {
         ) : (
           <PixelButton label="Sevk kâğıdını al" onPress={() => void g.yeniOyun()} />
         )}
+        <PixelButton label="Ayarlar" tur="sessiz" onPress={useAyarlar.getState().ac} />
       </View>
 
       {GELISTIRME_ACIK && (

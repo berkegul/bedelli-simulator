@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { BORDER, C, SP } from '../theme';
 import { Siddet, titret } from '../ui/haptik';
@@ -8,6 +8,7 @@ import { PixelText } from '../ui/PixelText';
 import { useZamanlayici } from '../ui/useZamanlayici';
 import { clamp01, type MiniOyunProps } from './types';
 import { sesCal } from '../ses';
+import { useHareketAzalt } from '../ui/useHareketAzalt';
 
 const MERMI = 5;
 /** Hedef ızgarası: HUCRE × HUCRE piksel, her piksel PX nokta. */
@@ -63,14 +64,7 @@ export function Atis({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const z = useZamanlayici();
   const sprite = useMemo(() => hedefSprite(), []);
 
-  const [azaltilmis, setAzaltilmis] = useState(false);
-  useEffect(() => {
-    let canli = true;
-    void AccessibilityInfo.isReduceMotionEnabled().then((v) => canli && setAzaltilmis(v));
-    return () => {
-      canli = false;
-    };
-  }, []);
+  const azaltilmis = useHareketAzalt();
 
   const [nisan, setNisan] = useState({ x: MERKEZ, y: MERKEZ });
   const [nefes, setNefes] = useState(1);

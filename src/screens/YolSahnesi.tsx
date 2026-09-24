@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { AccessibilityInfo, View } from 'react-native';
+import { View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
@@ -58,6 +58,7 @@ import { isikDurumu } from '../ui/Gokyuzu';
 import { spriteResmi } from '../ui/skia/SkiaSprite';
 import { PixelText } from '../ui/PixelText';
 import { useZamanlayici } from '../ui/useZamanlayici';
+import { useHareketAzalt } from '../ui/useHareketAzalt';
 import { sesCal } from '../ses';
 
 const SAHNE_YUKSEKLIK = 244;
@@ -122,17 +123,10 @@ export function YolSahnesi({
   const [en, setEn] = useState(0);
   const [basladi, setBasladi] = useState(false);
   const [sapti, setSapti] = useState(false);
-  const [azaltilmis, setAzaltilmis] = useState(false);
+  const azaltilmis = useHareketAzalt();
 
   const t = useSharedValue(0);
 
-  useEffect(() => {
-    let canli = true;
-    void AccessibilityInfo.isReduceMotionEnabled().then((v) => canli && setAzaltilmis(v));
-    return () => {
-      canli = false;
-    };
-  }, []);
 
   const geo = useMemo(() => {
     // Ölçüm gelmeden rota kurulmaz: kıvrım ekranın genişliğinden türüyor.

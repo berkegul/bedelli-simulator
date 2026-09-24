@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, View } from 'react-native';
+import { View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { C } from '../theme';
 import { sprite } from '../art';
 import { isikDurumu, isikKaristir, type Isik } from './Gokyuzu';
 import { PixelSprite } from './PixelSprite';
+import { useHareketAzalt } from './useHareketAzalt';
 
 const YILDIZLAR = [
   { x: 10, y: 22 }, { x: 26, y: 11 }, { x: 39, y: 31 }, { x: 55, y: 16 },
@@ -29,15 +30,8 @@ export function GokyuzuGecisi({ yon, yukseklik, sure = 2800, onBitti }: Props) {
   const son = isikDurumu(yon === 'dogum' ? '08:00' : '21:30');
 
   const [oran, setOran] = useState(0);
-  const [azaltilmis, setAzaltilmis] = useState(false);
+  const azaltilmis = useHareketAzalt();
 
-  useEffect(() => {
-    let canli = true;
-    void AccessibilityInfo.isReduceMotionEnabled().then((v) => canli && setAzaltilmis(v));
-    return () => {
-      canli = false;
-    };
-  }, []);
 
   // onBitti ref'te: ebeveyn her render'da yeni fonksiyon verse de geçiş baştan
   // kurulmuyor. `bitti` onu tek seferlik yapıyor; eskiden setState

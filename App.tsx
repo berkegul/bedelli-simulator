@@ -17,6 +17,8 @@ import { C } from './src/theme';
 import { bulutuBosalt } from './src/engine/bulut';
 import { useGeriTusu } from './src/ui/useGeriTusu';
 import { sesHazirla } from './src/ses';
+import { useAyarlar } from './src/ayarlar';
+import { AyarlarEkrani } from './src/screens/AyarlarEkrani';
 import { useGame } from './src/store/gameStore';
 import { MenuEkrani } from './src/screens/MenuEkrani';
 import { ProfilEkrani } from './src/screens/ProfilEkrani';
@@ -43,6 +45,7 @@ export default function App() {
   const ekran = useGame((s) => s.ekran);
   const hazir = useGame((s) => s.hazir);
   const ilkYukleme = useGame((s) => s.ilkYukleme);
+  const ayarlarAcik = useAyarlar((s) => s.acik);
 
   useEffect(() => {
     void ilkYukleme();
@@ -52,6 +55,7 @@ export default function App() {
 
   useEffect(() => {
     void sesHazirla();
+    void useAyarlar.getState().yukle();
   }, []);
 
   // Bulut yazmaları toplanıp aralıklı gidiyor; uygulama arka plana düşerken
@@ -86,6 +90,7 @@ export default function App() {
           {ekran === 'icerikSonu' && <IcerikSonuEkrani />}
           {ekran === 'gelistirme' && <GelistirmeEkrani />}
           <GelistirmeRozeti />
+          {ayarlarAcik && <AyarlarEkrani />}
         </View>
       </SafeAreaProvider>
     </GestureHandlerRootView>

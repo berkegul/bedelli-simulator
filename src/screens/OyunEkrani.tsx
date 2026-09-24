@@ -33,6 +33,8 @@ import { DersSahnesi } from "./DersSahnesi";
 import { DolapDenetimi, DolapYerlesimi } from "./DolapYerlesimi";
 import { TanitimSahnesi } from "./TanitimSahnesi";
 import { YolSahnesi } from "./YolSahnesi";
+import { DuraklatmaMenusu } from "./DuraklatmaMenusu";
+import { useDuraklat } from "../ui/duraklat";
 import { ambiyansCal, sesCal } from "../ses";
 
 export function OyunEkrani() {
@@ -47,7 +49,14 @@ export function OyunEkrani() {
   useEffect(() => {
     ambiyansCal(blokAnahtari === 'serbest' ? 'avlu' : blokAnahtari === 'son-yoklama' ? 'gece' : null);
   }, [blokAnahtari]);
-  useEffect(() => () => ambiyansCal(null), []);
+  useEffect(
+    () => () => {
+      ambiyansCal(null);
+      useDuraklat.getState().kapat();
+    },
+    [],
+  );
+  const molaAcik = useDuraklat((s) => s.acik);
 
   const [yazildi, setYazildi] = useState(false);
   const [atla, setAtla] = useState(false);
@@ -305,6 +314,7 @@ export function OyunEkrani() {
           </ScrollView>
         )}
       </OyunKabugu>
+      {molaAcik && !g.miniAktif && <DuraklatmaMenusu />}
 
       {g.panel === "kantin" && <KantinPaneli />}
       {g.panel === "dolap" && <DolapPaneli />}

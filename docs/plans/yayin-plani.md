@@ -590,7 +590,7 @@ bunun yanında paralel yürür.
   temiz. Kulakla dinleme yapılamadı → Berke telefonda değerlendirecek;
   ses değişikliği üreticide.
 
-#### C2 · ayarlar ekranı ⬜ (D3, C1'den sonra)
+#### C2 · ayarlar ekranı ✅ (D3, C1'den sonra)
 - **Alanlar:** ses efektleri, ambiyans, titreşim, metin hızı (daktilo),
   hareket azaltma (sistem ayarına ek olarak oyun içi), analitik izni (M5),
   kaydı sil (S3'ün onaylı butonu).
@@ -598,11 +598,27 @@ bunun yanında paralel yürür.
   dilimi, ayrı AsyncStorage anahtarı (`bedelli.ayarlar.v1`; oyun kaydından
   bağımsız, yeni oyunda silinmez). `ui/haptik.ts` ayara bakar.
 - **Kabul:** her ayar uygulama yeniden açılınca korunuyor.
+- **Sonuç:** `ayarlar/index.ts` (ayrı zustand deposu, `bedelli.ayarlar.v1`),
+  `screens/AyarlarEkrani.tsx` her ekranın üstüne açılan katman (menüden ve
+  moladan). Ses efektleri, ortam sesi, titreşim (`haptik.ts` bayrağı),
+  hareketi azalt (`useHareketAzalt`: sistem ayarı ya da oyun içi, anında
+  yansıyor; Daktilo, GokyuzuGecisi, YolSahnesi, Atis buna geçti, C6'nın bir
+  kısmı), metin hızı (yavaş/normal/hızlı/anında), kullanım verisi, onaylı
+  kaydı sil. **Kullanım verisi varsayılanı "sorulmadı" = gönderilmiyor**;
+  `olayYaz` izin yoksa hiçbir şey yapmıyor (KVKK onay ekranı M5 açacak).
+  Tarayıcıda: ayarlar yenilemeden sonra korunuyor, "anında" metni tek
+  seferde gösteriyor, konsol temiz.
 
-#### C3 · duraklatma menüsü ⬜ (D3)
+#### C3 · duraklatma menüsü ✅ (D3)
 - Oyun ekranında köşede düğme: devam, ayarlar, ana menü. Mini oyun
   sırasında açılırsa `useGeriSayim` duruyor (S6'daki hook'a `durdur`).
   Android geri tuşu (S7) bunu açar.
+- **Sonuç:** başlıkta CEP'in yanında "||" düğmesi → MOLA: Devam, Ayarlar,
+  Ana menü. **Sapma:** mini oyun sırasında mola açılmıyor (düğme gizli,
+  geri tuşu yok sayılıyor); 11 oyunun zamanlayıcısını durdurulabilir
+  yapmak yerine yarım turun kaybolması engellendi. Geri tuşu sırası:
+  ayarlar → panel → mola aç/kapat → ana menü/çıkış (9 test). Oyun ekranı
+  kapanınca mola sıfırlanıyor. Tarayıcıda mola aç/devam/ana menü çalışıyor.
 
 #### C4 · geçişler + stat animasyonu ⬜ (D4)
 - Üst düzey ekranlar arası 150 ms karartma (`App.tsx` ekran değişimi).
