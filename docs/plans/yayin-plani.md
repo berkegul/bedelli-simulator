@@ -83,8 +83,8 @@ ondan sonra başlar. Süreler tek kişilik yoğun çalışma için kaba tahmin.
 | **D3 · İkinci hafta + ses** | Gün 6–12, ses, ayarlar, duraklatma | I5, C1, C2, C3 | 5–7 gün |
 | **D4 · Görsel dil** | Ekranlar formdan oyuna: büyük sahne, diyalog kutusu, dünyaya ait menü/künye/çarşı, tepsi ve avlu, okunabilirlik, geçişler | G1–G8 (C4, C5 dahil) | 6–9 gün |
 | **D5 · Üçüncü hafta** | Gün 13–19, öğreticiler | I6, C7 | 5–7 gün |
-| **D6 · Son hafta + son** | Gün 20–28, yemin, karne, finaller, erişilebilirlik, S12b | I11, I7, I8, I9, C6, S12b | 7–10 gün |
-| **D7 · Ölçüm, uyum, altyapı** | Firebase, KVKK, crash raporlama, EAS, ikon, mağaza görselleri | M4, M5, M6, Y1, Y2, Y3 | 4–6 gün |
+| **D6 · Son hafta + son** ✅ | Gün 20–28, yemin, karne, finaller, erişilebilirlik | I11, I7, I8, I9, C6 | 7–10 gün |
+| **D7 · Ölçüm, uyum, altyapı** | Firebase, KVKK, crash raporlama, EAS, ikon, mağaza görselleri, cihaz testiyle S12b | M4, M5, M6, Y1, Y2, Y3, S12b | 4–6 gün |
 | **D8 · Ücretlendirme** | Model, kilit yeri, IAP (Berke: en son) | M1, M2, M3 | 3–5 gün |
 | **D9 · Yayın** | İç test, mağaza incelemesi, lansman | Y5, Y6, Y7 | 1–2 hafta (inceleme süresi dahil) |
 
@@ -367,7 +367,7 @@ geçer.
   tut/bırak sayımı tarayıcı aracıyla sınanamadı → cihaz testine.
 - **Kalan 36 → S12b.**
 
-#### S12b · kalan React Compiler uyarıları ⬜ (D5, cila)
+#### S12b · kalan React Compiler uyarıları ⬜ (D7, cihaz testiyle)
 - `react-hooks/refs` (26): render sırasında ref okuma (Tiras, PostalParlatma,
   YatakToplama ekranda ref'ten türetilen değerler), `xRef.current = x`
   "son değer" kalıpları (React 19.2 `useEffectEvent` ile), jest
@@ -530,7 +530,7 @@ geçer.
   yok. `performance.now` yerine `Date.now` (diğer oyunlarla aynı; tepki
   ölçümü değil, salınım fazı).
 
-#### I5 · gün 6–12 ✅ (D3) · I6 · gün 13–19 ✅ (D5) · I7 · gün 20–27 ⬜ (D6)
+#### I5 · gün 6–12 ✅ (D3) · I6 · gün 13–19 ✅ (D5) · I7 · gün 20–27 ✅ (D6)
 - **Şablon:** her gün `src/content/dayNN.ts`, 8–11 blok. Yazmadan önce
   §4'teki satır, ilgili `telefon/gunler/gNN.ts` ve bir önceki gün okunur.
 - **Gün başına içerik:**
@@ -568,21 +568,33 @@ geçer.
   İDARE, 10–11. gün %100 TEMİZ, 12. gün %21 TAKDİR; iyi oyuncu TAKDİR'i
   9. günde alıyor. Tarayıcıda 9. gün poligonu oyun akışında oynandı.
 
-#### I11 · yemin töreni oyunu ⬜ (D5)
+#### I11 · yemin töreni oyunu ✅ (D6)
 - **Tasarım:** sıra ve ritim: komutla adım, selam, yemin metninin
   satırlarını doğru anda tekrar (daktilo ile gelen metinde boşluk doldurma
   değil, zamanlama). Arka sırada izleyici aile sprite'ları; rehberde kayıtlı
   rollere göre kim geldiği değişir.
 - **Kabul:** I10 ile aynı.
+- **Sonuç:** `minigames/Yemin.tsx`. Beş satır; kelime kelime okunuyor, düzensiz
+  bir sessizlikten sonra "ŞİMDİ": 380 ms içinde tam puan, 1150 ms'de sıfır
+  (zorlukla daralıyor). Erken dokunuş "tek başına bağırdın". Tribünde
+  rehberdeki ev/sevgili/eş/kardeş kayıtları sivil sprite'la. **Cihazda
+  denenecek:** tarayıcı sekmesi arkadayken zamanlayıcılar kısıldığı için
+  pencere süreleri web'de ölçülemedi.
 
-#### I8 · gün 28 + karne ⬜ (D5)
+#### I8 · gün 28 + karne ✅ (D6)
 - **Adımlar:** `day28.ts`: evrak kuyruğu, dolap boşaltma (dolap
   yerleşiminin tersi: teslim listesi), nizamiyeden çıkış yürüyüşü
   (`sivil: true`). Ardından yeni `KarneEkrani`: 28 çentik, gün notları,
   stat ortalamaları, en çok konuşulan kişi, arkadaşlarla yakınlık.
 - **Kabul:** 28. gün bitince karne açılıyor, oradan finallere geçiliyor.
+- **Sonuç:** `day20`–`day28` üç paralel oturumda yazıldı; süreklilik
+  (Tolga'nın kızının takvimi 22'de açılıp 28'de kapanıyor, Emre'nin sofra
+  sözü, Serkan'ın defteri) oturumlar arasında mesajla taşındı. `KarneEkrani`
+  (hesap `engine/karne.ts`, testli), sevk belgesiyle ortak `ui/Kagit`.
+  Gün 28'in "Yat" düğmesi "Karneni al"; menüde terhis olana "Karneyi gör" ve
+  "Yeniden sevk ol". Oyuncu testi 28 günü bitirip karneye çıktığını sınıyor.
 
-#### I9 · finalleri akışa bağla ⬜ (D5)
+#### I9 · finalleri akışa bağla ✅ (D6)
 - **Adımlar:** `telefon/finaller.ts`'teki `finalKartlari` ve `epilog`
   karne sonrası ekran olarak bağlanır. `IcerikSonuEkrani` artık yalnızca
   geliştirme için kalır (ya da silinir). I12'nin (a) grubu burada
@@ -590,6 +602,9 @@ geçer.
   görülebilir.
 - **Kabul:** baştan sona 28 günlük bir kayıtla (geliştirme alanından
   atlanarak) final kartları oyuncunun işaretlerine göre farklı çıkıyor.
+- **Sonuç:** `FinalEkrani`: nizamiye şeridi, koşulu tutan kartlar sırayla
+  (daktilo, "Geç"), ardından epilogun üç satırı. `IcerikSonuEkrani` artık
+  yalnızca eksik gün için (geliştirme).
 
 ---
 
@@ -663,7 +678,7 @@ geçer.
 - Oyun alanı en fazla 480 pt genişlikte ortalanır, kenarlar zemin rengi.
 - **Kabul:** iPad simülatöründe dikey düzen bozulmuyor.
 
-#### C6 · erişilebilirlik ⬜ (D5)
+#### C6 · erişilebilirlik ✅ (D6)
 - `PixelText`'e `maxFontSizeMultiplier` (1.3). Harita, panel ve mini oyun
   dokunma alanlarına `accessibilityLabel` + `accessibilityRole`.
   Hareket azaltma tek bir hook'tan (`useHareketAzalt`) okunur ve değişimi
@@ -792,15 +807,15 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 | 17 | Koli | Anneden koli | koli içeriği puana göre | | | ✅ |
 | 18 | On gün | Üçüncü eşik | — | | ✓ | ✅ |
 | 19 | Tek hane | Rutin (kısa gün) | — | ✓ | | ✅ |
-| 20 | Söz | Uzun callback kapanıyor | — | | | ⬜ |
-| 21 | Yedi gün | Kanka itirafı; yemin provası | — | | | ⬜ |
-| 22 | Sessizlik | Kanka aramıyor | — | ✓ | | ⬜ |
-| 23 | Özür | — | — | | | ⬜ |
-| 24 | Evrak | Terhis işlemleri başlıyor | evrak kuyruğu | | | ⬜ |
-| 25 | Son serbest | Son uzun serbest zaman | — | ✓ | | ⬜ |
-| 26 | İki gün | Yemin töreni (K5), teslim listesi | **I11 yemin** | | | ⬜ |
-| 27 | Son gece | Koğuşta son gece | — | | | ⬜ |
-| 28 | Çıkış | Evrak, dolap boşaltma, nizamiye, karne | **I8 karne**, I9 finaller | | | ⬜ |
+| 20 | Söz | Uzun callback kapanıyor | — | | | ✅ |
+| 21 | Yedi gün | Kanka itirafı; yemin provası | — | | | ✅ |
+| 22 | Sessizlik | Kanka aramıyor | — | ✓ | | ✅ |
+| 23 | Özür | — | — | | | ✅ |
+| 24 | Evrak | Terhis işlemleri başlıyor | evrak kuyruğu | | | ✅ |
+| 25 | Son serbest | Son uzun serbest zaman | — | ✓ | | ✅ |
+| 26 | İki gün | Yemin töreni (K5), teslim listesi | **I11 yemin** | | | ✅ |
+| 27 | Son gece | Koğuşta son gece | — | | | ✅ |
+| 28 | Çıkış | Evrak, dolap boşaltma, nizamiye, karne | **I8 karne**, I9 finaller | | | ✅ |
 
 ---
 
@@ -808,6 +823,7 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 
 | Tarih | Kayıt |
 |---|---|
+| 2026-09-24 | D6 bitti ve main'e birleşti: gün 20–28 (I7, I8), yemin oyunu (I11), karne ve finaller akışta (I8, I9), erişilebilirlik (C6). Oyun baştan sona 28 gün oynanabilir. Denge: en az +1 kazanç garantisi 80 → 75 (son hafta ortalama oyuncu her gün TAKDİR alıyordu). S12b D7'ye, cihaz testiyle. |
 | 2026-09-24 | D5 bitti ve main'e birleşti: gün 13–19 (I6) ve mini oyun öğreticileri (C7). Yazılı gün 19/28. Sıradaki: D6 gün 20–28, yemin, karne, finaller. |
 | 2026-09-24 | D4 bitti ve main'e birleşti: G1 büyük sahne + diyalog kutusu (Berke onayladı), G2 nizamiye menüsü, G3 sevk belgesi, G4 alışveriş listesi, G5 tepsi, G6 avlu, G7 okunabilirlik + 480 genişlik (C5), G8 geçiş/sayaç/damga (C4). Sıradaki: D5 gün 13–19. |
 | 2026-09-24 | Berke: ücretlendirme en sona; önce görsel tasarım (oyun "form gibi" görünüyor), sonra gün 13–28. Dalgalar yeniden sıralandı (D4 görsel dil … D8 ücretlendirme). |
