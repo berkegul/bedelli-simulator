@@ -3,6 +3,7 @@ import { kayitDogrula } from './kayitDogrula';
 import { kimlikBaslat } from './kimlik';
 import type { SaveData } from './save';
 import type { OlayAdi } from './olaylar';
+import { raporla } from './rapor';
 
 /**
  * Bulut katmanı isteğe bağlı: yapılandırma yoksa bütün çağrılar sessizce
@@ -43,7 +44,8 @@ async function baglan(): Promise<Oturum | null> {
     // Anonim oturum: oyuncudan hesap istemeden cihaz başına kimlik verir.
     const kimlik = auth.currentUser ?? (await signInAnonymously(auth)).user;
     return { db: firestore.getFirestore(app), uid: kimlik.uid };
-  } catch {
+  } catch (hata) {
+    raporla(hata, 'bulut.baglan');
     // Ağ yok, kural reddetti ya da yapılandırma hatalı — oyun etkilenmesin.
     return null;
   }
@@ -121,7 +123,8 @@ export async function bulutuBosalt() {
     // silinen alanları (son sigara, önceki oyunun envanteri) bulutta
     // bırakıyor, geri yüklenen kayıt iki oyunun karışımı oluyordu.
     await setDoc(doc(o.db as never, 'oyuncular', o.uid), firestoreIcin(veri) as never);
-  } catch {
+  } catch (hata) {
+    raporla(hata, 'bulut.bulutuBosalt');
     // sessiz
   }
 }
@@ -147,7 +150,8 @@ export async function bulutuSil(): Promise<boolean> {
     const { deleteDoc, doc } = await import('firebase/firestore');
     await deleteDoc(doc(o.db as never, 'oyuncular', o.uid));
     return true;
-  } catch {
+  } catch (hata) {
+    raporla(hata, 'bulut.bulutuSil');
     return false;
   }
 }
@@ -169,7 +173,8 @@ async function bulutKaydiniGetir(): Promise<SaveData | null> {
     const anlik = await getDoc(doc(o.db as never, 'oyuncular', o.uid));
     // Sürüm taşıması (v2 → v3) ve alan doğrulaması cihazdaki kayıtla aynı yoldan.
     return anlik.exists() ? kayitDogrula(anlik.data()) : null;
-  } catch {
+  } catch (hata) {
+    raporla(hata, 'bulut.bulutKaydiniGetir');
     return null;
   }
 }
@@ -220,7 +225,8 @@ export async function olayYaz(ad: OlayAdi, veri: Record<string, unknown> = {}) {
       ...veri,
       zaman: serverTimestamp(),
     });
-  } catch {
+  } catch (hata) {
+    raporla(hata, 'bulut.olayYaz');
     // sessiz
   }
 }

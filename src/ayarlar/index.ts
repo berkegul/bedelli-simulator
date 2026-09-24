@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { bulutIzniAyarla, olcumIzniAyarla } from '../engine/bulut';
+import { raporIzniAyarla } from '../engine/rapor';
 import type { MiniGameId } from '../engine/types';
 import { sesAyarla } from '../ses';
 import { titresimAyarla } from '../ui/haptik';
@@ -70,6 +71,8 @@ function uygula(a: Ayarlar) {
   titresimAyarla(a.titresim);
   olcumIzniAyarla(a.olcumIzni === true);
   bulutIzniAyarla(a.bulutIzni === true);
+  // Çökme raporları kullanım verisi izniyle birlikte (gizlilik taslağı).
+  raporIzniAyarla(a.olcumIzni === true);
 }
 
 function ayarlariAl(s: AyarDeposu): Ayarlar {

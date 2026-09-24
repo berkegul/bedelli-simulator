@@ -3,6 +3,7 @@ import { kayitDogrula } from './kayitDogrula';
 import { bulutaYaz, bulutlaKarsilastir, buluttanOku, bulutuSil } from './bulut';
 import type { AktifGorusme } from '../store/gameStore';
 import type { ArkadasId, DolapDuzeni, Envanter, Kusur, Profil, RehberKisi, Rol, Stats } from './types';
+import { raporla } from './rapor';
 
 const KEY = 'bedelli.save.v3';
 /** v1 kayıtları profil/envanter taşımıyordu; taşınamaz, temiz başlanır. */
@@ -74,7 +75,8 @@ export type KayitYuku = Omit<SaveData, 'version' | 'guncelleme'>;
 function jsonOku(raw: string): unknown {
   try {
     return JSON.parse(raw);
-  } catch {
+  } catch (hata) {
+    raporla(hata, 'save.jsonOku');
     return null;
   }
 }
@@ -90,7 +92,8 @@ export async function kaydet(data: KayitYuku) {
       silindiIsareti = false;
       await AsyncStorage.removeItem(SILINDI_KEY);
     }
-  } catch {
+  } catch (hata) {
+    raporla(hata, 'save.kaydet');
     // Kayıt başarısızsa oyun oynanmaya devam eder; tek kayıp ilerleme olur.
   }
   // Bulut yedeği beklenmez: ağ yavaşsa oyun takılmasın. Yazmalar toplanıp
@@ -123,7 +126,8 @@ export async function yukle(): Promise<SaveData | null> {
         return tasinan;
       }
     }
-  } catch {
+  } catch (hata) {
+    raporla(hata, 'save.yukle');
     // düşer ve buluta bakarız
   }
 
@@ -138,7 +142,8 @@ export async function yukle(): Promise<SaveData | null> {
   if (bulut) {
     try {
       await AsyncStorage.setItem(KEY, JSON.stringify(bulut));
-    } catch {
+    } catch (hata) {
+      raporla(hata, 'save.yukle');
       // yerelde tutamasak da oyuna devam edilebilir
     }
   }
@@ -151,7 +156,8 @@ export async function sil() {
     silindiIsareti = true;
     await AsyncStorage.setItem(SILINDI_KEY, '1');
     await AsyncStorage.multiRemove([KEY, V2_KEY, ...ESKI_KEYS]);
-  } catch {
+  } catch (hata) {
+    raporla(hata, 'save.sil');
     // yok sayılır
   }
   void bulutuSilVeIsaretiKaldir();
@@ -161,7 +167,8 @@ async function silinmeyiBekliyor() {
   try {
     silindiIsareti = (await AsyncStorage.getItem(SILINDI_KEY)) !== null;
     return silindiIsareti;
-  } catch {
+  } catch (hata) {
+    raporla(hata, 'save.silinmeyiBekliyor');
     return false;
   }
 }
@@ -173,7 +180,8 @@ async function bulutuSilVeIsaretiKaldir() {
   silindiIsareti = false;
   try {
     await AsyncStorage.removeItem(SILINDI_KEY);
-  } catch {
+  } catch (hata) {
+    raporla(hata, 'save.bulutuSilVeIsaretiKaldir');
     // işaret kalırsa bir sonraki açılışta silme yeniden denenir
   }
 }

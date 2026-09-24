@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { C, SP } from '../theme';
 import { PixelButton } from './PixelButton';
 import { PixelText } from './PixelText';
+import { raporla } from '../engine/rapor';
 
 type Props = { children: React.ReactNode; onKurtar: () => void };
 type Durum = { hata: Error | null };
@@ -22,6 +23,7 @@ export class HataSiniri extends React.Component<Props, Durum> {
 
   componentDidCatch(hata: Error) {
     if (__DEV__) console.error('[HataSiniri]', hata);
+    raporla(hata, 'HataSiniri');
   }
 
   render() {
