@@ -91,7 +91,7 @@ export function Giyinme({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const yanlis = useRef(0);
   const durdu = useRef(false);
   const bitti = useRef(false);
-  const basla = useRef(Date.now());
+  const basla = useRef(0);
   const zamanlayicilar = useRef<ReturnType<typeof setTimeout>[]>([]);
   const mesajZamani = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -126,6 +126,7 @@ export function Giyinme({ onBitti, zorluk = 0 }: MiniOyunProps) {
 
   // İçtimaya kalan süre. Biterse giyindiğin kadarıyla çıkıyorsun.
   useEffect(() => {
+    basla.current = Date.now();
     const id = setInterval(() => {
       if (durdu.current) return;
       const k = Math.max(0, toplam - (Date.now() - basla.current));

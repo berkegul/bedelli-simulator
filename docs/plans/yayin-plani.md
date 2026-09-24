@@ -318,7 +318,7 @@ bunun yanında paralel yürür.
   **Yapılmayan:** plandaki "her karede setState" dönüşümü (YatakToplama rAF,
   geri sayım) S12'ye kaldı; React DevTools ölçümü yapılmadı.
 
-#### S12 · React Compiler lint uyarıları ⬜ (D2, S6 + S8 ile)
+#### S12 · React Compiler lint uyarıları 🟡 100 → 36 (D2, S6 + S8 ile)
 - **Durum:** `react-hooks/refs` (51), `immutability` (38),
   `set-state-in-effect` (6), `purity` (5) uyarı seviyesinde. Çoğu
   `useRef(new Animated.Value)` ve Reanimated shared value atamaları;
@@ -328,6 +328,31 @@ bunun yanında paralel yürür.
   render sırasında `Date.now()` ve ref okuma → effect / olay işleyici.
 - **Kabul:** `npm run lint` 0 uyarı; `eslint.config.js`'teki dört kural
   `error`'a çekilir.
+- **Yapılan (mekanik, düşük riskli):**
+  - Reanimated shared value atamaları `.value = x` → `.set(x)` (46 yer;
+    parantez derinliği sayan dönüştürücüyle, çok satırlı ifadeler dahil),
+  - `useRef(new Animated.Value(0)).current` → `useState(() => …)` (5 yer),
+  - render içindeki `Date.now()` ilk değerleri effect'e (4 yer); sigara
+    isteyen arkadaşın cümlesi artık panel açılınca bir kez seçiliyor
+    (eskiden her yeniden çizimde değişebiliyordu).
+- **Ek bulunan hata (önceden vardı):** yol sahnesinde yürümeye başlarken
+  Skia `drawPicture` tanımsız resimle çöküyordu (web konsolu); askerin kare
+  indeksi sınır dışına düşüyordu. İndeks 0–3'e sabitlendi, düzeldiği
+  tarayıcıda doğrulandı. Yürüyüş ve Ceza çizimi çalışıyor; Ceza'nın basılı
+  tut/bırak sayımı tarayıcı aracıyla sınanamadı → cihaz testine.
+- **Kalan 36 → S12b.**
+
+#### S12b · kalan React Compiler uyarıları ⬜ (D5, cila)
+- `react-hooks/refs` (26): render sırasında ref okuma (Tiras, PostalParlatma,
+  YatakToplama ekranda ref'ten türetilen değerler), `xRef.current = x`
+  "son değer" kalıpları (React 19.2 `useEffectEvent` ile), jest
+  kapanışlarındaki yanlış pozitifler.
+- `react-hooks/set-state-in-effect` (6): prop değişince sıfırlanan state
+  (Ictima, YatakToplama, OyunEkrani, Daktilo, GokyuzuGecisi, IzmaritToplama)
+  → `key` ile yeniden kurma ya da render sırasında ayarlama.
+- `react-hooks/immutability` (4): hook dönüş değerinde metot çağrısı
+  (`sure.durdur()`), ref'e `+=`.
+- Mini oyun mantığına dokunduğu için her dosya sonrası cihazda deneme şart.
 
 #### S10 · denge simülasyonu tsx ✅ (D2)
 - **Sorun:** `tools/denge-analizi.py`, `stats.ts`'i elle kopyalıyor, rutin /

@@ -51,7 +51,8 @@ export function Ceza({
 }: MiniOyunProps & {
   /** Denetimde kusur sayısına göre veriliyor; yoksa zorluktan. */
   hedef?: number;
-}) {  const z = useZamanlayici();
+}) {
+  const z = useZamanlayici();
 
   const hedef = verilen ?? 20 + Math.round(zorluk * 10);
   const sure = 6000 + hedef * 800;
@@ -83,7 +84,7 @@ export function Ceza({
     (puan: number) => {
       if (bitti.current) return;
       bitti.current = true;
-      kapali.value = 1;
+      kapali.set(1);
       onBitti(clamp01(puan));
     },
     [kapali, onBitti],
@@ -121,13 +122,15 @@ export function Ceza({
     titret(Siddet.Medium);
     bagir(`${n}!`, false);
     // Yoruldukça kalkış ağırlaşıyor; son şınavlarda kollar titriyor.
-    kalkisMs.value = KALKIS_MS + n * (18 + zorluk * 12);
+    kalkisMs.set(KALKIS_MS + n * (18 + zorluk * 12));
     if (n / hedef > 0.6 && !titriyor.current) {
       titriyor.current = true;
-      titreme.value = withRepeat(
-        withSequence(withTiming(1, { duration: 60 }), withTiming(-1, { duration: 60 })),
-        -1,
-        true,
+      titreme.set(
+        withRepeat(
+          withSequence(withTiming(1, { duration: 60 }), withTiming(-1, { duration: 60 })),
+          -1,
+          true,
+        ),
       );
     }
     if (n >= hedef) z.sonra(500, () => bitir(1));
@@ -155,12 +158,14 @@ export function Ceza({
           if (kapali.value) return;
           // Kalkış bitmeden yeniden inmek: o şınav gitti.
           if (kalkiyor.value && derinlik.value > 0.12) runOnJS(erken)();
-          kalkiyor.value = 0;
+          kalkiyor.set(0);
           cancelAnimation(derinlik);
-          derinlik.value = withTiming(1, {
-            duration: INIS_MS * (1 - derinlik.value),
-            easing: Easing.out(Easing.quad),
-          });
+          derinlik.set(
+            withTiming(1, {
+              duration: INIS_MS * (1 - derinlik.value),
+              easing: Easing.out(Easing.quad),
+            }),
+          );
         })
         .onFinalize(() => {
           'worklet';
@@ -169,19 +174,21 @@ export function Ceza({
           cancelAnimation(derinlik);
           const tam = ulasilan >= ESIK;
           if (!tam && ulasilan > 0.15) runOnJS(yarim)();
-          kalkiyor.value = tam ? 1 : 0;
-          derinlik.value = withTiming(
-            0,
-            {
-              duration: kalkisMs.value * Math.max(0.25, ulasilan),
-              easing: Easing.inOut(Easing.quad),
-            },
-            (tamamlandi) => {
-              if (tamamlandi && kalkiyor.value) {
-                kalkiyor.value = 0;
-                runOnJS(say)();
-              }
-            },
+          kalkiyor.set(tam ? 1 : 0);
+          derinlik.set(
+            withTiming(
+              0,
+              {
+                duration: kalkisMs.value * Math.max(0.25, ulasilan),
+                easing: Easing.inOut(Easing.quad),
+              },
+              (tamamlandi) => {
+                if (tamamlandi && kalkiyor.value) {
+                  kalkiyor.value = 0;
+                  runOnJS(say)();
+                }
+              },
+            ),
           );
         }),
     [derinlik, erken, kalkisMs, kalkiyor, kapali, say, yarim],
@@ -209,7 +216,14 @@ export function Ceza({
         </PixelText>
       </View>
 
-      <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'center', gap: SP.sm }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'baseline',
+          justifyContent: 'center',
+          gap: SP.sm,
+        }}
+      >
         <PixelText font="command" size={56} color={C.brass}>
           {`${sayi}`}
         </PixelText>
@@ -239,7 +253,14 @@ export function Ceza({
               <Rect x={0} y={ZEMIN_Y} width={en} height={SAHNE_BOY - ZEMIN_Y} color="#3A3526" />
               <Rect x={0} y={ZEMIN_Y} width={en} height={2} color={C.ink} />
               {/* Göğsün altındaki gölge: indikçe koyulaşıyor */}
-              <Oval x={govdeX - 44} y={ZEMIN_Y - 4} width={96} height={8} color={C.shadow} opacity={golgeOpaklik} />
+              <Oval
+                x={govdeX - 44}
+                y={ZEMIN_Y - 4}
+                width={96}
+                height={8}
+                color={C.shadow}
+                opacity={golgeOpaklik}
+              />
               <Group transform={govdeDonusum}>
                 <Picture picture={kare} />
               </Group>
@@ -281,7 +302,13 @@ export function Ceza({
           {bagiris && (
             <View
               pointerEvents="none"
-              style={{ position: 'absolute', left: onbasiX - 50, top: SP.sm, width: 100, alignItems: 'center' }}
+              style={{
+                position: 'absolute',
+                left: onbasiX - 50,
+                top: SP.sm,
+                width: 100,
+                alignItems: 'center',
+              }}
             >
               <View
                 style={{
@@ -302,7 +329,8 @@ export function Ceza({
       </GestureDetector>
 
       <PixelText size="small" color={C.canvasFaint} center line="snug">
-        Basılı tut: in. Bırak: kalk. Göğsün yere yaklaşmadan kalkarsan ya da tam kalkmadan inersen sayılmaz.
+        Basılı tut: in. Bırak: kalk. Göğsün yere yaklaşmadan kalkarsan ya da tam kalkmadan inersen
+        sayılmaz.
       </PixelText>
     </View>
   );

@@ -237,7 +237,11 @@ export function DolapYerlesimi({
       {
         id: 'd1-yerlesim-duzenli',
         label: 'Dolabı kapat',
-        effect: { disiplin: Math.round(-2 + oran * 10), enerji: -6, ...(oran === 1 && { moral: 3 }) },
+        effect: {
+          disiplin: Math.round(-2 + oran * 10),
+          enerji: -6,
+          ...(oran === 1 && { moral: 3 }),
+        },
         outcome,
       },
       duzen,
@@ -357,7 +361,12 @@ export function DolapDenetimi({
   );
 
   const bitir = () =>
-    onBitti({ id: 'dolap-denetimi', label: 'Hazır olda bekle', effect: sonuc.etki, outcome: sonuc.metin });
+    onBitti({
+      id: 'dolap-denetimi',
+      label: 'Hazır olda bekle',
+      effect: sonuc.etki,
+      outcome: sonuc.metin,
+    });
 
   return (
     <View style={{ gap: SP.md }}>
@@ -366,11 +375,7 @@ export function DolapDenetimi({
           DOLAP DENETİMİ
         </PixelText>
         {duzen && (
-          <PixelText
-            font="command"
-            size="body"
-            color={sonuc.yanlislar.length ? C.rust : C.olive}
-          >
+          <PixelText font="command" size="body" color={sonuc.yanlislar.length ? C.rust : C.olive}>
             {sonuc.yanlislar.length ? `${sonuc.yanlislar.length} yanlış` : 'kusursuz'}
           </PixelText>
         )}
@@ -616,7 +621,10 @@ function BolgeKutusu({
     >
       <Animated.View
         pointerEvents="none"
-        style={[{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderWidth: 2 }, vurgu]}
+        style={[
+          { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderWidth: 2 },
+          vurgu,
+        ]}
       />
     </Pressable>
   );
@@ -658,15 +666,15 @@ function Esya({
   hedefRef.current = hedef;
 
   useEffect(() => {
-    x.value = withSpring(hedef.x, YAY);
-    y.value = withSpring(hedef.y, YAY);
+    x.set(withSpring(hedef.x, YAY));
+    y.set(withSpring(hedef.y, YAY));
   }, [hedef.x, hedef.y, x, y]);
 
   // Bırakılınca önce bildiği yere dönüyor; yeri değiştiyse bir sonraki
   // çizimde hedef güncelleniyor ve yay yeni yere kıvrılıyor.
   const yerineOtur = useCallback(() => {
-    x.value = withSpring(hedefRef.current.x, YAY);
-    y.value = withSpring(hedefRef.current.y, YAY);
+    x.set(withSpring(hedefRef.current.x, YAY));
+    y.set(withSpring(hedefRef.current.y, YAY));
   }, [x, y]);
 
   const id = parca.id;
@@ -698,16 +706,16 @@ function Esya({
           'worklet';
           cancelAnimation(x);
           cancelAnimation(y);
-          basX.value = x.value;
-          basY.value = y.value;
-          tutuluyor.value = withTiming(1, { duration: 90 });
+          basX.set(x.value);
+          basY.set(y.value);
+          tutuluyor.set(withTiming(1, { duration: 90 }));
           runOnJS(basla)();
         })
         .onUpdate((e) => {
           'worklet';
-          x.value = basX.value + e.translationX;
-          y.value = basY.value + e.translationY;
-          hover.value = bolgeBul(bolgeler, x.value + KUTU / 2, y.value + KUTU / 2);
+          x.set(basX.value + e.translationX);
+          y.set(basY.value + e.translationY);
+          hover.set(bolgeBul(bolgeler, x.value + KUTU / 2, y.value + KUTU / 2));
         })
         .onEnd((e) => {
           'worklet';
@@ -717,8 +725,8 @@ function Esya({
         })
         .onFinalize(() => {
           'worklet';
-          tutuluyor.value = withTiming(0, { duration: 140 });
-          hover.value = null;
+          tutuluyor.set(withTiming(0, { duration: 140 }));
+          hover.set(null);
         }),
     [basX, basY, basla, birak, bolgeler, dokun, hover, tutuluyor, x, y],
   );

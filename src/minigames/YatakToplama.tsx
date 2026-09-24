@@ -25,7 +25,7 @@ export function YatakToplama({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const periyot = 1700 - zorluk * 500 - tur * 130;
   const hedefYari = 0.13 - zorluk * 0.045 - tur * 0.018;
   const hedef = useRef(0.5);
-  const t0 = useRef(Date.now());
+  const t0 = useRef(0);
   const donuyor = useRef(true);
 
   useEffect(() => {

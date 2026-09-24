@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Animated, Easing, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BORDER, C, HIT_SLOP, SP, STAT_COLOR } from '../theme';
@@ -254,7 +254,7 @@ export function OyunKabugu({
 function Cetele({ stat, value, delta }: { stat: StatKey; value: number; delta?: number }) {
   const renk = STAT_COLOR[stat];
   const dolu = Math.round((value / 100) * SEGMENT);
-  const vurgu = useRef(new Animated.Value(0)).current;
+  const [vurgu] = useState(() => new Animated.Value(0));
 
   // Değer değişince gösterge bir kez zıplıyor: sayının kıpırdadığı
   // gözden kaçmıyor, oyuncu seçiminin karşılığını görüyor.

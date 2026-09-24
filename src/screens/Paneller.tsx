@@ -772,11 +772,14 @@ export function Ant41Paneli() {
 
 export function SigaraIstegiPaneli() {
   const g = useSecili('aktifIstek', 'dostluk', 'envanter', 'sigaraVer');
+  // Hangi lafla istediği panel açılınca bir kez seçiliyor; eskiden her
+  // yeniden çizimde başka bir cümleye dönebiliyordu.
+  const [zar] = useState(() => Math.random());
   const id = g.aktifIstek;
   if (!id) return null;
   const kisi = arkadas(id);
   const dal = g.envanter.sigara?.adet ?? 0;
-  const laf = kisi.sigaraLafi?.[Math.floor(Math.random() * kisi.sigaraLafi.length)] ?? '"Bir dal var mı?"';
+  const laf = kisi.sigaraLafi?.[Math.floor(zar * kisi.sigaraLafi.length)] ?? '"Bir dal var mı?"';
 
   return (
     <PanelKabuk baslik="BİR DAL İSTİYOR" alt={`Cebinde ${dal} dal kaldı`}>

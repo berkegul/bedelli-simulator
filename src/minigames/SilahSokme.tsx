@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { Bildirim, Siddet, bildir, titret } from '../ui/haptik';
 import { BORDER, C, SP } from '../theme';
@@ -31,7 +31,10 @@ export function SilahSokme({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const [adim, setAdim] = useState(0);
   const [yanlisSecim, setYanlisSecim] = useState<string | null>(null);
   const hataSayisi = useRef(0);
-  const baslangic = useRef(Date.now());
+  const baslangic = useRef(0);
+  useEffect(() => {
+    baslangic.current = Date.now();
+  }, []);
 
   const sureSiniri = 26000 - zorluk * 7000;
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Animated, Easing, Pressable, ScrollView, View } from "react-native";
 import { C, SP } from "../theme";
 import { gunGetir } from "../content";
@@ -47,7 +47,7 @@ export function OyunEkrani() {
   // Yalnızca sahne değişince sıfırla. Sonuç kartı da bağımlılık olsaydı
   // serbest zamanda her eylemden sonra tanıtım metni baştan yazılıyor,
   // menü geri gelene kadar oyuncu bekliyordu.
-  const giris = useRef(new Animated.Value(0)).current;
+  const [giris] = useState(() => new Animated.Value(0));
   useEffect(() => {
     setYazildi(false);
     setAtla(false);
@@ -304,7 +304,7 @@ export function OyunEkrani() {
 
 /** Sonuç kartı kayarak giriyor: ekranın değiştiğini fark etmek kolaylaşıyor. */
 function SonucKarti({ metin }: { metin: string }) {
-  const giris = useRef(new Animated.Value(0)).current;
+  const [giris] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
     giris.setValue(0);

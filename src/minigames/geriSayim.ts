@@ -6,12 +6,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  */
 export function useGeriSayim(toplam: number, bitince: () => void) {
   const [kalan, setKalan] = useState(toplam);
-  const basla = useRef(Date.now());
+  // Başlangıç anı açılışta effect içinde yazılıyor; render saf kalsın.
+  const basla = useRef(0);
   const durdu = useRef(false);
   const bitinceRef = useRef(bitince);
   bitinceRef.current = bitince;
 
   useEffect(() => {
+    basla.current = Date.now();
     const id = setInterval(() => {
       if (durdu.current) return;
       const k = Math.max(0, toplam - (Date.now() - basla.current));

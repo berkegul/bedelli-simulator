@@ -343,32 +343,32 @@ function Sahne({
       const kalan = yeni - t.value;
       if (kalan <= 0.0008) return;
 
-      if (yeni >= 1) kilit.value = 1;
-      hedefT.value = yeni;
+      if (yeni >= 1) kilit.set(1);
+      hedefT.set(yeni);
       if (yuruyor.value < 0.5) {
-        yuruyor.value = withTiming(1, { duration: 120 });
-        faz.value = 0;
-        faz.value = withRepeat(
-          withTiming(1, { duration: ADIM_CIFTI, easing: Easing.linear }),
-          -1,
-          false,
+        yuruyor.set(withTiming(1, { duration: 120 }));
+        faz.set(0);
+        faz.set(
+          withRepeat(withTiming(1, { duration: ADIM_CIFTI, easing: Easing.linear }), -1, false),
         );
       }
 
-      t.value = withTiming(
-        yeni,
-        { duration: (kalan / hiz) * 1000, easing: Easing.linear },
-        (tamamlandi) => {
-          // Yeni bir hedef geldiyse bu geri çağrı yarıda kesilmiş demektir.
-          if (!tamamlandi) return;
-          // Durunca donup kalmıyor: gövde sakinleşiyor, hazır ol duruşuna dönüyor.
-          yuruyor.value = withTiming(0, { duration: 190 });
-          cancelAnimation(faz);
-          if (yeni >= 1 && bitti.value === 0) {
-            bitti.value = 1;
-            runOnJS(vardi)();
-          }
-        },
+      t.set(
+        withTiming(
+          yeni,
+          { duration: (kalan / hiz) * 1000, easing: Easing.linear },
+          (tamamlandi) => {
+            // Yeni bir hedef geldiyse bu geri çağrı yarıda kesilmiş demektir.
+            if (!tamamlandi) return;
+            // Durunca donup kalmıyor: gövde sakinleşiyor, hazır ol duruşuna dönüyor.
+            yuruyor.value = withTiming(0, { duration: 190 });
+            cancelAnimation(faz);
+            if (yeni >= 1 && bitti.value === 0) {
+              bitti.value = 1;
+              runOnJS(vardi)();
+            }
+          },
+        ),
       );
     },
     [bitti, faz, hedefT, hiz, kilit, t, vardi, yuruyor],
@@ -379,20 +379,16 @@ function Sahne({
     // t üst bileşende yaşıyor (ilerleme çubuğu onu okuyor), hedefT burada.
     // Sahne tek başına yeniden kurulduğunda — ölçü değişince olur — ikisi
     // birbirinden ayrı düşüyor ve asker yolun ortasında kilitli kalıyordu.
-    t.value = 0;
+    t.set(0);
     if (azaltilmis) {
-      giris.value = 1;
+      giris.set(1);
       return;
     }
-    giris.value = withTiming(1, { duration: GIRIS_SURESI, easing: Easing.out(Easing.quad) });
-    faz.value = withRepeat(
-      withTiming(1, { duration: ADIM_CIFTI, easing: Easing.linear }),
-      -1,
-      false,
-    );
-    yuruyor.value = withTiming(1, { duration: 120 });
+    giris.set(withTiming(1, { duration: GIRIS_SURESI, easing: Easing.out(Easing.quad) }));
+    faz.set(withRepeat(withTiming(1, { duration: ADIM_CIFTI, easing: Easing.linear }), -1, false));
+    yuruyor.set(withTiming(1, { duration: 120 }));
     // Kadraja girdikten sonra parmağı bekleyerek duruyor.
-    yuruyor.value = withDelay(GIRIS_SURESI, withTiming(0, { duration: 190 }));
+    yuruyor.set(withDelay(GIRIS_SURESI, withTiming(0, { duration: 190 })));
   }, [azaltilmis, faz, giris, t, yuruyor]);
 
   // Yağmur ve rüzgâr yürüsen de dursan da akıyor.
@@ -401,10 +397,10 @@ function Sahne({
     const dongu = (sure: number) =>
       withRepeat(withTiming(1, { duration: sure, easing: Easing.linear }), -1, false);
 
-    if (hava === 'yagmurlu') yagmurFaz.value = dongu(YAGMUR_SURE);
+    if (hava === 'yagmurlu') yagmurFaz.set(dongu(YAGMUR_SURE));
     if (hava === 'ruzgarli') {
-      tozFaz.value = dongu(TOZ_SURE);
-      ruzgarFaz.value = dongu(2400);
+      tozFaz.set(dongu(TOZ_SURE));
+      ruzgarFaz.set(dongu(2400));
     }
     return () => {
       cancelAnimation(yagmurFaz);
@@ -494,7 +490,11 @@ function Sahne({
 
   const askerKare = useDerivedValue<SkPicture>(() => {
     if (yuruyor.value <= 0.02) return askerKareleri[0];
-    return askerKareleri[Math.min(3, Math.floor(faz.value * 4))];
+    // Yürüyüş başlarken faz bir kare boyunca tanımsız (NaN) ya da sınır dışı
+    // olabiliyor; dizinin dışı Skia'ya boş resim veriyor ve çiziciyi
+    // çökertiyordu. Kare her zaman 0–3 arasında.
+    const kare = Math.floor(faz.value * 4);
+    return askerKareleri[kare >= 0 && kare <= 3 ? kare : 0];
   });
 
   // Rüzgâr tek bir salınım; hem ağaçlar hem asker aynı esintiden eğiliyor.
@@ -659,7 +659,9 @@ function Sahne({
             width={4 * iz.olcek}
             height={3 * iz.olcek}
             color={zemin === 'cakil' ? C.canvasFaint : C.ink}
-            opacity={(0.1 + (i / Math.max(1, izler.length)) * 0.3) * (hava === 'yagmurlu' ? 1.3 : 1)}
+            opacity={
+              (0.1 + (i / Math.max(1, izler.length)) * 0.3) * (hava === 'yagmurlu' ? 1.3 : 1)
+            }
           />
         ))}
 
@@ -778,9 +780,16 @@ function ManzaraParcasi({
 }
 
 const YILDIZLAR = [
-  { x: 12, y: 32 }, { x: 28, y: 16 }, { x: 41, y: 46 }, { x: 57, y: 24 },
-  { x: 69, y: 52 }, { x: 78, y: 19 }, { x: 88, y: 42 }, { x: 21, y: 60 },
-  { x: 63, y: 11 }, { x: 92, y: 70 },
+  { x: 12, y: 32 },
+  { x: 28, y: 16 },
+  { x: 41, y: 46 },
+  { x: 57, y: 24 },
+  { x: 69, y: 52 },
+  { x: 78, y: 19 },
+  { x: 88, y: 42 },
+  { x: 21, y: 60 },
+  { x: 63, y: 11 },
+  { x: 92, y: 70 },
 ];
 
 /** Zemin dokusu: beton derzi, toprak izi, çakıl taneleri. */

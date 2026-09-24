@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Animated, Easing, Pressable, View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { BORDER, C, SP } from '../theme';
@@ -146,7 +146,7 @@ function Porsiyon({ ad, stil }: { ad: string; stil: Stil }) {
 
 /** Sıcak yemeğin üstünde tüten buhar; üç şerit, kaydırmalı döngü. */
 function Buhar() {
-  const t = useRef(new Animated.Value(0)).current;
+  const [t] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
     const dongu = Animated.loop(
@@ -279,7 +279,7 @@ function Goz({
   onPress: () => void;
 }) {
   const stil = yemekStili(yemek.ad);
-  const giris = useRef(new Animated.Value(dolu ? 1 : 0)).current;
+  const [giris] = useState(() => new Animated.Value(dolu ? 1 : 0));
 
   useEffect(() => {
     Animated.spring(giris, {

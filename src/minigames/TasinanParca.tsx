@@ -54,10 +54,10 @@ export function TasinanParca<T extends string>({
 
   useEffect(() => {
     if (yanip) {
-      nabiz.value = withRepeat(withTiming(1, { duration: 520 }), -1, true);
+      nabiz.set(withRepeat(withTiming(1, { duration: 520 }), -1, true));
     } else {
       cancelAnimation(nabiz);
-      nabiz.value = withTiming(0, { duration: 150 });
+      nabiz.set(withTiming(0, { duration: 150 }));
     }
   }, [yanip, nabiz]);
 
@@ -67,13 +67,13 @@ export function TasinanParca<T extends string>({
   ev.current = { x, y };
 
   useEffect(() => {
-    tx.value = withSpring(x, YAY);
-    ty.value = withSpring(y, YAY);
+    tx.set(withSpring(x, YAY));
+    ty.set(withSpring(y, YAY));
   }, [x, y, tx, ty]);
 
   const geri = useCallback(() => {
-    tx.value = withSpring(ev.current.x, YAY);
-    ty.value = withSpring(ev.current.y, YAY);
+    tx.set(withSpring(ev.current.x, YAY));
+    ty.set(withSpring(ev.current.y, YAY));
   }, [tx, ty]);
 
   const birak = useCallback(
@@ -102,14 +102,14 @@ export function TasinanParca<T extends string>({
           'worklet';
           cancelAnimation(tx);
           cancelAnimation(ty);
-          bx.value = tx.value;
-          by.value = ty.value;
-          tut.value = withTiming(1, { duration: 90 });
+          bx.set(tx.value);
+          by.set(ty.value);
+          tut.set(withTiming(1, { duration: 90 }));
         })
         .onUpdate((e) => {
           'worklet';
-          tx.value = bx.value + e.translationX;
-          ty.value = by.value + e.translationY;
+          tx.set(bx.value + e.translationX);
+          ty.set(by.value + e.translationY);
         })
         .onEnd((e) => {
           'worklet';
@@ -119,13 +119,17 @@ export function TasinanParca<T extends string>({
         })
         .onFinalize(() => {
           'worklet';
-          tut.value = withTiming(0, { duration: 140 });
+          tut.set(withTiming(0, { duration: 140 }));
         }),
     [birak, bx, by, dokun, tut, tx, ty],
   );
 
   const stil = useAnimatedStyle(() => ({
-    transform: [{ translateX: tx.value }, { translateY: ty.value }, { scale: 1 + tut.value * 0.14 }],
+    transform: [
+      { translateX: tx.value },
+      { translateY: ty.value },
+      { scale: 1 + tut.value * 0.14 },
+    ],
     zIndex: tut.value > 0.01 ? 30 : 3,
   }));
 
