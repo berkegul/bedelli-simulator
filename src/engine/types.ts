@@ -134,7 +134,8 @@ export type MiniGameId =
   | 'postal'
   | 'tiras'
   | 'gece'
-  | 'atis';
+  | 'atis'
+  | 'yemin';
 
 export type OgunAdi = 'kahvalti' | 'ogle' | 'aksam';
 

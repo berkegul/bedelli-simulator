@@ -12,6 +12,7 @@ import { Nobet } from './Nobet';
 import { SilahSokme } from './SilahSokme';
 import { YatakToplama } from './YatakToplama';
 import { YuruyusRitmi } from './YuruyusRitmi';
+import { Yemin } from './Yemin';
 import type { MiniOyunProps } from './types';
 
 const HARITA: Record<MiniGameId, React.ComponentType<MiniOyunProps>> = {
@@ -27,6 +28,7 @@ const HARITA: Record<MiniGameId, React.ComponentType<MiniOyunProps>> = {
   tiras: Tiras,
   gece: Gece,
   atis: Atis,
+  yemin: Yemin,
 };
 
 export const MINI_BASLIK: Record<MiniGameId, string> = {
@@ -42,6 +44,7 @@ export const MINI_BASLIK: Record<MiniGameId, string> = {
   tiras: 'TIRAŞ',
   gece: 'YATMA HAZIRLIĞI',
   atis: 'ATIŞ POLİGONU',
+  yemin: 'YEMİN TÖRENİ',
 };
 
 export function MiniOyun({ id, ...props }: { id: MiniGameId } & MiniOyunProps) {

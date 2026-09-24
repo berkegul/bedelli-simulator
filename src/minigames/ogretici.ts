@@ -57,4 +57,8 @@ export const OGRETICI: Record<MiniGameId, { hareket: Hareket; metin: string }> =
     hareket: 'tut',
     metin: 'Basılı tut: nefesini tut, nişan otursun. Bırak: tetik. Uzun tutarsan nişan titrer.',
   },
+  yemin: {
+    hareket: 'dokun',
+    metin: 'Komutan satırı okur. Bitince "ŞİMDİ" yanar: bölükle birlikte dokun. Erken bağıran tek kalır.',
+  },
 };

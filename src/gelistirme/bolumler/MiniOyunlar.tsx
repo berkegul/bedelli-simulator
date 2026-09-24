@@ -23,6 +23,7 @@ const MINILER: MiniGameId[] = [
   'tiras',
   'gece',
   'atis',
+  'yemin',
 ];
 
 const NE_YAPAR: Record<MiniGameId, string> = {
@@ -38,6 +39,7 @@ const NE_YAPAR: Record<MiniGameId, string> = {
   tiras: 'Jileti yüzde aşağı doğru çek. Hızlı ya da ters çekersen keser; kör jilet daha çok keser.',
   gece: 'Üniformayı çıkarıp yerine koy, pijama ve terliği dolaptan al. Çorap, kirli torbası nerede duruyorsa oraya.',
   atis: 'Basılı tutup nefesini tut, nişangâh daralsın; bırakınca ateş. Nefes biterse eller titrer. Beş mermi.',
+  yemin: 'Komutan yemini satır satır okur; satır bitince bölükle birlikte dokun. Tribünde rehberdeki yakınlar.',
 };
 
 /** Oyundaki bu mini oyuna bağlı gerçek sahneleri bulur — ödül eğrisi orada. */
