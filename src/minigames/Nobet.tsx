@@ -4,13 +4,21 @@ import Svg, { Rect } from 'react-native-svg';
 import { BORDER, C, SP } from '../theme';
 import { sprite } from '../art';
 import { Bildirim, Siddet, bildir, titret } from '../ui/haptik';
+import { ASKER_HAZIROL, CAVUS_BAGIRIYOR, CAVUS_HAZIROL, NOBET_KULUBESI } from '../art/sahne/alan';
 import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
+import { Sahne } from '../ui/sahne';
+import { Balon, Basan, Damga, Projektor, Zzz, zeminUstu } from './alanSahnesi';
 import { clamp01, type MiniOyunProps } from './types';
 import { useZamanlayici } from '../ui/useZamanlayici';
 import { sesCal } from '../ses';
 
 const SURE = 26000;
+
+/** Sahne ölçüsü. */
+const U = 3;
+const SAHNE_H = 260;
+const ZEMIN_ORANI = 0.4;
 const DUSUS = 1.05; // uyanıklık / 100ms
 type Faz = 'nobet' | 'devriye' | 'yakalandi' | 'bitti';
 
@@ -118,11 +126,19 @@ export function Nobet({ onBitti, zorluk = 0 }: MiniOyunProps) {
   }, [faz]);
 
   const uykulu = uyaniklik < 25;
-  const zeminRenk =
-    faz === 'devriye' ? '#4A2018' : faz === 'yakalandi' ? C.rust : uykulu ? '#191710' : C.surface;
+  // Asker uyuklarken kulübeye yaslanıp çöküyor; devriye geldiğinde de
+  // oturuyor sayılıyor, dokunana kadar (mantıktaki ayaktaMi ile aynı).
+  const oturuyor = faz === 'devriye' || faz === 'yakalandi' || (faz === 'nobet' && uykulu);
+  const g = zeminUstu(SAHNE_H, U, ZEMIN_ORANI);
+  const lambalar = [
+    { x: 16, y: ((g + 6 * U) / SAHNE_H) * 100, yaricap: 30 },
+    ...(faz === 'devriye'
+      ? [{ x: 86, y: ((g + 14 * U) / SAHNE_H) * 100, yaricap: 12, guc: 0.3 }]
+      : []),
+  ];
 
   return (
-    <View style={{ gap: SP.lg, width: '100%' }}>
+    <View style={{ gap: SP.md, width: '100%' }}>
       <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: SP.sm }}>
         <PixelText font="command" size="h3" color={C.canvasDim} style={{ flex: 1 }}>
           {`NÖBET · ${kalan} sn`}
@@ -152,43 +168,79 @@ export function Nobet({ onBitti, zorluk = 0 }: MiniOyunProps) {
         accessibilityRole="button"
         accessibilityLabel={faz === 'devriye' ? 'Ayağa kalk' : 'Uyanık kal'}
         onPress={dokun}
-        style={{
-          minHeight: 210,
-          borderWidth: BORDER,
-          borderColor: faz === 'devriye' ? C.brass : C.ink,
-          backgroundColor: zeminRenk,
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: SP.sm,
-          paddingHorizontal: SP.lg,
-        }}
+        style={{ borderWidth: BORDER, borderColor: faz === 'devriye' ? C.brass : C.ink }}
       >
-        {faz === 'devriye' ? (
-          <>
-            <PixelSprite sprite={sprite('cavus')} scale={4} />
-            <PixelText font="command" size="h2" color={C.canvas} center>
-              DEVRİYE GELİYOR
-            </PixelText>
-            <PixelText font="command" size="h3" color={C.brass}>
-              HAZIROL — DOKUN
-            </PixelText>
-          </>
-        ) : faz === 'yakalandi' ? (
-          <PixelText font="command" size="h2" color={C.canvas} center>
-            OTURURKEN YAKALANDIN
-          </PixelText>
-        ) : faz === 'bitti' ? (
-          <PixelText font="command" size="h2" color={C.olive} center>
-            NÖBET BİTTİ
-          </PixelText>
-        ) : (
-          <>
-            <PixelSprite sprite={sprite('asker')} scale={4} opacity={uykulu ? 0.45 : 1} />
-            <PixelText font="command" size="h3" color={uykulu ? C.rust : C.canvasFaint} center>
-              {uykulu ? 'GÖZLERİN KAPANIYOR' : 'NÖBETTESİN'}
-            </PixelText>
-          </>
-        )}
+        <Sahne
+          yukseklik={SAHNE_H}
+          u={U}
+          zemin="toprak"
+          zeminOrani={ZEMIN_ORANI}
+          saat="02:40"
+          lambalar={lambalar}
+          tohum={10}
+        >
+          <Projektor u={U} x="12%" alt={g + 8 * U} />
+          <View
+            pointerEvents="none"
+            style={{ position: 'absolute', left: '26%', top: g + 12 * U - 30 * U }}
+          >
+            <PixelSprite sprite={NOBET_KULUBESI} scale={U} />
+          </View>
+
+          {oturuyor ? (
+            <Basan sprite={sprite('oturanAsker')} u={U} x={43} alt={g + 13 * U} gecikme={0} />
+          ) : (
+            <Basan sprite={ASKER_HAZIROL} u={U} x={47} alt={g + 18 * U} />
+          )}
+          {faz === 'nobet' && uykulu && <Zzz u={U} style={{ left: '49%', top: g - 4 * U }} />}
+
+          {/* Devriye: uzaktan fenerle geliyor; yakalayınca yanına dikiliyor */}
+          {faz === 'devriye' && <Basan sprite={CAVUS_HAZIROL} u={U - 1} x={86} alt={g + 12 * U} />}
+          {faz === 'yakalandi' && (
+            <>
+              <Basan sprite={CAVUS_BAGIRIYOR} u={U} x={72} alt={g + 18 * U} nefes={false} />
+              <Balon
+                metin="UYUYOR MUSUN SEN?!"
+                u={U}
+                kuyruk="sag"
+                style={{ right: '4%', top: g - 26 * U }}
+              />
+            </>
+          )}
+
+          {/* Uyku bastıkça gözün kararıyor */}
+          {uykulu && faz === 'nobet' && (
+            <View
+              pointerEvents="none"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: '#000',
+                opacity: Math.min(0.55, ((25 - uyaniklik) / 25) * 0.55 + 0.15),
+              }}
+            />
+          )}
+
+          {faz === 'devriye' && (
+            <Damga metin="DEVRİYE · HAZIROL!" renk={C.brass} style={{ left: '8%', top: 6 * U }} />
+          )}
+          {faz === 'yakalandi' && (
+            <Damga metin="OTURURKEN YAKALANDIN" renk={C.rust} style={{ left: '6%', top: 6 * U }} />
+          )}
+          {faz === 'bitti' && (
+            <Damga metin="NÖBET BİTTİ" renk={C.olive} style={{ left: '10%', top: 6 * U }} />
+          )}
+          {faz === 'nobet' && (
+            <View pointerEvents="none" style={{ position: 'absolute', left: 3 * U, top: 3 * U }}>
+              <PixelText font="command" size="body" color={uykulu ? C.rust : C.canvasFaint}>
+                {uykulu ? 'GÖZLERİN KAPANIYOR' : 'NÖBETTESİN'}
+              </PixelText>
+            </View>
+          )}
+        </Sahne>
       </Pressable>
 
       <PixelText size="small" color={C.canvasFaint} center line="snug">
