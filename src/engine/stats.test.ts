@@ -70,7 +70,8 @@ describe('gunNotu', () => {
   test('eşikler', () => {
     const not = (n: number) => gunNotu(S({ kondisyon: n, disiplin: n, moral: n })).ad;
     assert.equal(not(90), 'TAKDİR ALDI');
-    assert.equal(not(78), 'TAKDİR ALDI');
+    assert.equal(not(80), 'TAKDİR ALDI');
+    assert.equal(not(79), 'TEMİZ İŞ');
     assert.equal(not(64), 'TEMİZ İŞ');
     assert.equal(not(50), 'İDARE EDER');
     assert.equal(not(36), 'GAZ YEDİ');

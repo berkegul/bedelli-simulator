@@ -6,6 +6,13 @@ import { gun02 } from './day02';
 import { gun03 } from './day03';
 import { gun04 } from './day04';
 import { gun05 } from './day05';
+import { gun06 } from './day06';
+import { gun07 } from './day07';
+import { gun08 } from './day08';
+import { gun09 } from './day09';
+import { gun10 } from './day10';
+import { gun11 } from './day11';
+import { gun12 } from './day12';
 import { gunGorevleri } from './gorevTakvimi';
 import { kosulTutar } from './telefon/motor';
 import type { TelefonDurumu } from './telefon/tipler';
@@ -239,13 +246,13 @@ const zenginlestir = (g: Day): Day =>
   gunlukGorevler({ ...g, blocks: g.blocks.map(blokZenginlestir) });
 
 /**
- * Dikey dilim: 1–5. günler yazıldı.
- *  1. gün sevk günü (öğlen varış, yerleşme, bölge turu),
- *  2–3. gün alıştırma (görev ve ceza yok),
- *  4. gün denetim, 5. gün ANT-41 nezaket dersi.
- * Kalan günler aynı yapıya eklenecek.
+ * Yazılı günler. 1. gün sevk, 2–3 alıştırma, 4 denetim, 5 ANT-41;
+ * 6–12 ikinci hafta: hesap, bir hafta, rutin, atış, ilk nöbet, bot, hatırlama.
+ * Günlerin teması telefon/gunler/gNN.ts ile aynı; takvim yayin-plani.md §4.
  */
-export const GUNLER: Day[] = [gun01, gun02, gun03, gun04, gun05].map(zenginlestir);
+export const GUNLER: Day[] = [
+  gun01, gun02, gun03, gun04, gun05, gun06, gun07, gun08, gun09, gun10, gun11, gun12,
+].map(zenginlestir);
 
 export const YAZILMIS_GUN_SAYISI = GUNLER.length;
 

@@ -26,6 +26,16 @@ mock.module('@react-native-async-storage/async-storage', {
   },
 });
 
+// Sanal oyuncu satın alma yapmıyor; içerik ölçülürken bütün günler açık.
+mock.module('../src/monetization/entitlements.ts', {
+  namedExports: {
+    BEDAVA_GUN: 28,
+    TAM_SURUM_ACIK: true,
+    gunOynanabilirMi: () => true,
+    kilitliMi: () => false,
+  },
+});
+
 export function tohumla(tohum: number) {
   let a = tohum >>> 0;
   Math.random = () => {

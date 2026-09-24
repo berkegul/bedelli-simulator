@@ -17,8 +17,8 @@ export const GUN_10: Gorusme[] = [
         secenekler: [
           {
             id: 'uc',
-            label: '"Üçte. Üçten beşe kadar."',
-            cevap: '"Üçte mi?" Sesi yükseldi. "Yalnız mı olacaksın? Karanlıkta?"',
+            label: '"İkide. İkiden dörde kadar."',
+            cevap: '"İkide mi?" Sesi yükseldi. "Yalnız mı olacaksın? Karanlıkta?"',
             etki: { iliski: 4, moral: 2 },
             sonraki: 'b',
           },
@@ -33,7 +33,7 @@ export const GUN_10: Gorusme[] = [
       },
       b: {
         id: 'b',
-        metin: '"Ben de uyumam o zaman. Üçte kalkarım, seninle beraber uyanık olurum."',
+        metin: '"Ben de uyumam o zaman. İkide kalkarım, seninle beraber uyanık olurum."',
         secenekler: [
           {
             id: 'yapma',
@@ -107,7 +107,7 @@ export const GUN_10: Gorusme[] = [
           {
             id: 'ben_de',
             label: '"Ben de uyuyamıyorum. Bu gece ikimiz de uyanığız demek."',
-            cevap: '"Üçte ben de uyanık olacağım o zaman." Randevu gibi oldu.',
+            cevap: '"İkide ben de uyanık olacağım o zaman." Randevu gibi oldu.',
             etki: { iliski: 11, moral: 8 },
             isaret: { ad: 'nobet_gecesi', deger: 'birlikte' },
           },

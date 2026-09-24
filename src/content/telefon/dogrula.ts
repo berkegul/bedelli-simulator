@@ -10,6 +10,7 @@
 import { TOPLAM_GUN } from '../../engine/stats';
 import { TUM_GORUSMELER } from './index';
 import { EPILOG_ISARETLERI } from './finaller';
+import { GUNLER } from '../index';
 import { ISARET_PLANI } from './isaretPlani';
 import type { Gorusme, KayitRolu, Kosul, Rol } from './tipler';
 
@@ -190,6 +191,28 @@ export function dogrula(): Sorun[] {
           nerede: `gün ${gun}`,
           ne: `'${hat.kayit}' hattında oynanabilir görüşme yok`,
         });
+      }
+    }
+  }
+
+  // Gün sahneleri de okuyucu: telefonda konan işaret ertesi gün koğuşta
+  // karşına çıkıyor (Scene.kosul).
+  for (const g of GUNLER) {
+    for (const b of g.blocks) {
+      for (const sahne of b.scenes) {
+        const k = sahne.kosul;
+        if (!k) continue;
+        for (const ad of [k.isaret, k.isaretYok]) {
+          if (!ad) continue;
+          okunanIsaretler.set(ad, sahne.id);
+          if (!yazilanIsaretler.has(ad)) {
+            sorunlar.push({
+              seviye: 'hata',
+              nerede: `gün ${g.day}/${sahne.id}`,
+              ne: `sahne '${ad}' işaretine bakıyor ama bu işaret telefonda hiç yazılmıyor`,
+            });
+          }
+        }
       }
     }
   }

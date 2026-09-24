@@ -79,11 +79,13 @@ export function applyEffect(
 }
 
 /**
- * Gün sonu notu. Enerji ve tokluk hariç tutulur — ikisi de gün içinde tükenen
+ * Gün sonu notu. TAKDİR eşiği 78'di; 12 günlük simülasyonda ortalama oyuncu
+ * 12. günde %100 TAKDİR alıyordu (disiplin 83'te dengeleniyor, diğer ikisinin
+ * 75'e çıkması yetiyordu). 80 ile en iyi not ancak iyi oynayana erken geliyor. Enerji ve tokluk hariç tutulur — ikisi de gün içinde tükenen
  * kaynak, performans göstergesi değil.
  */
 const NOT_ESIGI = [
-  { min: 78, ad: 'TAKDİR ALDI', renkKey: 'brass' as const },
+  { min: 80, ad: 'TAKDİR ALDI', renkKey: 'brass' as const },
   { min: 64, ad: 'TEMİZ İŞ', renkKey: 'olive' as const },
   { min: 50, ad: 'İDARE EDER', renkKey: 'canvas' as const },
   { min: 36, ad: 'GAZ YEDİ', renkKey: 'tea' as const },
@@ -105,9 +107,9 @@ export function uykudanSonra(stats: Stats): Stats {
   // Aç yatmak uykuyu böler; tokluk uyku kalitesine moral kadar etki eder.
   const aclikCezasi = stats.tokluk < 30 ? 0.25 : stats.tokluk < 50 ? 0.1 : 0;
   const kalite = Math.max(0.35, 0.6 + (stats.moral / 100) * 0.4 - aclikCezasi);
-  // Dinç biten gün bedeni biraz güçlendiriyor; eskiden +4'tü ve 28 gecede
-  // tek başına kondisyonu tavana taşıyordu.
-  const yipranma = stats.enerji < 20 ? -7 : stats.enerji < 40 ? -3 : stats.enerji > 65 ? 2 : 0;
+  // Dinç biten gün bedeni biraz güçlendiriyor. Eskiden +4'tü ve 28 gecede
+  // tek başına kondisyonu tavana taşıyordu; 12 günlük ölçümle +1'e indi.
+  const yipranma = stats.enerji < 20 ? -7 : stats.enerji < 40 ? -3 : stats.enerji > 65 ? 1 : 0;
   return {
     ...stats,
     enerji: clamp(stats.enerji + 70 * kalite),

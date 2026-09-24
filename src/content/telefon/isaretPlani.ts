@@ -25,6 +25,7 @@ export const ISARET_PLANI: Record<string, IsaretPlani> = {
   baba_itiraf: { plan: 'final' },
   baba_anisi: { plan: 'final' },
   baba_yumusadi: { plan: 'final' },
+  baba_bilgisi: { plan: 'final' },
   sevgili_soru: { plan: 'final' },
   sevgili_derin: { plan: 'final' },
   kanka_ozur: { plan: 'final' },
@@ -34,14 +35,7 @@ export const ISARET_PLANI: Record<string, IsaretPlani> = {
   alisma_isareti: { plan: 'final' },
 
   // Gün içeriği: telefonda anlatılan şey ertesi gün koğuşta karşına çıkar.
-  para_durumu: { plan: 'gun', gun: 7, not: 'kantin borcu, Serkan ekonomisi' },
-  biriktiren: { plan: 'gun', gun: 7, not: 'kontör biriktiren oyuncu kantinde' },
-  atis_sonucu: { plan: 'gun', gun: 10, not: 'atış sonucu koğuşta konuşuluyor' },
-  agri_sikayeti: { plan: 'gun', gun: 10, not: 'omuz ağrısı, sabah rutininde' },
-  baba_bilgisi: { plan: 'gun', gun: 10, not: 'babanın nöbet tavsiyesi ilk nöbette' },
-  kanka_takvim: { plan: 'gun', gun: 10, not: 'kankanın tuttuğu takvim' },
-  nobet_gecesi: { plan: 'gun', gun: 11, not: 'ilk nöbetin ertesi sabahı' },
-  komik_olay: { plan: 'gun', gun: 12, not: 'bot olayı hatırlama gününde koğuşta anlatılıyor' },
+  kanka_takvim: { plan: 'gun', gun: 15, not: 'kankanın duvar takvimi, SAYIM günü' },
   ev_yemegi: { plan: 'gun', gun: 13, not: 'yemekhanede ev yemeği özlemi' },
   sevgili_surpriz: { plan: 'gun', gun: 16, not: 'sevgilinin sürprizi' },
   hasta_oldu: { plan: 'gun', gun: 17, not: 'ayak yarası, revir dalı sonrası' },

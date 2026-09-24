@@ -505,7 +505,7 @@ bunun yanında paralel yürür.
   yok. `performance.now` yerine `Date.now` (diğer oyunlarla aynı; tepki
   ölçümü değil, salınım fazı).
 
-#### I5 · gün 6–12 ⬜ (D3) · I6 · gün 13–19 ⬜ (D4) · I7 · gün 20–27 ⬜ (D5)
+#### I5 · gün 6–12 ✅ (D3) · I6 · gün 13–19 ⬜ (D4) · I7 · gün 20–27 ⬜ (D5)
 - **Şablon:** her gün `src/content/dayNN.ts`, 8–11 blok. Yazmadan önce
   §4'teki satır, ilgili `telefon/gunler/gNN.ts` ve bir önceki gün okunur.
 - **Gün başına içerik:**
@@ -518,6 +518,22 @@ bunun yanında paralel yürür.
   web'de o günü baştan sona oyna.
 - **Kabul (hafta başına):** hafta boyunca oynanan bir kayıtla gün sonu
   notları üç profilde farklı, telefonla gün dosyası aynı şeyi anlatıyor.
+- **I5 sonucu:** `day06`–`day12` yazıldı (Hesap, Bir Hafta, Rutin, Atış,
+  Gece, Koğuş, Hatırlama). Telefon hafızasına bağlı ilk sahneler:
+  `para_durumu` (7, havale), `agri_sikayeti` + `atis_sonucu` (10),
+  `nobet_gecesi` (11), `komik_olay` + `biriktiren` (12). Doğrulayıcı gün
+  sahnelerindeki koşulları da okuyor. Hizalamalar: telefon g10 nöbet saati
+  02:00'ye çekildi; koli 16–17. günde (telefonla uyumlu), 11. günde değil;
+  `baba_bilgisi` finale, `kanka_takvim` 15. güne taşındı. Geliştirme
+  derlemesinde bütün yazılı günler açık (`TAM_SURUM_ACIK = __DEV__`),
+  yayın derlemesinde kilit BEDAVA_GUN'de; sanal oyuncu kilidi taklitle açıyor.
+- **I5 denge notu (12 günlük ölçüm):** ortalama oyuncu 12. günde %100 TAKDİR
+  alıyordu; yazılan seçimler değil (seçim ölçeği denendi, etkisiz) her gün
+  tekrar eden pasif kaynaklar belirleyiciydi. Tepsi kalemlerinin kondisyon/
+  moral katkısı yarıya, gölgede dinlenme moral 6 → 3, dinç gece +2 → +1,
+  TAKDİR eşiği 78 → 80. Sonuç: ortalama oyuncu 5. gün %52 TEMİZ / %48
+  İDARE, 10–11. gün %100 TEMİZ, 12. gün %21 TAKDİR; iyi oyuncu TAKDİR'i
+  9. günde alıyor. Tarayıcıda 9. gün poligonu oyun akışında oynandı.
 
 #### I11 · yemin töreni oyunu ⬜ (D5)
 - **Tasarım:** sıra ve ritim: komutla adım, selam, yemin metninin
@@ -694,13 +710,13 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 | 3 | Düzen | Yatak, ilk azar, silah sökme | — | | | ✅ |
 | 4 | İsimler | Denetim | — | | | ✅ |
 | 5 | Ritim → Ders | ANT-41 nezaket dersi | — | | | ✅ (g05 metni I4) |
-| 6 | Hesap | Para ve kontör bitiyor, kantin borcu | — | | ✓ | ⬜ |
-| 7 | Bir hafta | İlk eşik; pazar düzeni, çamaşır | — | | | ⬜ |
-| 8 | Rutin | Zilden önce uyanmak (kısa gün) | — | | | ⬜ |
-| 9 | Atış | İlk atış | **I10 atış** | | | ⬜ |
-| 10 | Gece | İlk nöbet | — | ✓ | | ⬜ |
-| 11 | Koğuş | Kaybolan bot | arama sahnesi (anlatı + seçim) | | | ⬜ |
-| 12 | Hatırlama | Callback günü, koğuşta hikâyeler | — | | | ⬜ |
+| 6 | Hesap | Para ve kontör bitiyor, kantin borcu | — | | ✓ | ✅ |
+| 7 | Bir hafta | İlk eşik; pazar düzeni, çamaşır, posta | havale (para_durumu) | | | ✅ |
+| 8 | Rutin | Zilden önce uyanmak (kısa gün) | — | | | ✅ |
+| 9 | Atış | İlk atış | **I10 atış** | | | ✅ |
+| 10 | Gece | İlk nöbet | — | ✓ | | ✅ |
+| 11 | Koğuş | Kaybolan bot | arama sahnesi (anlatı + seçim) | | | ✅ |
+| 12 | Hatırlama | Callback günü, koğuşta hikâyeler | — | | | ✅ |
 | 13 | Ölçüm | Kondisyon ölçümü, koşu | — | ✓ | | ⬜ |
 | 14 | Yarısı | İkinci eşik | — | | ✓ | ⬜ |
 | 15 | Sayım | Rutin (kısa gün) | — | | | ⬜ |
@@ -724,6 +740,7 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 
 | Tarih | Kayıt |
 |---|---|
+| 2026-09-24 | I5: gün 6–12 yazıldı; 12 günlük denge ayarı (tepsi, dinlenme, gece, TAKDİR 80). |
 | 2026-09-24 | D2 bitti ve main'e birleşti. Ek: denge ayarı (S13), hafıza koşullu sahneler (I13), yol sahnesi Skia çökmesi. S12'nin riskli kalanı S12b olarak D5'e. |
 | 2026-09-24 | Berke işi devretti (commit/push serbest). K3 → 05:30 uygulandı. |
 | 2026-09-24 | D1 kod olarak bitti. Ek bulunan hatalar: nöbet cezası puana hiç yansımıyordu (S6), yarım görüşme kartı "Devam et"te siliniyordu (S5). Cihaz testleri: S1/S2 Firebase projesiyle (M4), S7 Android'de. |

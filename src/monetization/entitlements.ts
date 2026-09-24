@@ -13,8 +13,12 @@
  */
 export const BEDAVA_GUN = 5;
 
-/** Dikey dilimde satın alma akışı yok; geliştirme sırasında elle açılır. */
-export const TAM_SURUM_ACIK = false;
+/**
+ * Satın alma akışı henüz yok (yayin-plani M3). Geliştirme derlemesinde bütün
+ * yazılı günler açık, yayın derlemesinde kilit BEDAVA_GUN'de. Testlerde
+ * (__DEV__ tanımsız) kapalı; sanal oyuncu kendi taklidiyle açıyor.
+ */
+export const TAM_SURUM_ACIK = typeof __DEV__ !== 'undefined' && __DEV__;
 
 export function gunOynanabilirMi(gun: number, satinAlindi = TAM_SURUM_ACIK) {
   return satinAlindi || gun <= BEDAVA_GUN;

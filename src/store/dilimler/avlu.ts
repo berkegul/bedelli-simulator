@@ -72,7 +72,8 @@ export const avluDilimi = (
     uygulaEtki(
       set,
       get,
-      { enerji: 12, moral: 6, kondisyon: 2 },
+      // Moral +6'ydı; her gün tekrarlanan en büyük pasif kaynaklardan biriydi.
+      { enerji: 12, moral: 3, kondisyon: 1 },
       'Ağacın altına oturdun. Postalları çıkardın, ayakların hava aldı. On beş dakika ama iyi geldi.',
       15,
       false,
