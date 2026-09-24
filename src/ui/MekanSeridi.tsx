@@ -3,8 +3,8 @@ import { View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { BORDER, C } from '../theme';
 import { sprite, type SpriteKey } from '../art';
-import { Gokyuzu } from './Gokyuzu';
 import { PixelSprite } from './PixelSprite';
+import { Golge, Nefes, Sahne, type DuvarTuru, type ZeminTuru } from './sahne';
 import { PixelText } from './PixelText';
 
 const TABAN_YUKSEKLIK = 150;
@@ -26,7 +26,32 @@ type Mekan = {
   /** Sağ üstte yazan mevcut — metin "yirmi sekiz kişi" derken göz de görsün. */
   mevcut?: string;
   ogeler: Oge[];
+  /** Zemin dokusu; verilmezse iç mekânda karo, dışarıda toprak. */
+  zemin?: ZeminTuru;
+  /** İç mekân duvarı; verilmezse badana + lambri. */
+  duvar?: DuvarTuru;
 };
+
+/** Mekâna göre zemin: içtima betonda, eğitim poligonda, yemekhane karoda. */
+const ZEMIN_TURU: Record<string, ZeminTuru> = {
+  carsi: 'asfalt',
+  nizamiye: 'asfalt',
+  ictima: 'beton',
+  'aksam-ictima': 'beton',
+  toren: 'beton',
+  'egitim-sabah': 'poligon',
+  talim: 'toprak',
+  mintika: 'toprak',
+  serbest: 'toprak',
+  veda: 'toprak',
+  ziyaret: 'cim',
+  camasir: 'beton',
+  ders: 'parke',
+  evrak: 'parke',
+};
+
+/** Canlı sprite'lar: gölge alıyor, nefes alıyor. */
+const CANLI = /^(asker|cavus|sivil|oturan)/;
 
 /**
  * Her bloğun geçtiği yerin ince bir kesiti. Oyuncu gün boyunca aynı metin
@@ -442,8 +467,17 @@ type Props = {
   children?: React.ReactNode;
 };
 
+/** İç mekân: sabah erken ve gece loş, gündüz pencereden ışık. */
+function icLosluk(saat: string) {
+  const s = Number(saat.split(':')[0]);
+  if (s >= 21 || s < 6) return 0.35;
+  if (s < 7 || s >= 19) return 0.18;
+  return 0.06;
+}
+
 export function MekanSeridi({ blokId, saat, carpan = 1, cercevesiz, etiketsiz, children }: Props) {
   const mekan = mekanBul(blokId);
+  const anahtar = blokId.replace(/^d\d+-/, '');
   const k = Math.max(1, Math.round(carpan));
   const YUKSEKLIK = TABAN_YUKSEKLIK * k;
   const ZEMIN = TABAN_ZEMIN * k;
@@ -463,54 +497,73 @@ export function MekanSeridi({ blokId, saat, carpan = 1, cercevesiz, etiketsiz, c
         overflow: 'hidden',
       }}
     >
-      {mekan.ic ? (
-        // İç mekan: gökyüzü yerine duvar ve süpürgelik
-        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
-          <Svg width="100%" height={YUKSEKLIK}>
-            <Rect x="0" y="0" width="100%" height={YUKSEKLIK - ZEMIN} fill="#332F1E" />
-            <Rect x="0" y={YUKSEKLIK - ZEMIN - 3} width="100%" height={3} fill={C.line} />
-            <Rect x="0" y={YUKSEKLIK - ZEMIN} width="100%" height={ZEMIN} fill="#413A25" />
-          </Svg>
-        </View>
-      ) : (
-        <>
-          <Gokyuzu saat={saat} yukseklik={YUKSEKLIK - ZEMIN} />
-          <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: ZEMIN }}>
-            <Svg width="100%" height={ZEMIN}>
-              <Rect x="0" y="0" width="100%" height={ZEMIN} fill="#3A3421" />
-              <Rect x="0" y="0" width="100%" height={2} fill={C.line} />
-            </Svg>
-          </View>
-        </>
-      )}
-
-      {/* Kalabalık dekorun önünde, adı olan askerlerin arkasında duruyor */}
-      {!!mekan.kalabalik && (
-        <View
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: ZEMIN + 2 * k,
-            height: KALABALIK_YUKSEKLIK * k,
-          }}
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+        <Sahne
+          yukseklik={YUKSEKLIK}
+          u={2 * k}
+          zemin={ZEMIN_TURU[anahtar] ?? (mekan.ic ? 'karo' : 'toprak')}
+          zeminOrani={TABAN_ZEMIN / TABAN_YUKSEKLIK}
+          duvar={mekan.ic ? (mekan.duvar ?? 'badana') : undefined}
+          saat={saat}
+          losluk={mekan.ic ? icLosluk(saat) : 0}
+          lambalar={
+            mekan.ic
+              ? [
+                  { x: 28, y: 18, yaricap: 26 },
+                  { x: 74, y: 18, yaricap: 26 },
+                ]
+              : []
+          }
+          vinyet={false}
+          tohum={anahtar.length}
         >
-          <Kalabalik adet={mekan.kalabalik} en={en} ic={mekan.ic} k={k} />
-        </View>
-      )}
+          {/* Kalabalık dekorun önünde, adı olan askerlerin arkasında duruyor */}
+          {!!mekan.kalabalik && (
+            <View
+              style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: ZEMIN + 2 * k,
+                height: KALABALIK_YUKSEKLIK * k,
+              }}
+            >
+              <Kalabalik adet={mekan.kalabalik} en={en} ic={mekan.ic} k={k} />
+            </View>
+          )}
 
-      {mekan.ogeler.map((o, i) => (
-        <View
-          key={i}
-          style={{
-            position: 'absolute',
-            left: `${o.x}%`,
-            bottom: (o.taban ?? TABAN_ZEMIN - 4) * k,
-          }}
-        >
-          <PixelSprite sprite={sprite(o.sprite)} scale={o.olcek * k} opacity={o.arka ? 0.5 : 1} />
-        </View>
-      ))}
+          {mekan.ogeler.map((o, i) => {
+            const tanim = sprite(o.sprite);
+            const canli = CANLI.test(o.sprite) && !o.arka;
+            const px = o.olcek * k;
+            const genislik = tanim.rows[0]?.length ?? 8;
+            return (
+              <View
+                key={i}
+                style={{
+                  position: 'absolute',
+                  left: `${o.x}%`,
+                  bottom: (o.taban ?? TABAN_ZEMIN - 4) * k - (canli ? px : 0),
+                  alignItems: 'center',
+                }}
+              >
+                {canli ? (
+                  <>
+                    <Nefes u={px} gecikme={(i * 230) % 700}>
+                      <PixelSprite sprite={tanim} scale={px} />
+                    </Nefes>
+                    <View style={{ marginTop: -px }}>
+                      <Golge genislik={Math.round(genislik * 0.75)} u={px} />
+                    </View>
+                  </>
+                ) : (
+                  <PixelSprite sprite={tanim} scale={px} opacity={o.arka ? 0.5 : 1} />
+                )}
+              </View>
+            );
+          })}
+        </Sahne>
+      </View>
 
       {!etiketsiz && (
         <View
