@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { kayitDogrula } from './kayitDogrula';
 import { bulutaYaz, bulutlaKarsilastir, buluttanOku, bulutuSil } from './bulut';
+import type { AktifGorusme } from '../store/gameStore';
 import type { ArkadasId, DolapDuzeni, Envanter, Kusur, Profil, RehberKisi, Rol, Stats } from './types';
 
 const KEY = 'bedelli.save.v3';
@@ -49,6 +50,22 @@ export type SaveData = {
   sonArama?: Record<Rol, number>;
   gorulmusGorusmeler?: string[];
   sevgiliVar?: boolean;
+  /**
+   * Gün içinde biriken küçük durumlar. Eskiden kaydedilmiyordu: uygulamayı
+   * kapatıp açan oyuncunun cebindeki izmaritler kayboluyor, bugün dal
+   * isteyen arkadaş yeniden istiyordu.
+   */
+  cepteIzmarit?: number;
+  bugunIsteyenler?: ArkadasId[];
+  bugunDinlenildi?: boolean;
+  gelenArama?: { rol: Rol; kisiId: string } | null;
+  bekleyenArama?: Rol[];
+  /**
+   * Uygulama bir görüşmenin ortasında kapandı. Açılışta görüşme "hat
+   * kesildi" diye kapatılıyor ve o ana kadar birikenler uygulanıyor; yoksa
+   * kontör ve günün arama hakkı gidiyor, konuşmanın etkisi kayboluyordu.
+   */
+  yarimGorusme?: AktifGorusme | null;
   guncelleme: number;
 };
 

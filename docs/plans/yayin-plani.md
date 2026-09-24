@@ -235,7 +235,7 @@ bunun yanında paralel yürür.
   S8'in store bölmesiyle birlikte yapılacak. Doğrulayıcı yanlış tipli alanı
   düşürüyor, store eksiği dolduruyor. 19 yeni test.
 
-#### S5 · kaydedilmeyen durumlar + kontör iadesi ⬜ (D1, S4'ten sonra)
+#### S5 · kaydedilmeyen durumlar + kontör iadesi ✅ (D1, S4'ten sonra)
 - **Sorun:** `persist` (`gameStore.ts:1326`) şunları yazmıyor:
   `aktifGorusme`, `cepteIzmarit`, `bugunIsteyenler`, `bugunDinlenildi`,
   `gelenArama`, `bekleyenArama`. Görüşme ortasında kapatınca kontör ve
@@ -251,6 +251,15 @@ bunun yanında paralel yürür.
      `gorusmeAc` sırası değişir).
 - **Kabul:** web'de görüşmenin ortasında sayfayı yenile: kontör bir kez
   düşmüş, ilişki etkisi uygulanmış, panel kapalı.
+- **Sonuç:** günlük alanlar ve `gelenArama` kayda girdi. Açık görüşme
+  `yarimGorusme` olarak yazılıyor (plandaki "özet" yerine görüşmenin tamamı;
+  kapanış mantığı `gorusmeBitir` zaten ona ihtiyaç duyuyor). Açılışta
+  "Hat kesildi. Konuşma yarım kaldı." ile kapanıyor; kart `acilistan`
+  işaretiyle "Devam et"ten sağ çıkıyor (eskiden devamEt her kartı
+  siliyordu). Kontör `gorusmeAc` true dönünce düşüyor. Tarayıcıda: yarım
+  görüşmeli kayıt → ilişki ve moral uygulandı, kart göründü, sahne
+  ilerlemedi, konsol temiz. "Kimse açmadı" dalı tarayıcıda tetiklenemedi,
+  kod okumasıyla doğrulandı.
 
 #### S6 · zamanlayıcı sızıntıları ⬜ (D1)
 - **Sorun:** `YolSahnesi.tsx:316` `setInterval` unmount'ta temizlenmiyor.

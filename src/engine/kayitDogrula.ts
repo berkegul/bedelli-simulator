@@ -20,6 +20,19 @@ const sayiMi = (d: unknown): d is number => typeof d === 'number' && Number.isFi
 const tamSayi = (d: unknown, en = 0): number | null =>
   sayiMi(d) && Number.isInteger(d) && d >= en ? d : null;
 const sayiSozlugu = (d: unknown) => nesneMi(d) && Object.values(d).every(sayiMi);
+const metinDizisi = (d: unknown) => Array.isArray(d) && d.every((x) => typeof x === 'string');
+/** Yarım görüşme ancak kapanışta uygulanacak alanları tamsa kurtarılır. */
+const gorusmeMi = (d: unknown) =>
+  nesneMi(d) &&
+  typeof d.gorusmeId === 'string' &&
+  typeof d.rol === 'string' &&
+  sayiMi(d.kalanRaunt) &&
+  sayiMi(d.birikenMoral) &&
+  sayiMi(d.birikenEnerji) &&
+  sayiMi(d.birikenOzlem) &&
+  sayiSozlugu(d.birikenIliski) &&
+  sayiSozlugu(d.birikenGerilim) &&
+  Array.isArray(d.isaretler);
 
 /**
  * Sürüm taşımaları: her giriş kaydı bir sonraki sürüme çevirir. Yeni bir
@@ -101,6 +114,15 @@ export function kayitDogrula(ham: unknown): SaveData | null {
     sonArama: secime(k.sonArama, sayiSozlugu(k.sonArama)),
     gorulmusGorusmeler: secime(k.gorulmusGorusmeler, Array.isArray(k.gorulmusGorusmeler)),
     sevgiliVar: secime(k.sevgiliVar, typeof k.sevgiliVar === 'boolean'),
+    cepteIzmarit: secime(k.cepteIzmarit, tamSayi(k.cepteIzmarit) !== null),
+    bugunIsteyenler: secime(k.bugunIsteyenler, metinDizisi(k.bugunIsteyenler)),
+    bugunDinlenildi: secime(k.bugunDinlenildi, typeof k.bugunDinlenildi === 'boolean'),
+    gelenArama: secime(
+      k.gelenArama,
+      nesneMi(k.gelenArama) && typeof k.gelenArama.rol === 'string' && typeof k.gelenArama.kisiId === 'string',
+    ),
+    bekleyenArama: secime(k.bekleyenArama, metinDizisi(k.bekleyenArama)),
+    yarimGorusme: secime(k.yarimGorusme, gorusmeMi(k.yarimGorusme)),
     guncelleme: sayiMi(k.guncelleme) ? k.guncelleme : 0,
   };
   return kayit;

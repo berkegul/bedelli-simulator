@@ -51,7 +51,8 @@ describe('reddedilen kayıtlar', () => {
 });
 
 test('geçerli v3 kaydı olduğu gibi döner', () => {
-  assert.deepEqual(kayitDogrula(gecerli()), gecerli());
+  // Kayıt JSON olarak saklanıyor; tanımsız opsiyonel alanlar orada düşüyor.
+  assert.deepEqual(JSON.parse(JSON.stringify(kayitDogrula(gecerli()))), gecerli());
 });
 
 test('v2 kaydı v3e taşınır, telefon alanları boş kalır', () => {
@@ -85,4 +86,49 @@ test('istatistikler 0–100e, para sıfırın altına düşmeyecek şekilde kır
   assert.equal(k?.stats.moral, 100);
   assert.equal(k?.stats.enerji, 0);
   assert.equal(k?.para, 0);
+});
+
+const yarim = {
+  kisiId: 'k1',
+  gorusmeId: 'g03-anne',
+  rol: 'anne',
+  replikId: 'b',
+  gecmis: [],
+  ankesor: true,
+  kalanRaunt: 1,
+  birikenIliski: { anne: 4 },
+  birikenGerilim: {},
+  birikenMoral: 5,
+  birikenEnerji: 0,
+  birikenOzlem: 2,
+  isaretler: [{ ad: 'ilk_gece', deger: 'garip' }],
+  gelen: false,
+  kapanis: null,
+};
+
+test('günlük alanlar ve yarım görüşme kayıttan geri gelir', () => {
+  const k = kayitDogrula({
+    ...gecerli(),
+    cepteIzmarit: 3,
+    bugunIsteyenler: ['emre'],
+    bugunDinlenildi: true,
+    gelenArama: { rol: 'anne', kisiId: 'k1' },
+    bekleyenArama: ['kanka'],
+    yarimGorusme: yarim,
+  });
+  assert.equal(k?.cepteIzmarit, 3);
+  assert.deepEqual(k?.bugunIsteyenler, ['emre']);
+  assert.equal(k?.bugunDinlenildi, true);
+  assert.deepEqual(k?.gelenArama, { rol: 'anne', kisiId: 'k1' });
+  assert.deepEqual(k?.bekleyenArama, ['kanka']);
+  assert.equal(k?.yarimGorusme?.gorusmeId, 'g03-anne');
+});
+
+test('eksik alanlı yarım görüşme düşer, kayıt kurtulur', () => {
+  const { birikenIliski, ...eksik } = yarim;
+  void birikenIliski;
+  const k = kayitDogrula({ ...gecerli(), yarimGorusme: eksik, cepteIzmarit: -2 });
+  assert.ok(k);
+  assert.equal(k.yarimGorusme, undefined);
+  assert.equal(k.cepteIzmarit, undefined);
 });

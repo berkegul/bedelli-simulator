@@ -114,6 +114,11 @@ export type Sonuc = {
    * yakmak o anki görevi atlıyordu.
    */
   ilerletme?: boolean;
+  /**
+   * Açılışta kurtarılan bir olayın kartı (yarım kalan görüşme). "Devam et"
+   * eski kartları temizler; bu kart oyuncu görene kadar kalır.
+   */
+  acilistan?: boolean;
 };
 
 /** Sigara içen oyuncuda her blokta biriken kriz. */
@@ -314,7 +319,20 @@ export const useGame = create<Store>((set, get) => ({
       sevgiliVar: k.sevgiliVar ?? true,
       nikotin: k.nikotin ?? 0,
       bitenGunler: k.bitenGunler ?? [],
+      cepteIzmarit: k.cepteIzmarit ?? 0,
+      bugunIsteyenler: k.bugunIsteyenler ?? [],
+      bugunDinlenildi: k.bugunDinlenildi ?? false,
+      gelenArama: k.gelenArama ?? null,
+      bekleyenArama: k.bekleyenArama ?? [],
     });
+
+    // Uygulama bir görüşmenin ortasında kapanmıştı: hat kesilmiş sayılır,
+    // o ana kadar konuşulanın etkisi uygulanır. Sonuç kartı oyuna dönünce görünür.
+    if (k.yarimGorusme) {
+      gorusmeBitir(set, get, { ...k.yarimGorusme, kapanis: 'Hat kesildi. Konuşma yarım kaldı.' });
+      const kart = get().sonuc;
+      if (kart) set({ sonuc: { ...kart, acilistan: true } });
+    }
   },
 
   async yeniOyun() {
@@ -386,9 +404,10 @@ export const useGame = create<Store>((set, get) => ({
       get().sonrakiGun();
       return;
     }
+    const kart = get().sonuc;
     set({
       ekran: gunOynanabilirMi(gun) ? 'oyun' : 'kilit',
-      sonuc: null,
+      sonuc: kart?.acilistan ? kart : null,
       miniAktif: false,
       panel: null,
       saat: sahneninSaati(gun, get().blokIndex, get().sahneIndex),
@@ -663,13 +682,15 @@ export const useGame = create<Store>((set, get) => ({
         );
         return;
       }
-      const yeniEnv: Envanter = { ...envanter };
-      if (kontor - 1 <= 0) delete yeniEnv.kontor;
-      else yeniEnv.kontor = { ...envanter.kontor!, adet: kontor - 1 };
-      set({ envanter: yeniEnv });
     }
 
-    gorusmeAc(set, get, id, false);
+    // Kart ancak hat açılınca yanar: kimse açmadıysa ankesör kartı geri verir.
+    if (!gorusmeAc(set, get, id, false) || telefonVar) return;
+    const yeniEnv: Envanter = { ...get().envanter };
+    if (kontor - 1 <= 0) delete yeniEnv.kontor;
+    else yeniEnv.kontor = { ...envanter.kontor!, adet: kontor - 1 };
+    set({ envanter: yeniEnv });
+    persist(get);
   },
 
   gelenAramayiAc() {
@@ -1112,9 +1133,9 @@ function gorusmeAc(
   get: () => Store,
   kisiId: string,
   gelen: boolean,
-) {
+): boolean {
   const kisi = get().rehber.find((k) => k.id === kisiId);
-  if (!kisi) return;
+  if (!kisi) return false;
 
   const durum = telefonDurumu(get);
   const kayit: KayitRolu = kisi.rol ?? eskiTurdenRol(kisi.tur);
@@ -1122,13 +1143,13 @@ function gorusmeAc(
   const gorusme = gunGorusmesi(rol, durum);
   if (!gorusme) {
     uygulaEtki(set, get, {}, 'Telefon çaldı, çaldı, kimse açmadı.', 0, false);
-    return;
+    return false;
   }
 
   const telefonVar = durum.telefonVar;
   const baglam = { ad: get().profil.ad, kisi: kisi.ad, gun: get().gun, hafiza: get().hafiza };
   const kok = replikCoz(gorusme, gorusme.kok, durum);
-  if (!kok) return;
+  if (!kok) return false;
 
   const { replik, gecmis } = zinciriYurut(gorusme, kok, durum, baglam, get, rol);
 
@@ -1157,6 +1178,7 @@ function gorusmeAc(
     ),
   });
   persist(get);
+  return true;
 }
 
 /**
@@ -1366,6 +1388,12 @@ function persist(get: () => Store) {
     sonArama: s.sonArama,
     gorulmusGorusmeler: s.gorulmusGorusmeler,
     sevgiliVar: s.sevgiliVar,
+    cepteIzmarit: s.cepteIzmarit,
+    bugunIsteyenler: s.bugunIsteyenler,
+    bugunDinlenildi: s.bugunDinlenildi,
+    gelenArama: s.gelenArama,
+    bekleyenArama: s.bekleyenArama,
+    yarimGorusme: s.aktifGorusme,
   });
 }
 
