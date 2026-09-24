@@ -12,6 +12,8 @@ import { PixelText } from '../ui/PixelText';
 import { useGeriSayim } from './geriSayim';
 import { clamp01, type MiniOyunProps } from './types';
 import { useZamanlayici } from '../ui/useZamanlayici';
+import { BEZ, BOYA_ACIK, FIRCA as FIRCA_SPRITE, SUNGER, gazete, ranzaAlti } from '../art/sahne/postal';
+import { IsikHavuzu, PikselKatman, Vinyet, ZEMINLER, type Piksel } from '../ui/sahne';
 
 /**
  * Postal parlatma. Ranzanın altındaki iki postal dünkü çamurla mat.
@@ -78,6 +80,40 @@ export function PostalParlatma({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const bitti = useRef(false);
 
   const olcek = en > 0 ? Math.max(6, Math.min(14, Math.floor(en / (SUTUN * 2 + ARA)))) : 0;
+
+  // Sahne: ranzanın altı, koğuş karosu, gazete, yanında boya ve fırça ya da bez.
+  const su = Math.max(2, Math.floor(olcek / 3));
+  const ust = 3 * olcek;
+  const alt = Math.round(3.5 * olcek);
+  const sahneH = ust + SATIR * olcek + alt;
+  const bw = (SUTUN * 2 + ARA) * olcek;
+  const bx = Math.round((en - bw) / 2);
+  const setVar = (envanter.botBakim?.adet ?? 0) > 0;
+  const sahne = useMemo<Piksel[]>(() => {
+    if (!olcek) return [];
+    const W = Math.ceil(en / su);
+    const H = Math.ceil(sahneH / su);
+    const c = (n: number) => Math.round(n / su);
+    const out: Piksel[] = [...ZEMINLER.karo({ x: 0, y: 0, w: W, h: H }, 31)];
+    out.push(...ranzaAlti(W, c(ust * 0.8)));
+    // Gazete postalların altından taşıyor
+    const gx = Math.max(1, c(bx - olcek));
+    const gw = Math.min(W - gx - 1, c(bw + 2 * olcek));
+    out.push(...gazete(gx, c(ust - olcek * 0.6), gw, c(SATIR * olcek + olcek * 2.4)));
+    // Postalların gölgesi: tabanın hemen altında
+    for (const p of [0, 1]) {
+      const px = bx + p * (SUTUN + ARA) * olcek;
+      out.push({
+        x: c(px + olcek),
+        y: c(ust + (SATIR - 1) * olcek),
+        w: c((SUTUN - 1) * olcek),
+        h: Math.max(1, c(olcek * 0.8)),
+        c: '#000',
+        o: 0.35,
+      });
+    }
+    return out;
+  }, [olcek, en, su, sahneH, ust, bx, bw]);
 
   const puan = () => {
     let t = 0;
@@ -170,70 +206,135 @@ export function PostalParlatma({ onBitti, zorluk = 0 }: MiniOyunProps) {
       </View>
       <View style={{ height: 8, backgroundColor: C.ink, borderWidth: 1, borderColor: C.line }}>
         <View
-          style={{ height: '100%', width: `${sure.oran * 100}%`, backgroundColor: az ? C.rust : C.brass }}
+          style={{
+            height: '100%',
+            width: `${sure.oran * 100}%`,
+            backgroundColor: az ? C.rust : C.brass,
+          }}
         />
       </View>
       <PixelText size="small" color={arac.tavan < 1 ? C.rust : C.canvasDim} line="snug">
         {arac.tavan < 1 ? `${arac.ad} · en fazla %${Math.round(arac.tavan * 100)} parlar` : arac.ad}
       </PixelText>
 
-      <View onLayout={(e) => setEn(Math.round(e.nativeEvent.layout.width))} style={[{ alignItems: 'center' }, SECILMEZ]}>
+      <View
+        onLayout={(e) => setEn(Math.round(e.nativeEvent.layout.width))}
+        style={[{ alignItems: 'center' }, SECILMEZ]}
+      >
         {olcek > 0 && (
-          <GestureDetector gesture={jest}>
+          <View
+            style={{
+              width: en,
+              height: sahneH,
+              borderWidth: 2,
+              borderColor: C.ink,
+              overflow: 'hidden',
+              backgroundColor: '#4F4A36',
+            }}
+          >
+            <PikselKatman
+              pikseller={sahne}
+              u={su}
+              w={Math.ceil(en / su)}
+              h={Math.ceil(sahneH / su)}
+              style={{ position: 'absolute', left: 0, top: 0 }}
+            />
+            {/* Aletler: boya kutusu, sünger ve fırça; set yoksa yalnızca bez */}
             <View
-              accessibilityLabel="Postallar, parmağınla ov"
-              style={{ width: (SUTUN * 2 + ARA) * olcek, height: SATIR * olcek }}
+              pointerEvents="none"
+              style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: Math.round(olcek * 0.4),
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'flex-end',
+                gap: olcek,
+              }}
             >
-              {[0, 1].map((p) => (
-                <View
-                  key={p}
-                  pointerEvents="none"
-                  style={{ position: 'absolute', left: p * (SUTUN + ARA) * olcek, top: 0 }}
-                >
-                  <PixelSprite sprite={BOOT} scale={olcek} />
-                </View>
-              ))}
-              {[0, 1].flatMap((p) =>
-                DERI.map(([x, y]) => {
-                  const v = kir.current!.get(anahtar(p, x, y))!;
-                  const sol = (p * (SUTUN + ARA) + x) * olcek;
-                  const parlak = v <= taban + 0.05 && (x + y + p) % 3 === 0;
-                  return (
-                    <View
-                      key={anahtar(p, x, y)}
-                      pointerEvents="none"
-                      style={{ position: 'absolute', left: sol, top: y * olcek, width: olcek, height: olcek }}
-                    >
-                      <View
-                        style={{
-                          position: 'absolute',
-                          left: 0,
-                          right: 0,
-                          top: 0,
-                          bottom: 0,
-                          backgroundColor: '#8A7A5E',
-                          opacity: v * 0.85,
-                        }}
-                      />
-                      {parlak && arac.tavan >= 1 && (
-                        <View
-                          style={{
-                            position: 'absolute',
-                            left: 1,
-                            top: 1,
-                            width: Math.max(2, olcek / 3),
-                            height: Math.max(2, olcek / 3),
-                            backgroundColor: C.canvas,
-                            opacity: 0.85,
-                          }}
-                        />
-                      )}
-                    </View>
-                  );
-                }),
+              {setVar ? (
+                <>
+                  <PixelSprite sprite={BOYA_ACIK} scale={su + 1} />
+                  <PixelSprite sprite={SUNGER} scale={su + 1} />
+                  <PixelSprite sprite={FIRCA_SPRITE} scale={su + 1} />
+                </>
+              ) : (
+                <PixelSprite sprite={BEZ} scale={su + 1} />
               )}
             </View>
-          </GestureDetector>
+            <View style={{ position: 'absolute', left: bx, top: ust }}>
+              <GestureDetector gesture={jest}>
+                <View
+                  accessibilityLabel="Postallar, parmağınla ov"
+                  style={{ width: (SUTUN * 2 + ARA) * olcek, height: SATIR * olcek }}
+                >
+                  {[0, 1].map((p) => (
+                    <View
+                      key={p}
+                      pointerEvents="none"
+                      style={{ position: 'absolute', left: p * (SUTUN + ARA) * olcek, top: 0 }}
+                    >
+                      <PixelSprite sprite={BOOT} scale={olcek} />
+                    </View>
+                  ))}
+                  {[0, 1].flatMap((p) =>
+                    DERI.map(([x, y]) => {
+                      const v = kir.current!.get(anahtar(p, x, y))!;
+                      const sol = (p * (SUTUN + ARA) + x) * olcek;
+                      const parlak = v <= taban + 0.05 && (x + y + p) % 3 === 0;
+                      return (
+                        <View
+                          key={anahtar(p, x, y)}
+                          pointerEvents="none"
+                          style={{
+                            position: 'absolute',
+                            left: sol,
+                            top: y * olcek,
+                            width: olcek,
+                            height: olcek,
+                          }}
+                        >
+                          <View
+                            style={{
+                              position: 'absolute',
+                              left: 0,
+                              right: 0,
+                              top: 0,
+                              bottom: 0,
+                              backgroundColor: '#8A7A5E',
+                              opacity: v * 0.85,
+                            }}
+                          />
+                          {parlak && arac.tavan >= 1 && (
+                            <View
+                              style={{
+                                position: 'absolute',
+                                left: 1,
+                                top: 1,
+                                width: Math.max(2, olcek / 3),
+                                height: Math.max(2, olcek / 3),
+                                backgroundColor: C.canvas,
+                                opacity: 0.85,
+                              }}
+                            />
+                          )}
+                        </View>
+                      );
+                    }),
+                  )}
+                </View>
+              </GestureDetector>
+            </View>
+            <IsikHavuzu
+              x={en * 0.7}
+              y={ust + SATIR * olcek * 0.5}
+              yaricap={Math.round(en / su / 2.2)}
+              u={su}
+              guc={0.12}
+            />
+            <Vinyet u={su} guc={0.16} />
+          </View>
         )}
       </View>
 

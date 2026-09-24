@@ -12,6 +12,8 @@ import { PixelText } from '../ui/PixelText';
 import { useGeriSayim } from './geriSayim';
 import { clamp01, type MiniOyunProps } from './types';
 import { useZamanlayici } from '../ui/useZamanlayici';
+import { JILET, ayna, fayans, floresan, lavabo } from '../art/sahne/lavabo';
+import { IsikHavuzu, Ortu, PikselKatman, Vinyet, type Piksel } from '../ui/sahne';
 
 /**
  * Tıraş. Lavabo sırası kısa, aynada yüzün. Jileti yüzde sürükledikçe
@@ -73,6 +75,29 @@ export function Tiras({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const mesajZamani = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const olcek = en > 0 ? Math.max(8, Math.min(20, Math.floor(Math.min(en, 320) / SUTUN))) : 0;
+
+  // Sahne: fayans duvar, üstte floresan, çerçeveli ayna, aynada yüz, altta lavabo.
+  const su = Math.max(2, Math.floor(olcek / 4));
+  const cer = Math.round(olcek * 0.75);
+  const fw = SUTUN * olcek;
+  const fh = SATIR * olcek;
+  const fx = Math.round((en - fw) / 2);
+  const aynaUst = Math.round(olcek * 1.4);
+  const yuzUst = aynaUst + cer;
+  const aynaAlt = yuzUst + fh + cer;
+  const sahneH = aynaAlt + Math.round(olcek * 2);
+  const sahne = useMemo<Piksel[]>(() => {
+    if (!olcek) return [];
+    const c = (n: number) => Math.round(n / su);
+    const W = Math.ceil(en / su);
+    const H = Math.ceil(sahneH / su);
+    return [
+      ...fayans(W, H),
+      ...floresan(c(fx + fw * 0.2), c(olcek * 0.3), c(fw * 0.6)),
+      ...ayna(c(fx - cer), c(aynaUst), c(fw + 2 * cer), c(aynaAlt - aynaUst)),
+      ...lavabo(c(fx - cer * 2), c(aynaAlt + olcek * 0.3), c(fw + 4 * cer), c(olcek * 1.6)),
+    ];
+  }, [olcek, su, en, sahneH, fx, fw, cer, aynaUst, aynaAlt]);
 
   const temizlik = () => {
     let t = 0;
@@ -188,85 +213,141 @@ export function Tiras({ onBitti, zorluk = 0 }: MiniOyunProps) {
       </View>
       <View style={{ height: 8, backgroundColor: C.ink, borderWidth: 1, borderColor: C.line }}>
         <View
-          style={{ height: '100%', width: `${sure.oran * 100}%`, backgroundColor: az ? C.rust : C.brass }}
+          style={{
+            height: '100%',
+            width: `${sure.oran * 100}%`,
+            backgroundColor: az ? C.rust : C.brass,
+          }}
         />
       </View>
       <PixelText size="small" color={jilet.limit < 1400 ? C.rust : C.canvasDim} line="snug">
         {jilet.ad}
       </PixelText>
 
-      <View onLayout={(e) => setEn(Math.round(e.nativeEvent.layout.width))} style={[{ alignItems: 'center' }, SECILMEZ]}>
+      <View
+        onLayout={(e) => setEn(Math.round(e.nativeEvent.layout.width))}
+        style={[{ alignItems: 'center' }, SECILMEZ]}
+      >
         {olcek > 0 && (
-          <GestureDetector gesture={jest}>
-            <View
-              accessibilityLabel="Yüzün, jileti aşağı doğru çek"
-              style={{ width: SUTUN * olcek, height: SATIR * olcek }}
-            >
-              <View pointerEvents="none">
-                <PixelSprite sprite={YUZ} scale={olcek} />
-              </View>
+          <View
+            style={{
+              width: en,
+              height: sahneH,
+              borderWidth: 2,
+              borderColor: C.ink,
+              overflow: 'hidden',
+              backgroundColor: '#BDBAA6',
+            }}
+          >
+            <PikselKatman
+              pikseller={sahne}
+              u={su}
+              w={Math.ceil(en / su)}
+              h={Math.ceil(sahneH / su)}
+              style={{ position: 'absolute', left: 0, top: 0 }}
+            />
+            {/* Sabah 05:40, floresan yeni yanmış: loş, soğuk ışık */}
+            <Ortu renk="#1A2230" opaklik={0.28} />
+            <IsikHavuzu
+              x={en / 2}
+              y={olcek}
+              yaricap={Math.round(en / su / 2.4)}
+              u={su}
+              renk="#E6F2FF"
+              guc={0.2}
+              basik={0.9}
+            />
 
-              {SAKAL.map(([x, y]) => {
-                const k = anahtar(x, y);
-                const v = kil.current!.get(k)!;
-                const kesildi = kesikler.current.has(k);
-                if (v <= 0.02 && !kesildi) return null;
-                return (
-                  <View
-                    key={k}
-                    pointerEvents="none"
-                    style={{ position: 'absolute', left: x * olcek, top: y * olcek, width: olcek, height: olcek }}
-                  >
-                    {v > 0.02 && (
-                      <View
-                        style={{
-                          position: 'absolute',
-                          left: 0,
-                          right: 0,
-                          top: 0,
-                          bottom: 0,
-                          backgroundColor: '#3A3128',
-                          opacity: 0.7 * v,
-                        }}
-                      />
-                    )}
-                    {kesildi && (
-                      <View
-                        style={{
-                          position: 'absolute',
-                          left: olcek * 0.3,
-                          top: olcek * 0.3,
-                          width: olcek * 0.4,
-                          height: olcek * 0.4,
-                          backgroundColor: C.rust,
-                        }}
-                      />
-                    )}
-                  </View>
-                );
-              })}
-
-              {/* Jilet parmağın hemen üstünde; ağzı yüze bakıyor */}
-              {bicak && (
+            <View style={{ position: 'absolute', left: fx, top: yuzUst }}>
+              <GestureDetector gesture={jest}>
                 <View
-                  pointerEvents="none"
-                  style={{ position: 'absolute', left: bicak.x - olcek * 1.5, top: bicak.y - olcek * 0.6 }}
+                  accessibilityLabel="Yüzün, jileti aşağı doğru çek"
+                  style={{ width: fw, height: fh }}
                 >
-                  <View style={{ width: olcek * 3, height: olcek * 0.6, backgroundColor: '#B8C0C8', borderWidth: 1, borderColor: C.ink }} />
-                  <View
-                    style={{
-                      alignSelf: 'center',
-                      width: olcek * 0.5,
-                      height: olcek * 1.6,
-                      backgroundColor: C.steel,
-                      borderWidth: 1,
-                      borderColor: C.ink,
-                    }}
-                  />
+                  <View pointerEvents="none">
+                    <PixelSprite sprite={YUZ} scale={olcek} />
+                  </View>
+
+                  {SAKAL.map(([x, y]) => {
+                    const k = anahtar(x, y);
+                    const v = kil.current!.get(k)!;
+                    const kesildi = kesikler.current.has(k);
+                    if (v <= 0.02 && !kesildi) return null;
+                    return (
+                      <View
+                        key={k}
+                        pointerEvents="none"
+                        style={{
+                          position: 'absolute',
+                          left: x * olcek,
+                          top: y * olcek,
+                          width: olcek,
+                          height: olcek,
+                        }}
+                      >
+                        {v > 0.02 && (
+                          <>
+                            {/* Köpük: jilet geçtikçe kalkıyor, altında sakal */}
+                            <View
+                              style={{
+                                position: 'absolute',
+                                left: 0,
+                                right: 0,
+                                top: 0,
+                                bottom: 0,
+                                backgroundColor: (x + y) % 3 === 0 ? '#D8D4C8' : '#ECE8DE',
+                                opacity: 0.92 * v,
+                              }}
+                            />
+                            {(x * 7 + y) % 4 === 0 && (
+                              <View
+                                style={{
+                                  position: 'absolute',
+                                  left: olcek * 0.2,
+                                  top: olcek * 0.55,
+                                  width: Math.max(2, olcek * 0.25),
+                                  height: Math.max(2, olcek * 0.25),
+                                  backgroundColor: '#3A3128',
+                                  opacity: 0.6 * v,
+                                }}
+                              />
+                            )}
+                          </>
+                        )}
+                        {kesildi && (
+                          <View
+                            style={{
+                              position: 'absolute',
+                              left: olcek * 0.3,
+                              top: olcek * 0.3,
+                              width: olcek * 0.4,
+                              height: olcek * 0.4,
+                              backgroundColor: C.rust,
+                            }}
+                          />
+                        )}
+                      </View>
+                    );
+                  })}
+
+                  {/* Jilet parmağın hemen üstünde; ağzı yüze bakıyor */}
+                  {bicak && (
+                    <View
+                      pointerEvents="none"
+                      style={{
+                        position: 'absolute',
+                        left: bicak.x - 5 * Math.max(2, Math.round(olcek / 4)),
+                        top: bicak.y - 1.5 * Math.max(2, Math.round(olcek / 4)),
+                      }}
+                    >
+                      <PixelSprite sprite={JILET} scale={Math.max(2, Math.round(olcek / 4))} />
+                    </View>
+                  )}
                 </View>
-              )}
+              </GestureDetector>
             </View>
-          </GestureDetector>
+            <Vinyet u={su} guc={0.18} />
+          </View>
         )}
       </View>
 
