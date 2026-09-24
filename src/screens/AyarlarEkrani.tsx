@@ -8,6 +8,7 @@ import { OnayliButon } from '../ui/OnayliButon';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelText } from '../ui/PixelText';
 import { sesCal } from '../ses';
+import { bulutuSil } from '../engine/bulut';
 
 const HIZLAR: { id: MetinHizi; ad: string }[] = [
   { id: 'yavas', ad: 'Yavaş' },
@@ -156,6 +157,23 @@ export function AyarlarEkrani() {
               </Pressable>
             ))}
           </View>
+          <Satir
+            baslik="Buluta yedek"
+            aciklama="Kayıt dosyan (künyedeki ad ve rehberdeki adlar dahil) Firebase'de saklanır; telefon değişince geri gelir. Kapatınca buluttaki kopya silinir."
+          >
+            <Anahtar
+              etiket="Buluta yedek"
+              acik={a.bulutIzni === true}
+              onDegis={() => {
+                if (a.bulutIzni === true) {
+                  // Önce sil, sonra kapat: izin kapanınca bulut artık açılmıyor.
+                  void bulutuSil().finally(() => a.degistir({ bulutIzni: false }));
+                } else {
+                  a.degistir({ bulutIzni: true });
+                }
+              }}
+            />
+          </Satir>
           <Satir
             baslik="Kullanım verisi"
             aciklama="Hangi günde bırakıldığı gibi anonim oyun olayları. Kişisel bilgi yok. Kapalıyken hiçbir şey gönderilmez."

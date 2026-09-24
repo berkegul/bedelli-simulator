@@ -30,6 +30,7 @@ import { GunSonuEkrani } from './src/screens/GunSonuEkrani';
 import { KilitEkrani } from './src/screens/KilitEkrani';
 import { IcerikSonuEkrani } from './src/screens/IcerikSonuEkrani';
 import { KarneEkrani } from './src/screens/KarneEkrani';
+import { OnayEkrani } from './src/screens/OnayEkrani';
 import { FinalEkrani } from './src/screens/FinalEkrani';
 import { GelistirmeEkrani } from './src/gelistirme/GelistirmeEkrani';
 import { EkranGecisi } from './src/ui/EkranGecisi';
@@ -50,16 +51,20 @@ export default function App() {
   const hazir = useGame((s) => s.hazir);
   const ilkYukleme = useGame((s) => s.ilkYukleme);
   const ayarlarAcik = useAyarlar((s) => s.acik);
+  const onaySorulacak = useAyarlar((s) => s.yuklendi && s.bulutIzni === null);
 
+  // Önce ayarlar: bulut izni okunmadan kayıt buluttan istenmesin (KVKK).
   useEffect(() => {
-    void ilkYukleme();
+    void useAyarlar
+      .getState()
+      .yukle()
+      .then(() => ilkYukleme());
   }, [ilkYukleme]);
 
   useGeriTusu();
 
   useEffect(() => {
     void sesHazirla();
-    void useAyarlar.getState().yukle();
   }, []);
 
   // Bulut yazmaları toplanıp aralıklı gidiyor; uygulama arka plana düşerken
@@ -113,6 +118,7 @@ export default function App() {
               </EkranGecisi>
               <GelistirmeRozeti />
               {ayarlarAcik && <AyarlarEkrani />}
+              {onaySorulacak && <OnayEkrani />}
             </View>
           </View>
         </SafeAreaProvider>

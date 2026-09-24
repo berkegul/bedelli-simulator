@@ -54,7 +54,7 @@ async function baglan(): Promise<Oturum | null> {
  * açılan oyun, ağ gelince bir dakika içinde yedeklemeye başlıyor.
  */
 function oturum(): Promise<Oturum | null> {
-  if (!firebaseKurulu()) return Promise.resolve(null);
+  if (!firebaseKurulu() || !(bulutIzni || olcumIzni)) return Promise.resolve(null);
   if (!hazirlik) {
     if (Date.now() - sonHata < YENIDEN_DENEME_MS) return Promise.resolve(null);
     hazirlik = baglan().then((o) => {
@@ -100,7 +100,7 @@ let yazmaZamanlayici: ReturnType<typeof setTimeout> | null = null;
 
 /** Kaydı buluta yazar. Başarısız olursa yutar; cihazdaki kayıt zaten var. */
 export function bulutaYaz(data: SaveData) {
-  if (!firebaseKurulu()) return;
+  if (!firebaseKurulu() || !bulutIzni) return;
   bekleyen = data;
   if (!yazmaZamanlayici) yazmaZamanlayici = setTimeout(() => void bulutuBosalt(), YAZMA_ARALIGI_MS);
 }
@@ -139,6 +139,8 @@ export function bekleyenYazmayiIptalEt() {
  */
 export async function bulutuSil(): Promise<boolean> {
   bekleyenYazmayiIptalEt();
+  // İzin yoksa buluta hiç yazılmadı (ya da izin kapatılırken silindi).
+  if (!bulutIzni) return true;
   const o = await oturum();
   if (!o) return !firebaseKurulu();
   try {
@@ -159,6 +161,7 @@ export function buluttanOku(): Promise<SaveData | null> {
 }
 
 async function bulutKaydiniGetir(): Promise<SaveData | null> {
+  if (!bulutIzni) return null;
   const o = await oturum();
   if (!o) return null;
   try {
@@ -184,9 +187,18 @@ export async function bulutlaKarsilastir(yerel: SaveData) {
 }
 
 /**
- * Oyuncu kullanım verisine izin vermediyse (ya da henüz sorulmadıysa) hiçbir
- * olay gönderilmiyor. Bulut yedeği bundan bağımsız: o oyuncunun kendi kaydı.
+ * İki ayrı izin (KVKK, M5), ilk açılıştaki onay ekranında birlikte soruluyor,
+ * ayarlardan ayrı ayrı değişiyor. Sorulmadıysa ikisi de kapalı:
+ *  - bulutIzni: ilerleme yedeği. Kayıtta oyuncunun adı ve rehberdeki
+ *    yakınlarının adları var; izinsiz buluta gitmiyor, okunmuyor.
+ *  - olcumIzni: anonim oyun olayları (hangi günde bırakıldı gibi).
+ * İkisi de kapalıysa anonim oturum da açılmıyor.
  */
+let bulutIzni = false;
+export function bulutIzniAyarla(v: boolean) {
+  bulutIzni = v;
+}
+
 let olcumIzni = false;
 export function olcumIzniAyarla(v: boolean) {
   olcumIzni = v;

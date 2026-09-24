@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
-import { olcumIzniAyarla } from '../engine/bulut';
+import { bulutIzniAyarla, olcumIzniAyarla } from '../engine/bulut';
 import type { MiniGameId } from '../engine/types';
 import { sesAyarla } from '../ses';
 import { titresimAyarla } from '../ui/haptik';
@@ -25,6 +25,11 @@ export type Ayarlar = {
    */
   olcumIzni: boolean | null;
   /**
+   * İlerleme buluta yedeklensin mi (kayıtta oyuncunun ve yakınlarının adları
+   * var). null: onay ekranı henüz görülmedi; o sürede yedek de kapalı.
+   */
+  bulutIzni: boolean | null;
+  /**
    * "Nasıl oynanır" kartı görülmüş mini oyunlar. Yeni oyunda tekrar
    * çıkmıyor; ayarlardan sıfırlanabiliyor.
    */
@@ -38,6 +43,7 @@ export const VARSAYILAN_AYARLAR: Ayarlar = {
   metinHizi: 'normal',
   hareketAzalt: false,
   olcumIzni: null,
+  bulutIzni: null,
   gorulenOgreticiler: [],
 };
 
@@ -49,6 +55,8 @@ const ANAHTAR = 'bedelli.ayarlar.v1';
 type AyarDeposu = Ayarlar & {
   /** Ayarlar katmanı açık mı (her ekranın üstünde). */
   acik: boolean;
+  /** Diskten okundu mu: onay ekranı ve bulut, okunmadan karar vermesin. */
+  yuklendi: boolean;
   ac: () => void;
   kapat: () => void;
   degistir: (p: Partial<Ayarlar>) => void;
@@ -61,16 +69,28 @@ function uygula(a: Ayarlar) {
   sesAyarla({ efekt: a.efekt, ambiyans: a.ambiyans });
   titresimAyarla(a.titresim);
   olcumIzniAyarla(a.olcumIzni === true);
+  bulutIzniAyarla(a.bulutIzni === true);
 }
 
 function ayarlariAl(s: AyarDeposu): Ayarlar {
-  const { efekt, ambiyans, titresim, metinHizi, hareketAzalt, olcumIzni, gorulenOgreticiler } = s;
-  return { efekt, ambiyans, titresim, metinHizi, hareketAzalt, olcumIzni, gorulenOgreticiler };
+  const { efekt, ambiyans, titresim, metinHizi, hareketAzalt, olcumIzni, bulutIzni } = s;
+  const { gorulenOgreticiler } = s;
+  return {
+    efekt,
+    ambiyans,
+    titresim,
+    metinHizi,
+    hareketAzalt,
+    olcumIzni,
+    bulutIzni,
+    gorulenOgreticiler,
+  };
 }
 
 export const useAyarlar = create<AyarDeposu>((set, get) => ({
   ...VARSAYILAN_AYARLAR,
   acik: false,
+  yuklendi: false,
   ac: () => set({ acik: true }),
   kapat: () => set({ acik: false }),
 
@@ -94,7 +114,7 @@ export const useAyarlar = create<AyarDeposu>((set, get) => ({
     } catch {
       // bozuk ya da okunamadı: varsayılanlar
     }
-    set(a);
+    set({ ...a, yuklendi: true });
     uygula(a);
   },
 }));
