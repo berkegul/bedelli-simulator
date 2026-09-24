@@ -127,6 +127,10 @@ taslak gibi; küçük soluk metin çok; hareket yok.
 | G6 | **Avlu haritası:** etiket çakışması yok, daha büyük, zemin detayı | ✅ |
 | G7 | **Okunabilirlik:** en küçük metin boyutu yükselir, soluk metin azalır, kontrast kontrolü | ✅ |
 | G8 | **Hareket:** ekran geçişleri, stat değişiminde sayma, mini oyun sonucunda derece damgası (C4); geniş ekranda oyun alanı sınırlı (C5) | ✅ |
+| G9 | **Sahne kiti (D4b):** dokulu zemin/duvar, ufuk, ışık, gölge, nefes; mekan şeridi ve gökyüzü bununla | ✅ |
+| G10 | **Mini oyun sahneleri (D4b):** 13 oyunun her biri kendi mekânında (koğuş, dolap, avlu, içtima, arazi, poligon, lavabo, tören alanı, nöbet kulübesi) | ✅ |
+| G11 | **Karakterler (D4b):** asker yeniden çizildi (yüz, kep, cepler, kemer, kollar), Çavuş, yürüyüş ve sırt kareleri | ✅ |
+| G12 | **Gün başı / gün sonu (D4b):** koğuş sahnesi, tebeşir çentikler, not damgası | ✅ |
 
 Yöntem: önce G1 (oyunun %80'i bu ekranda geçiyor) prototip olarak
 yapılıp Berke'ye gösterilir; onayla yön oturunca diğer ekranlar aynı dile
@@ -859,6 +863,7 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 
 | Tarih | Kayıt |
 |---|---|
+| 2026-09-24 | Berke: "grafik anlamında çok eksik, en iyi hâle getir", "mini oyunların sahneleri eksik, gerçekçiliği yok". D4b: sahne kiti; 13 mini oyun gerçek mekânlarında (dört paralel kol, görsel kontrol web'de); asker/Çavuş yeniden çizildi; oyun ekranında sahne %38; gökyüzü basamaklı + bulut; gün başı ve gün sonu koğuşta. README kuralı korundu: AI raster yok, zenginlik katmandan. |
 | 2026-09-24 | Berke: yemin töreni son gün olmalı (gerçekte törenden sonra aileyle çıkılıyor); yemin 26 → 28, K5 güncellendi. 26 genel prova günü oldu; 28'de sıra: dolap, tören, aileler, evrak ve künye, sivil, veda, nizamiye. 20–27'deki gün sayısı atıfları düzeltildi. |
 | 2026-09-24 | D7'nin kod tarafı bitti ve main'e birleşti: EAS ayarı, Firebase kuralları, KVKK onayı (bulut yedeği artık izne bağlı), hata raporlama katmanı, piksel ikon, mağaza metinleri. Kalanlar hesap ve hukuk: Firebase + Sentry + Apple/Play hesapları (K6), gizlilik metninin kontrolü, ilk derleme, ekran görüntüleri, cihazda S12b. |
 | 2026-09-24 | D6 bitti ve main'e birleşti: gün 20–28 (I7, I8), yemin oyunu (I11), karne ve finaller akışta (I8, I9), erişilebilirlik (C6). Oyun baştan sona 28 gün oynanabilir. Denge: en az +1 kazanç garantisi 80 → 75 (son hafta ortalama oyuncu her gün TAKDİR alıyordu). S12b D7'ye, cihaz testiyle. |
