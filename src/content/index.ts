@@ -261,6 +261,20 @@ export function gunGetir(no: number): Day | undefined {
 }
 
 /**
+ * Kayıttaki konum içerikte var mı; yoksa en yakın geçerli konum. Bir
+ * güncellemede bloğun sahne sayısı değişirse eski kayıt var olmayan bir
+ * sahneyi gösteriyor ve oyun ekranı boş kalıyordu. Sahne yoksa bloğun
+ * başına, blok yoksa günün başına dönülür.
+ */
+export function konumDuzelt(gun: number, blokIndex: number, sahneIndex: number) {
+  const g = gunGetir(gun);
+  const blok = g?.blocks[blokIndex];
+  if (!g || !blok) return { blokIndex: 0, sahneIndex: 0 };
+  if (!blok.scenes[sahneIndex]) return { blokIndex, sahneIndex: 0 };
+  return { blokIndex, sahneIndex };
+}
+
+/**
  * Bloğun `bas` sırasından itibaren koşulu tutan ilk sahne. Koşulsuz sahne
  * her zaman açık; hiçbiri açık değilse null. Her blokta en az bir koşulsuz
  * sahne olması içerik testinde zorunlu, o yüzden blok başında null dönmez.

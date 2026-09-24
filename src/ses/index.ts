@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
 
 /**
@@ -39,6 +40,19 @@ const EFEKT_SESI: Partial<Record<Efekt, number>> = { tik: 0.35, adim1: 0.5, adim
 const AMBIYANS_SESI = 0.3;
 
 let ayar = { efekt: true, ambiyans: true };
+
+/**
+ * Web'de tarayıcı, sayfa kullanıcıdan bir dokunuş görmeden sese izin
+ * vermiyor. expo-audio'nun web oynatıcısı reddedilen play() sözünü
+ * yakalamıyor; yakalanmayan hata geliştirmede uygulamayı düşürüyordu.
+ * Etkileşim olmadıysa hiç denemiyoruz.
+ */
+const calabilir = () => {
+  if (Platform.OS !== 'web') return true;
+  const etkinlik = (globalThis.navigator as Navigator & { userActivation?: { hasBeenActive: boolean } })
+    ?.userActivation;
+  return etkinlik ? etkinlik.hasBeenActive : true;
+};
 const efektler = new Map<Efekt, AudioPlayer>();
 let calanAmbiyans: { ad: Ambiyans; oynatici: AudioPlayer } | null = null;
 
@@ -64,7 +78,7 @@ export function sesAyarla(yeni: Partial<typeof ayar>) {
 }
 
 export function sesCal(ad: Efekt) {
-  if (!ayar.efekt) return;
+  if (!ayar.efekt || !calabilir()) return;
   try {
     let o = efektler.get(ad);
     if (!o) {
@@ -89,7 +103,7 @@ export function ambiyansCal(ad: Ambiyans | null) {
     // zaten kapanmış
   }
   calanAmbiyans = null;
-  if (!ad || !ayar.ambiyans) return;
+  if (!ad || !ayar.ambiyans || !calabilir()) return;
   try {
     const o = createAudioPlayer(AMBIYANSLAR[ad]);
     o.loop = true;

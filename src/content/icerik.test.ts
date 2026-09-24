@@ -5,7 +5,7 @@
  */
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { GUNLER, acikSahne, gunGetir, YAZILMIS_GUN_SAYISI } from './index';
+import { GUNLER, acikSahne, gunGetir, konumDuzelt, YAZILMIS_GUN_SAYISI } from './index';
 import { dakikaya } from '../engine/zaman';
 import { gunGorevleri } from './gorevTakvimi';
 
@@ -135,4 +135,12 @@ describe('koşullu sahneler', () => {
     for (const g of GUNLER)
       for (const b of g.blocks) assert.ok(b.scenes.some((s) => !s.kosul), b.id);
   });
+});
+
+test('konumDuzelt: içerikte olmayan konum geçerli olana döner', () => {
+  const son = GUNLER[1].blocks.length;
+  assert.deepEqual(konumDuzelt(2, 0, 0), { blokIndex: 0, sahneIndex: 0 });
+  assert.deepEqual(konumDuzelt(2, 1, 999), { blokIndex: 1, sahneIndex: 0 });
+  assert.deepEqual(konumDuzelt(2, son + 3, 1), { blokIndex: 0, sahneIndex: 0 });
+  assert.deepEqual(konumDuzelt(99, 2, 2), { blokIndex: 0, sahneIndex: 0 });
 });

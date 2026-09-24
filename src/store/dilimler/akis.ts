@@ -1,4 +1,4 @@
-import { acikSahne, gunGetir } from '../../content';
+import { acikSahne, gunGetir, konumDuzelt } from '../../content';
 import { applyEffect, blokGecisi, gunNotu, uykudanSonra } from '../../engine/stats';
 import { sil, yukle } from '../../engine/save';
 import { blokSonu, dakikaya, sahneSaati } from '../../engine/zaman';
@@ -59,6 +59,9 @@ export const akisDilimi = (
       set({ hazir: true, kayitVar: false, ekran: 'menu' });
       return;
     }
+    // Güncellemeyle içerik değiştiyse kayıttaki sahne artık olmayabilir.
+    const konum = konumDuzelt(k.gun, k.blokIndex, k.sahneIndex);
+    const konumDegisti = konum.blokIndex !== k.blokIndex || konum.sahneIndex !== k.sahneIndex;
     set({
       hazir: true,
       kayitVar: true,
@@ -66,9 +69,11 @@ export const akisDilimi = (
       profil: k.profil,
       hazirlikBitti: k.hazirlikBitti,
       gun: k.gun,
-      blokIndex: k.blokIndex,
-      sahneIndex: k.sahneIndex,
-      saat: k.saat ?? sahneninSaati(k.gun, k.blokIndex, k.sahneIndex),
+      blokIndex: konum.blokIndex,
+      sahneIndex: konum.sahneIndex,
+      saat: konumDegisti
+        ? sahneninSaati(k.gun, konum.blokIndex, konum.sahneIndex)
+        : (k.saat ?? sahneninSaati(k.gun, k.blokIndex, k.sahneIndex)),
       stats: k.stats,
       para: k.para,
       envanter: k.envanter ?? {},

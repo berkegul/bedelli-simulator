@@ -19,6 +19,7 @@ import { useGeriTusu } from './src/ui/useGeriTusu';
 import { sesHazirla } from './src/ses';
 import { useAyarlar } from './src/ayarlar';
 import { AyarlarEkrani } from './src/screens/AyarlarEkrani';
+import { HataSiniri } from './src/ui/HataSiniri';
 import { useGame } from './src/store/gameStore';
 import { MenuEkrani } from './src/screens/MenuEkrani';
 import { ProfilEkrani } from './src/screens/ProfilEkrani';
@@ -76,23 +77,25 @@ export default function App() {
   return (
     // Jestler kökten aşağı dağılıyor: yol sahnesindeki sürükleme bu sarmalın
     // içinde olmazsa dokunmayı hiç görmüyor.
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <View style={{ flex: 1, backgroundColor: C.bg }} onLayout={yerlesimHazir}>
-          <StatusBar style="light" />
-          {ekran === 'menu' && <MenuEkrani />}
-          {ekran === 'profil' && <ProfilEkrani />}
-          {ekran === 'carsi' && <CarsiEkrani />}
-          {ekran === 'gunBasi' && <GunBasiEkrani />}
-          {ekran === 'oyun' && <OyunEkrani />}
-          {ekran === 'gunSonu' && <GunSonuEkrani />}
-          {ekran === 'kilit' && <KilitEkrani />}
-          {ekran === 'icerikSonu' && <IcerikSonuEkrani />}
-          {ekran === 'gelistirme' && <GelistirmeEkrani />}
-          <GelistirmeRozeti />
-          {ayarlarAcik && <AyarlarEkrani />}
-        </View>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <HataSiniri onKurtar={() => useGame.getState().anaMenu()}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <View style={{ flex: 1, backgroundColor: C.bg }} onLayout={yerlesimHazir}>
+            <StatusBar style="light" />
+            {ekran === 'menu' && <MenuEkrani />}
+            {ekran === 'profil' && <ProfilEkrani />}
+            {ekran === 'carsi' && <CarsiEkrani />}
+            {ekran === 'gunBasi' && <GunBasiEkrani />}
+            {ekran === 'oyun' && <OyunEkrani />}
+            {ekran === 'gunSonu' && <GunSonuEkrani />}
+            {ekran === 'kilit' && <KilitEkrani />}
+            {ekran === 'icerikSonu' && <IcerikSonuEkrani />}
+            {ekran === 'gelistirme' && <GelistirmeEkrani />}
+            <GelistirmeRozeti />
+            {ayarlarAcik && <AyarlarEkrani />}
+          </View>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </HataSiniri>
   );
 }
