@@ -965,25 +965,21 @@ export const BANK: SpriteDef = {
 };
 
 /** Bankta oturan asker: bacaklar öne uzanmış. */
+/**
+ * Oturan asker: baş ayakta duranla aynı, gövde dizleri öne gelmiş, elleri
+ * kemerde. Bankın arkasında duruyor; ayaklar bankın önünde görünüyor.
+ */
 const oturanVaryant = (kep: string, uniforma: string, golge: string): SpriteDef => ({
-  palette: { ...P, h: kep, u: uniforma, U: golge },
+  palette: { ...P, h: kep, u: uniforma, U: golge, q: golge, y: acik(uniforma) },
   rows: [
-    '.....kkkkkk.....',
-    '....khhhhhhk....',
-    '...kuuuuuuuuk...',
-    '...kssssssssk...',
-    '...kskssssksk...',
-    '...ksssSSsssk...',
-    '...kssskksssk...',
-    '....kssssssk....',
-    '.....kSSSSk.....',
-    '...kuuuuuuuuk...',
-    '..kuuuuuuuuuuk..',
-    '.kUuuuuuuuuuuUk.',
-    '.kUuuuuuuuuuuUk.',
-    '..kuuuuuuuuuuk..',
-    '..kuuuukkkkkkk..',
-    '..kuuuukbbbbbk..',
+    ...SOLDIER.rows.slice(0, 9),
+    '..kyuuukkuuuUk..',
+    '.kyuuuusSuuuuUk.',
+    'kyukqmquuqmqkuUk',
+    'ksskbbbmmbbbksSk',
+    '..kuuuuuuuuuUk..',
+    '..kuuuUkkuuuUk..',
+    '..klbbbkklbbbk..',
   ],
 });
 
