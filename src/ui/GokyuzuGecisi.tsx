@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { C } from '../theme';
@@ -29,27 +29,22 @@ export function GokyuzuGecisi({ yon, yukseklik, sure = 2800, onBitti }: Props) {
   const bas = isikDurumu(yon === 'dogum' ? '04:00' : '16:30');
   const son = isikDurumu(yon === 'dogum' ? '08:00' : '21:30');
 
-  const [oran, setOran] = useState(0);
+  const [ilerleme, setOran] = useState(0);
   const azaltilmis = useHareketAzalt();
 
 
-  // onBitti ref'te: ebeveyn her render'da yeni fonksiyon verse de geçiş baştan
-  // kurulmuyor. `bitti` onu tek seferlik yapıyor; eskiden setState
-  // güncelleyicisinin içinden çağrılıyordu ve StrictMode'da iki kez tetikleniyordu.
-  const onBittiRef = useRef(onBitti);
-  useEffect(() => {
-    onBittiRef.current = onBitti;
-  });
+  // Bitiş tek seferlik; eskiden setState güncelleyicisinin içinden
+  // çağrılıyordu ve StrictMode'da iki kez tetikleniyordu. Olay fonksiyonu
+  // olduğu için ebeveynin her render'da yeni onBitti vermesi geçişi baştan kurmuyor.
   const bitti = useRef(false);
-  const bitir = () => {
+  const bitir = useEffectEvent(() => {
     if (bitti.current) return;
     bitti.current = true;
-    onBittiRef.current?.();
-  };
+    onBitti?.();
+  });
 
   useEffect(() => {
     if (azaltilmis) {
-      setOran(1);
       bitir();
       return;
     }
@@ -66,6 +61,7 @@ export function GokyuzuGecisi({ yon, yukseklik, sure = 2800, onBitti }: Props) {
     return () => clearInterval(t);
   }, [azaltilmis, sure]);
 
+  const oran = azaltilmis ? 1 : ilerleme;
   const isik: Isik = isikKaristir(bas, son, oran);
   const bant = 6;
 

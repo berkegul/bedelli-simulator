@@ -56,6 +56,16 @@ const FIRCA: [number, number, number][] = [
 const SILME = 0.006;
 
 const anahtar = (p: number, x: number, y: number) => `${p}:${x}:${y}`;
+const yeniKir = () => {
+  const m = new Map<string, number>();
+  for (const p of [0, 1]) for (const [x, y] of DERI) m.set(anahtar(p, x, y), 1);
+  return m;
+};
+const temizlikOrani = (kir: Map<string, number>) => {
+  let t = 0;
+  kir.forEach((v) => (t += 1 - v));
+  return t / kir.size;
+};
 
 export function PostalParlatma({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const z = useZamanlayici();
@@ -65,14 +75,11 @@ export function PostalParlatma({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const toplam = Math.round((14 - zorluk * 4) * 1000);
 
   const [en, setEn] = useState(0);
-  const [, setSurum] = useState(0);
-
+  const [durdu, setDurdu] = useState(false);
+  // Çizim bu kopyadan; jest mantığı ref'teki canlı haritayla çalışıyor.
+  const [gorunum, setGorunum] = useState(yeniKir);
   const kir = useRef<Map<string, number> | null>(null);
-  if (!kir.current) {
-    const m = new Map<string, number>();
-    for (const p of [0, 1]) for (const [x, y] of DERI) m.set(anahtar(p, x, y), 1);
-    kir.current = m;
-  }
+  const harita = () => (kir.current ??= yeniKir());
 
   const son = useRef<{ x: number; y: number } | null>(null);
   const parlayan = useRef(0);
@@ -115,19 +122,13 @@ export function PostalParlatma({ onBitti, zorluk = 0 }: MiniOyunProps) {
     return out;
   }, [olcek, en, su, sahneH, ust, bx, bw]);
 
-  const puan = () => {
-    let t = 0;
-    kir.current!.forEach((v) => (t += 1 - v));
-    return t / kir.current!.size;
-  };
-
   const bitir = () => {
     if (bitti.current) return;
     bitti.current = true;
-    sure.durdur();
-    onBitti(clamp01(puan()));
+    setDurdu(true);
+    onBitti(clamp01(temizlikOrani(harita())));
   };
-  const sure = useGeriSayim(toplam, () => bitir());
+  const sure = useGeriSayim(toplam, bitir, durdu);
 
   const ov = useCallback(
     (x: number, y: number, mesafe: number) => {
@@ -138,7 +139,7 @@ export function PostalParlatma({ onBitti, zorluk = 0 }: MiniOyunProps) {
       if (p < 0) return;
       const lx = p === 1 ? px - SUTUN - ARA : px;
 
-      const m = kir.current!;
+      const m = harita();
       let degisti = false;
       for (const [dx, dy, agirlik] of FIRCA) {
         const k = anahtar(p, lx + dx, py + dy);
@@ -157,7 +158,7 @@ export function PostalParlatma({ onBitti, zorluk = 0 }: MiniOyunProps) {
         sonTitresim.current = Date.now();
       }
       parlayan.current = parlak;
-      setSurum((s) => s + 1);
+      setGorunum(new Map(m));
 
       // Daha fazla parlatılamıyorsa beklemeye gerek yok.
       if (parlak === m.size) z.sonra(400, bitir);
@@ -167,6 +168,9 @@ export function PostalParlatma({ onBitti, zorluk = 0 }: MiniOyunProps) {
     [arac.verim, olcek, taban],
   );
 
+  // Jest kurucusu geri çağrıları saklıyor, render sırasında çağırmıyor;
+  // derleyici bunu bilemediği için ref okuması sanıyor (yanlış pozitif).
+  /* eslint-disable react-hooks/refs */
   const jest = useMemo(
     () =>
       Gesture.Pan()
@@ -190,8 +194,9 @@ export function PostalParlatma({ onBitti, zorluk = 0 }: MiniOyunProps) {
         }),
     [ov],
   );
+  /* eslint-enable react-hooks/refs */
 
-  const yuzde = Math.round(puan() * 100);
+  const yuzde = Math.round(temizlikOrani(gorunum) * 100);
   const az = sure.oran < 0.3;
 
   return (
@@ -280,7 +285,7 @@ export function PostalParlatma({ onBitti, zorluk = 0 }: MiniOyunProps) {
                   ))}
                   {[0, 1].flatMap((p) =>
                     DERI.map(([x, y]) => {
-                      const v = kir.current!.get(anahtar(p, x, y))!;
+                      const v = gorunum.get(anahtar(p, x, y))!;
                       const sol = (p * (SUTUN + ARA) + x) * olcek;
                       const parlak = v <= taban + 0.05 && (x + y + p) % 3 === 0;
                       return (

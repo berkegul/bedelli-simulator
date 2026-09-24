@@ -77,10 +77,16 @@ export function OyunEkrani() {
   // Yalnızca sahne değişince sıfırla. Sonuç kartı da bağımlılık olsaydı
   // serbest zamanda her eylemden sonra tanıtım metni baştan yazılıyor,
   // menü geri gelene kadar oyuncu bekliyordu.
-  const [giris] = useState(() => new Animated.Value(0));
-  useEffect(() => {
+  // Render sırasında: yeni sahnenin ilk karesi eski "atla" ile çizilirse
+  // metin bir an tam görünüp bitiş sinyali erken gidiyordu.
+  const [sonSahne, setSonSahne] = useState(sahneAnahtari);
+  if (sonSahne !== sahneAnahtari) {
+    setSonSahne(sahneAnahtari);
     setYazildi(false);
     setAtla(false);
+  }
+  const [giris] = useState(() => new Animated.Value(0));
+  useEffect(() => {
     // Sahne aniden yerine geçmiyor, aşağıdan süzülüyor: ekranın değiştiği
     // fark ediliyor ve kesik kesik gelen içerik akıcı duruyor.
     giris.setValue(0);

@@ -144,9 +144,14 @@ export function Gece({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const [araniyor, setAraniyor] = useState<Yer | null>(null);
   const [secili, setSecili] = useState(false);
   const [mesaj, setMesaj] = useState<string | null>(null);
+  const [durdu, setDurdu] = useState(false);
 
+  // Zamanlayıcılardan okunan adım; artış yalnızca `ilerle` üzerinden.
   const adimRef = useRef(0);
-  adimRef.current = adim;
+  const ilerle = () => {
+    adimRef.current += 1;
+    setAdim(adimRef.current);
+  };
   const yanlis = useRef(0);
   const bitti = useRef(false);
   const zamanlayicilar = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -170,20 +175,22 @@ export function Gece({ onBitti, zorluk = 0 }: MiniOyunProps) {
     mesajZamani.current = setTimeout(() => setMesaj(null), 1500);
   }, []);
 
-  const bitir = (tamam: boolean) => {
+  /** `kalanOran` tamamlanınca saatin durduğu andaki oran. */
+  const bitir = (tamam: boolean, kalanOran = 0) => {
     if (bitti.current) return;
     bitti.current = true;
-    sure.durdur();
-    const temel = tamam ? 0.55 + 0.45 * sure.oran : 0.4 * (adimRef.current / adimlar.length);
+    setDurdu(true);
+    const temel = tamam ? 0.55 + 0.45 * kalanOran : 0.4 * (adimRef.current / adimlar.length);
     onBitti(clamp01(temel - yanlis.current * 0.06 - eksikler.length * EKSIK_CEZA));
   };
-  const sure = useGeriSayim(toplam, () => bitir(false));
+  const sure = useGeriSayim(toplam, () => bitir(false), durdu);
 
   // Son adım da bitti: askerin gece hâli bir an görünsün, sonra yoklama.
   useEffect(() => {
     if (adim < adimlar.length || bitti.current) return;
-    sure.durdur();
-    sonra(() => bitir(true), 700);
+    const kalanOran = sure.oran;
+    setDurdu(true);
+    sonra(() => bitir(true, kalanOran), 700);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adim, adimlar.length]);
 
@@ -201,7 +208,7 @@ export function Gece({ onBitti, zorluk = 0 }: MiniOyunProps) {
     setSecili(false);
     if (h === a.yer) {
       titret(Siddet.Medium);
-      setAdim((x) => x + 1);
+      ilerle();
       return;
     }
     yanlis.current += 1;
@@ -230,7 +237,7 @@ export function Gece({ onBitti, zorluk = 0 }: MiniOyunProps) {
       return;
     }
     titret(Siddet.Medium);
-    setAdim((x) => x + 1);
+    ilerle();
   };
 
   const ac = (yer: Yer) => {
