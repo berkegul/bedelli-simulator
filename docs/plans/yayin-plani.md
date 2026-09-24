@@ -79,7 +79,7 @@ ondan sonra başlar. Süreler tek kişilik yoğun çalışma için kaba tahmin.
 | Dalga | Amaç | İşler | Tahmin |
 |---|---|---|---|
 | **D1 · Zemin** | Veri kaybettiren hataları kapat, test altyapısını kur | S11, S9, S1, S2, S3, S4, S5, S6, S7 | 2–3 gün |
-| **D2 · İçerik hazırlığı** | 23 gün yazılmadan önce çelişkileri, aracı ve şablonu hazırla | I4, S10, I12, S8, S12, I10, §4 takvimi | 3–4 gün |
+| **D2 · İçerik hazırlığı** | 23 gün yazılmadan önce çelişkileri, aracı ve şablonu hazırla | I4, S10, S13, I12, S8, S12, I10, §4 takvimi | 3–4 gün |
 | **D3 · İkinci hafta + ses** | Gün 6–12, ses, ayarlar, duraklatma | I5, C1, C2, C3 | 5–7 gün |
 | **D4 · Üçüncü hafta + para** | Gün 13–19, satın alma, dev build | I6, Y1, M2, M3, C4, C7 | 6–8 gün |
 | **D5 · Son hafta + uyum** | Gün 20–28, finaller, ölçüm, KVKK, cila | I11, I7, I8, I9, M4, M5, M6, C5, C6, Y2, Y3 | 7–10 gün |
@@ -316,7 +316,7 @@ bunun yanında paralel yürür.
 - **Kabul:** `npm run lint` 0 uyarı; `eslint.config.js`'teki dört kural
   `error`'a çekilir.
 
-#### S10 · denge simülasyonu tsx ⬜ (D2)
+#### S10 · denge simülasyonu tsx ✅ (D2)
 - **Sorun:** `tools/denge-analizi.py`, `stats.ts`'i elle kopyalıyor, rutin /
   ceza / nöbet / telefon etkilerini görmüyor, tokluğu yanlış modelliyor.
 - **Adımlar:** `tools/denge.ts` (tsx): `GUNLER`'i ve `stats.ts`'i doğrudan
@@ -329,6 +329,31 @@ bunun yanında paralel yürür.
   kalmaz (revir dalı, I6).
 - **Kabul:** `npm run denge` çalışıyor; 1–5. günler için Python çıktısıyla
   yön olarak tutarlı, farklar açıklanmış.
+- **Sonuç:** plandan daha iyi bir yol seçildi: `tools/oyuncu.ts` formülleri
+  kopyalamıyor, gerçek store'u (AsyncStorage taklidiyle) oyuncu gibi sürüyor.
+  Yeni gün ya da mekanik eklenince araç güncellenmiyor. `tools/denge.ts`
+  rapor, `tools/oyuncu.test.ts` oynanış testi (her profil her yazılı günü
+  bitirebilmeli; kilitlenen sahne test kırar). Python araçları silindi,
+  kurulumda Python gerekmiyor.
+- **Farklar (Python yanılıyordu):** ortalama oyuncu İDARE EDER'de takılı
+  değil; 200 rastgele oyuncunun %83'ü 5. günde TAKDİR ALDI. İyi oyuncuda
+  disiplin 4. günde 98. Kötü oyuncu 3. günde üç statta dipte. → S13.
+
+#### S13 · denge ayarı ⬜ (D2, S10'dan sonra, I5'ten önce)
+- **Sorun:** 1–5. günler ortalama oyuncuyu bile tavana taşıyor; 23 gün için
+  ilerleme payı kalmıyor. İçerik yazılmadan önce çözülmeli, çünkü yeni
+  günlerin etki ölçeği (±3 / ±6 / ±12) buna göre seçilecek.
+- **Hedef eğri** (`npm run denge`):
+  - ortalama oyuncu: 5. günde çoğunluk TEMİZ İŞ, TAKDİR ALDI %20'nin altında;
+    TAKDİR'e ancak son haftada çoğunluk ulaşsın;
+  - iyi oyuncu: disiplin 28. güne kadar 95'e dayanmasın, 5. günde ≤ 85;
+  - kötü oyuncu: dibe vurabilir ama bir stat 3 günden uzun 0'da kalmasın
+    (toparlanma yolu I6'daki revir dalı).
+- **Kaldıraçlar:** sabah rutini + denetim ödüllerinin büyüklüğü
+  (`content/rutin.ts`), dolap etkisi, tepsi kalemlerinin kondisyon/moral
+  katkısı, `kazanc()` üssü. Günlük etkiler toplamının dökümü için
+  `npm run denge -- --ayrinti`.
+- **Kabul:** hedef eğri tutuyor; oynanış testi geçiyor.
 
 ---
 

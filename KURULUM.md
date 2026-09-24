@@ -29,12 +29,6 @@ ayarlar yeterli.
 git --version
 ```
 
-### Python (isteğe bağlı)
-
-Yalnızca `tools/denge-analizi.py` için gerekli (denge analizi). Oyunu çalıştırmak için gerekmez.
-[python.org](https://www.python.org/downloads/) → indirirken **"Add Python to
-PATH"** kutusunu işaretle.
-
 ### Telefonuna Expo Go
 
 Oyunu telefonda görmek için:
@@ -104,7 +98,7 @@ Hiçbir çıktı vermezse her şey temiz demektir.
 
 ```powershell
 npm run sprite
-python tools\denge-analizi.py
+npm run denge
 ```
 
 Birincisi sprite'ları terminale çizip hizasızlık ve eksik palet karakteri

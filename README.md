@@ -224,7 +224,8 @@ src/
   firebaseConfig.ts  bulut ayarları (boşken oyun tamamen cihazda çalışır)
 tools/
   sprite-onizle.ts   sprite doğrulayıcı ve terminal önizleyici (npm run sprite)
-  denge-analizi.py   denge simülasyonu (tsx'e taşınacak)
+  oyuncu.ts          sanal oyuncu: gerçek store'u bir oyuncu gibi sürer
+  denge.ts           denge raporu (npm run denge)
 ```
 
 ## Yeni gün ekleme
@@ -239,10 +240,13 @@ belirleyen tercih ±12. Enerji gün içinde tükenir, uykuda dolar.
 Yazdıktan sonra dengeyi ölç:
 
 ```bash
-python3 tools/denge-analizi.py
+npm run denge
 ```
 
-En iyi, ortalama ve en kötü oynayanı gün gün simüle eder. Aranan tablo:
+En iyi, ortalama ve en kötü oynayanı gün gün simüle eder, ardından 200
+rastgele ortalama oyuncunun gün sonu not dağılımını basar. Simülasyon
+oyunun gerçek store'unu sürüyor: rutin, denetim, dolap, tepsi, nöbet ve
+ceza dahil oyunda ne varsa hesaba giriyor, formül kopyası yok. Aranan tablo:
 üç profil farklı notlar alıyor, hiçbir istatistik 0 veya 100'e yapışmıyor,
 28 güne yayılacak ilerleme payı kalıyor. Bir istatistik uca çakılıyorsa
 `⚠ uçta` uyarısı basar.
@@ -253,9 +257,12 @@ kolay kalır. Uçlarda (92 üstü, 8 altı) "en az 1 puan" garantisi kalkıyor;
 yoksa günde +1 birikip beşinci günde tavan görülüyordu.
 
 Analizdeki "en kötü oynayan" profili her seçimde en kötüyü seçen, her mini
-oyunda sıfır alan ve hiç hazırlık yapmayan bir oyuncu — dibe vurması
-tasarım gereği, gerçek bir oyuncunun yörüngesi değil. `src/engine/stats.ts` ile bu script'teki formüller elle
-eşleştirilmiş; birini değiştirirsen diğerini de güncelle.
+oyunda sıfır alan, hiç yemeyen ve hiç hazırlık yapmayan bir oyuncu — dibe
+vurması tasarım gereği, gerçek bir oyuncunun yörüngesi değil.
+
+Aynı sanal oyuncu `npm test` içinde de koşuyor: her profil yazılı bütün
+günleri baştan sona bitirebilmeli. Yeni günde ilerlemeyen bir sahne varsa
+test kırılır.
 
 ## Yeni sprite çizme
 
