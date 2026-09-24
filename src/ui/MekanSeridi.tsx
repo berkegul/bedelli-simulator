@@ -279,7 +279,12 @@ function Kalabalik({ adet, en, ic, k }: { adet: number; en: number; ic: boolean;
   const arkaAdet = Math.ceil(adet * 0.55);
   const satirlar = [
     { adet: arkaAdet, u: 2 * k, taban: (KALABALIK_YUKSEKLIK - 24) * k, opaklik: ic ? 0.4 : 0.35 },
-    { adet: adet - arkaAdet, u: 2 * k, taban: (KALABALIK_YUKSEKLIK - 12) * k, opaklik: ic ? 0.62 : 0.55 },
+    {
+      adet: adet - arkaAdet,
+      u: 2 * k,
+      taban: (KALABALIK_YUKSEKLIK - 12) * k,
+      opaklik: ic ? 0.62 : 0.55,
+    },
   ];
 
   return (
@@ -295,10 +300,38 @@ function Kalabalik({ adet, en, ic, k }: { adet: number; en: number; ic: boolean;
 
           return (
             <React.Fragment key={`${si}-${i}`}>
-              <Rect x={x + u} y={y} width={2 * u} height={2 * u} fill="#9A7852" opacity={satir.opaklik} />
-              <Rect x={x} y={y + 2 * u} width={4 * u} height={5 * u} fill={uniforma} opacity={satir.opaklik} />
-              <Rect x={x} y={y + 7 * u} width={u} height={3 * u} fill="#4A3524" opacity={satir.opaklik} />
-              <Rect x={x + 3 * u} y={y + 7 * u} width={u} height={3 * u} fill="#4A3524" opacity={satir.opaklik} />
+              <Rect
+                x={x + u}
+                y={y}
+                width={2 * u}
+                height={2 * u}
+                fill="#9A7852"
+                opacity={satir.opaklik}
+              />
+              <Rect
+                x={x}
+                y={y + 2 * u}
+                width={4 * u}
+                height={5 * u}
+                fill={uniforma}
+                opacity={satir.opaklik}
+              />
+              <Rect
+                x={x}
+                y={y + 7 * u}
+                width={u}
+                height={3 * u}
+                fill="#4A3524"
+                opacity={satir.opaklik}
+              />
+              <Rect
+                x={x + 3 * u}
+                y={y + 7 * u}
+                width={u}
+                height={3 * u}
+                fill="#4A3524"
+                opacity={satir.opaklik}
+              />
             </React.Fragment>
           );
         }),
@@ -317,9 +350,13 @@ type Props = {
   carpan?: number;
   /** Kenardan kenara çizimde çerçeve yok. */
   cercevesiz?: boolean;
+  /** Köşedeki mekân adı ve mevcut etiketleri gizli (menü sahnesi). */
+  etiketsiz?: boolean;
+  /** Sahnenin üstüne serilen içerik (menüde başlık). */
+  children?: React.ReactNode;
 };
 
-export function MekanSeridi({ blokId, saat, carpan = 1, cercevesiz }: Props) {
+export function MekanSeridi({ blokId, saat, carpan = 1, cercevesiz, etiketsiz, children }: Props) {
   const mekan = mekanBul(blokId);
   const k = Math.max(1, Math.round(carpan));
   const YUKSEKLIK = TABAN_YUKSEKLIK * k;
@@ -363,7 +400,15 @@ export function MekanSeridi({ blokId, saat, carpan = 1, cercevesiz }: Props) {
 
       {/* Kalabalık dekorun önünde, adı olan askerlerin arkasında duruyor */}
       {!!mekan.kalabalik && (
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: ZEMIN + 2 * k, height: KALABALIK_YUKSEKLIK * k }}>
+        <View
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: ZEMIN + 2 * k,
+            height: KALABALIK_YUKSEKLIK * k,
+          }}
+        >
           <Kalabalik adet={mekan.kalabalik} en={en} ic={mekan.ic} k={k} />
         </View>
       )}
@@ -371,28 +416,34 @@ export function MekanSeridi({ blokId, saat, carpan = 1, cercevesiz }: Props) {
       {mekan.ogeler.map((o, i) => (
         <View
           key={i}
-          style={{ position: 'absolute', left: `${o.x}%`, bottom: (o.taban ?? TABAN_ZEMIN - 4) * k }}
+          style={{
+            position: 'absolute',
+            left: `${o.x}%`,
+            bottom: (o.taban ?? TABAN_ZEMIN - 4) * k,
+          }}
         >
           <PixelSprite sprite={sprite(o.sprite)} scale={o.olcek * k} opacity={o.arka ? 0.5 : 1} />
         </View>
       ))}
 
-      <View
-        style={{
-          position: 'absolute',
-          top: 4,
-          left: 4,
-          backgroundColor: C.ink,
-          paddingHorizontal: 5,
-          paddingVertical: 1,
-        }}
-      >
-        <PixelText font="command" size="small" color={C.brass}>
-          {mekan.ad.toLocaleUpperCase('tr-TR')}
-        </PixelText>
-      </View>
+      {!etiketsiz && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 4,
+            left: 4,
+            backgroundColor: C.ink,
+            paddingHorizontal: 5,
+            paddingVertical: 1,
+          }}
+        >
+          <PixelText font="command" size="small" color={C.brass}>
+            {mekan.ad.toLocaleUpperCase('tr-TR')}
+          </PixelText>
+        </View>
+      )}
 
-      {mekan.mevcut && (
+      {!etiketsiz && mekan.mevcut && (
         <View
           style={{
             position: 'absolute',
@@ -408,6 +459,7 @@ export function MekanSeridi({ blokId, saat, carpan = 1, cercevesiz }: Props) {
           </PixelText>
         </View>
       )}
+      {children}
     </View>
   );
 }

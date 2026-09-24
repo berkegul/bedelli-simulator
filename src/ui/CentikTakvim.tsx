@@ -18,13 +18,20 @@ type Props = {
   aktifGun: number;
   /** Erişilemeyen günler (henüz yazılmamış ya da kilitli) soluk gösterilir. */
   acikGunSayisi?: number;
+  /** Alttaki açıklama satırı; çağıran kendi satırını yazıyorsa gizlenir. */
+  aciklamasiz?: boolean;
 };
 
 /**
  * Oyunun imza görseli: 28 gün, duvara atılan çentik gibi.
  * Bitirilen gün üstü çizilir; çizginin rengi o günün notudur.
  */
-export function CentikTakvim({ bitenGunler, aktifGun, acikGunSayisi = TOPLAM_GUN }: Props) {
+export function CentikTakvim({
+  bitenGunler,
+  aktifGun,
+  acikGunSayisi = TOPLAM_GUN,
+  aciklamasiz,
+}: Props) {
   const notlar = new Map(bitenGunler.map((b) => [b.gun, b.not]));
   const sutun = 7;
   const satir = Math.ceil(TOPLAM_GUN / sutun);
@@ -70,9 +77,11 @@ export function CentikTakvim({ bitenGunler, aktifGun, acikGunSayisi = TOPLAM_GUN
           );
         })}
       </Svg>
-      <PixelText size="micro" color={C.canvasFaint} center>
-        Her çentik bir gün. Rengi o günün notu.
-      </PixelText>
+      {!aciklamasiz && (
+        <PixelText size="micro" color={C.canvasFaint} center>
+          Her çentik bir gün. Rengi o günün notu.
+        </PixelText>
+      )}
     </View>
   );
 }
