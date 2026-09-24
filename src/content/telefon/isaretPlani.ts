@@ -35,13 +35,6 @@ export const ISARET_PLANI: Record<string, IsaretPlani> = {
   alisma_isareti: { plan: 'final' },
 
   // Gün içeriği: telefonda anlatılan şey ertesi gün koğuşta karşına çıkar.
-  kanka_takvim: { plan: 'gun', gun: 15, not: 'kankanın duvar takvimi, SAYIM günü' },
-  ev_yemegi: { plan: 'gun', gun: 13, not: 'yemekhanede ev yemeği özlemi' },
-  sevgili_surpriz: { plan: 'gun', gun: 16, not: 'sevgilinin sürprizi' },
-  hasta_oldu: { plan: 'gun', gun: 17, not: 'ayak yarası, revir dalı sonrası' },
-  koli_yolda: { plan: 'gun', gun: 17, not: 'koli geliyor' },
-  koli_icerigi: { plan: 'gun', gun: 18, not: 'koliden çıkan koğuşta paylaşılıyor' },
-  ilk_azar: { plan: 'gun', gun: 19, not: 'ilk azarın yatağı artık kusursuz' },
   yatak_ogrendi: { plan: 'gun', gun: 20, not: 'yatak ustalığı' },
   telefon_ozlemi: { plan: 'gun', gun: 23, not: 'kanka aramadıktan sonra' },
 };
