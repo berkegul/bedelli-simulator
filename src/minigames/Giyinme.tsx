@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { C, SP } from '../theme';
-import { type SpriteKey } from '../art';
+import { sprite, type SpriteKey } from '../art';
 import { GIYINME_ASAMALARI } from '../art/sprites';
-import { BOLGE_ADI } from '../content/dolap';
+import { BOLGE_ADI, duzendekiler } from '../content/dolap';
 import type { DolapBolgesi, DolapDuzeni, Envanter } from '../engine/types';
-import { DolapCizimi, KUTU, SECILMEZ, planKur, yuva } from '../screens/DolapYerlesimi';
+import { KUTU, SECILMEZ, planKur, yuva } from '../screens/DolapYerlesimi';
 import { useGame } from '../store/gameStore';
 import { Siddet, titret } from '../ui/haptik';
 import { PixelText } from '../ui/PixelText';
-import { AskerDurusu, KogusFonu, RanzaCizimi } from './KogusFonu';
+import { AskerDurusu, KapaliGoz, KogusFonu, Paspas, RafEsyalari, RanzaCizimi, SacDolap } from './KogusFonu';
 import { TasinanParca } from './TasinanParca';
 import { clamp01, type MiniOyunProps } from './types';
 
@@ -198,6 +198,14 @@ export function Giyinme({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const kalanlar = giysiler.slice(asama);
   const dk = Math.ceil((kalan / toplam) * 10);
 
+  // Oyuna konu olan (çamaşır seti, üniforma) dışındaki dolap eşyaları süs olarak rafta.
+  const rafSuslari = (yer: DolapBolgesi) =>
+    duzen
+      ? duzendekiler(duzen)
+          .filter((p) => duzen.yerler[p.id] === yer && p.id !== 'askerSeti' && p.id !== 'uniforma')
+          .map((p) => sprite(p.sprite))
+      : [];
+
   const konum = (g: Giysi) => {
     if (!plan) return null;
     const ayni = kalanlar.filter((k) => k.yer === g.yer);
@@ -239,9 +247,19 @@ export function Giyinme({ onBitti, zorluk = 0 }: MiniOyunProps) {
           <>
             {/* Koğuş sabahı: dolabın arkasında duvar, önünde karo, pencereden ışık */}
             <KogusFonu en={en} yukseklik={altY + ALT_BOY} zeminY={plan.dolap.h - 6} gece={false} />
-            <DolapCizimi plan={plan} />
+            <SacDolap plan={plan} />
 
             {/* Kapalı raflar: bakana kadar içi görünmüyor */}
+            {/* Açık gözlerde rafta duran, oyuna konu olmayan eşyalar */}
+            {ACILAN.filter((yer) => acik.includes(yer)).map((yer) => (
+              <RafEsyalari
+                key={`raf-${yer}`}
+                r={plan.bolgeler.find((b) => b.id === yer)!}
+                spritelar={rafSuslari(yer)}
+              />
+            ))}
+
+            {/* Kapalı gözler: sac kapak; bakana kadar içi görünmüyor */}
             {ACILAN.filter((yer) => !acik.includes(yer)).map((yer) => {
               const r = plan.bolgeler.find((b) => b.id === yer)!;
               const bakiyor = araniyor === yer;
@@ -251,26 +269,15 @@ export function Giyinme({ onBitti, zorluk = 0 }: MiniOyunProps) {
                   accessibilityRole="button"
                   accessibilityLabel={`${BOLGE_ADI[yer]} rafına bak`}
                   onPress={() => ac(yer)}
-                  style={{
-                    position: 'absolute',
-                    left: r.x,
-                    top: r.y,
-                    width: r.w,
-                    height: r.h,
-                    backgroundColor: bakiyor ? '#262418' : '#15130D',
-                    borderWidth: 1,
-                    borderColor: '#2E2B1F',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
+                  style={{ position: 'absolute', left: r.x, top: r.y, width: r.w, height: r.h }}
                 >
-                  <PixelText font="command" size="small" color={bakiyor ? C.brass : C.canvasFaint}>
-                    {bakiyor
-                      ? duzen?.hizli && yer === 'alt'
-                        ? 'KARIŞTIRIYORSUN…'
-                        : 'BAKIYORSUN…'
-                      : `${BOLGE_ADI[yer].toLocaleUpperCase('tr-TR')} · BAK`}
-                  </PixelText>
+                  <KapaliGoz
+                    r={r}
+                    ad={BOLGE_ADI[yer]}
+                    nabiz={!araniyor && sonraki?.olagan === yer}
+                    bakiyor={bakiyor}
+                    karistiriyor={!!duzen?.hizli && yer === 'alt'}
+                  />
                 </Pressable>
               );
             })}
@@ -296,20 +303,16 @@ export function Giyinme({ onBitti, zorluk = 0 }: MiniOyunProps) {
                 top: govde.y,
                 width: govde.w,
                 height: govde.h,
-                borderWidth: 1,
-                borderStyle: 'dashed',
-                borderColor: '#5A5238',
                 alignItems: 'center',
                 justifyContent: 'flex-end',
                 paddingBottom: SP.xs,
               }}
             >
-              <View style={{ position: 'absolute', top: SP.xs, left: SP.sm, backgroundColor: C.ink, paddingHorizontal: 4 }}>
-                <PixelText font="command" size="micro" color={C.canvasDim}>
-                  ÜSTÜN
-                </PixelText>
-              </View>
+              {/* Ranzanın dibinde, paspasın üstünde sen */}
               <AskerDurusu kare={GIYINME_ASAMALARI[Math.min(asama, SIRA.length)]} />
+              <View style={{ marginTop: -6 }}>
+                <Paspas en={Math.min(govde.w - 20, 110)} />
+              </View>
             </View>
 
             {kalanlar

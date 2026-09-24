@@ -1,16 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { BORDER, C, SP } from '../theme';
-import { type SpriteKey } from '../art';
+import { sprite, type SpriteKey } from '../art';
 import { GECE_KARELERI, GIYINME_ASAMALARI } from '../art/sprites';
-import { BOLGE_ADI } from '../content/dolap';
+import { BOLGE_ADI, duzendekiler } from '../content/dolap';
 import type { DolapBolgesi, DolapDuzeni, Envanter, EsyaId } from '../engine/types';
-import { DolapCizimi, SECILMEZ, planKur, yuva } from '../screens/DolapYerlesimi';
+import { SECILMEZ, planKur, yuva } from '../screens/DolapYerlesimi';
 import { useGame } from '../store/gameStore';
 import { Siddet, titret } from '../ui/haptik';
 import { PixelText } from '../ui/PixelText';
 import { useGeriSayim } from './geriSayim';
-import { AskerDurusu, KogusFonu, RanzaCizimi } from './KogusFonu';
+import { AskerDurusu, KapaliGoz, KogusFonu, Paspas, RafEsyalari, RanzaCizimi, SacDolap } from './KogusFonu';
 import { TasinanParca } from './TasinanParca';
 import { clamp01, type MiniOyunProps } from './types';
 
@@ -267,6 +267,23 @@ export function Gece({ onBitti, zorluk = 0 }: MiniOyunProps) {
         ];
 
   const giyilecekler = adimlar.slice(adim).filter((a) => a.tur === 'giy' && acik.includes(a.yer));
+
+  // İpucunun söylediği göz hafifçe yanıp sönüyor: giyilecekse bakılacak yer,
+  // elde parça varsa bırakılacak yer. Olağan yer; dolap başka diyebilir.
+  const OLAGAN: Partial<Record<AdimId, Yer>> = { ceket: 'aski', pantolon: 'aski', corap: 'aski', pijama: 'ust', terlik: 'alt' };
+  const nabizYeri = simdiki && (simdiki.tur === 'giy' || secili) ? OLAGAN[simdiki.id] : undefined;
+
+  // Oyuna konu olmayan dolap eşyaları rafta; kirli torbası da (çorabın gideceği yer).
+  const rafSuslari = (yer: DolapBolgesi) =>
+    duzen
+      ? duzendekiler(duzen)
+          .filter(
+            (p) =>
+              duzen.yerler[p.id] === yer &&
+              !['uniforma', 'askerSeti', 'pijama', 'terlik'].includes(p.id),
+          )
+          .map((p) => sprite(p.sprite))
+      : [];
   const giyKonum = (a: Adim) => {
     if (!plan) return null;
     const ayni = giyilecekler.filter((g) => g.yer === a.yer);
@@ -312,7 +329,7 @@ export function Gece({ onBitti, zorluk = 0 }: MiniOyunProps) {
           <>
             {/* Koğuş gece: tek tavan lambası, ranzalar karanlıkta */}
             <KogusFonu en={en} yukseklik={altY + ALT_BOY} zeminY={plan.dolap.h - 6} gece />
-            <DolapCizimi plan={plan} />
+            <SacDolap plan={plan} />
             {/* Dolabın metali de lambanın dışında kalan loşlukta; eşyalar üstte, okunaklı */}
             <View
               pointerEvents="none"
@@ -335,22 +352,23 @@ export function Gece({ onBitti, zorluk = 0 }: MiniOyunProps) {
                     top: r.y,
                     width: r.w,
                     height: r.h,
-                    backgroundColor: kapali ? (bakiyor ? '#262418' : '#100F0A') : 'transparent',
-                    borderWidth: secili ? 1 : 0,
+                    borderWidth: secili && !kapali ? 1 : 0,
                     borderStyle: 'dashed',
-                    borderColor: C.line,
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    borderColor: C.brass,
                   }}
                 >
-                  {kapali && (
-                    <PixelText font="command" size="small" color={bakiyor ? C.brass : C.canvasFaint}>
-                      {bakiyor
-                        ? duzen?.hizli && yer === 'alt'
-                          ? 'KARIŞTIRIYORSUN…'
-                          : 'BAKIYORSUN…'
-                        : `${BOLGE_ADI[yer].toLocaleUpperCase('tr-TR')} · BAK`}
-                    </PixelText>
+                  {kapali ? (
+                    <KapaliGoz
+                      r={r}
+                      ad={BOLGE_ADI[yer]}
+                      nabiz={!araniyor && nabizYeri === yer}
+                      bakiyor={bakiyor}
+                      karistiriyor={!!duzen?.hizli && yer === 'alt'}
+                    />
+                  ) : (
+                    <View style={{ position: 'absolute', left: -r.x, top: -r.y }}>
+                      <RafEsyalari r={{ ...r, x: r.x, y: r.y }} spritelar={rafSuslari(yer)} />
+                    </View>
                   )}
                 </Pressable>
               );
@@ -382,20 +400,15 @@ export function Gece({ onBitti, zorluk = 0 }: MiniOyunProps) {
                 top: govde.y,
                 width: govde.w,
                 height: govde.h,
-                borderWidth: 1,
-                borderStyle: 'dashed',
-                borderColor: '#4A4430',
                 alignItems: 'center',
                 justifyContent: 'flex-end',
                 paddingBottom: SP.xs,
               }}
             >
-              <View style={{ position: 'absolute', top: SP.xs, right: SP.sm, backgroundColor: C.ink, paddingHorizontal: 4 }}>
-                <PixelText font="command" size="micro" color={C.canvasDim}>
-                  ÜSTÜN
-                </PixelText>
-              </View>
               <AskerDurusu kare={kare} />
+              <View style={{ marginTop: -6 }}>
+                <Paspas en={Math.min(govde.w - 20, 110)} />
+              </View>
             </View>
 
             {/* Üstündeki sıradaki parça: tut, yerine götür */}
