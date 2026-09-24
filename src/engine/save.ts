@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { kayitDogrula } from './kayitDogrula';
 import { bulutaYaz, bulutlaKarsilastir, buluttanOku, bulutuSil } from './bulut';
 import type { ArkadasId, DolapDuzeni, Envanter, Kusur, Profil, RehberKisi, Rol, Stats } from './types';
 
@@ -13,6 +14,8 @@ const V2_KEY = 'bedelli.save.v2';
  * bir sonraki açılışta geri geliyordu.
  */
 const SILINDI_KEY = 'bedelli.save.silindi';
+/** Okunamayan son kayıt; oyun onu atlayıp devam eder. */
+const BOZUK_KEY = 'bedelli.save.bozuk';
 /** İşaretin bellekteki kopyası: her kayıtta diske sormamak için. */
 let silindiIsareti = false;
 
@@ -51,6 +54,14 @@ export type SaveData = {
 
 export type KayitYuku = Omit<SaveData, 'version' | 'guncelleme'>;
 
+function jsonOku(raw: string): unknown {
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
 export async function kaydet(data: KayitYuku) {
   const payload: SaveData = { ...data, version: 3, guncelleme: Date.now() };
   try {
@@ -74,19 +85,23 @@ export async function yukle(): Promise<SaveData | null> {
   try {
     const raw = await AsyncStorage.getItem(KEY);
     if (raw) {
-      const parsed = JSON.parse(raw) as SaveData;
-      if (parsed?.version === 3) {
-        void bulutlaKarsilastir(parsed);
-        return parsed;
+      const kayit = kayitDogrula(jsonOku(raw));
+      if (kayit) {
+        void bulutlaKarsilastir(kayit);
+        return kayit;
       }
+      // Bozuk kayıt silinmiyor, kenara alınıyor: destek için incelenebilsin.
+      // Oyun buluttaki yedekten ya da temiz başlar.
+      await AsyncStorage.setItem(BOZUK_KEY, raw);
+      await AsyncStorage.removeItem(KEY);
     }
 
     // v2 kaydı duruyorsa taşı: ilerleme, envanter ve rehber korunur.
     const eski = await AsyncStorage.getItem(V2_KEY);
     if (eski) {
-      const parsed = JSON.parse(eski) as Omit<SaveData, 'version'> & { version: number };
-      if (parsed?.version === 2) {
-        const tasinan: SaveData = { ...parsed, version: 3, guncelleme: Date.now() };
+      const tasinan = kayitDogrula(jsonOku(eski));
+      if (tasinan) {
+        tasinan.guncelleme = Date.now();
         await AsyncStorage.setItem(KEY, JSON.stringify(tasinan));
         return tasinan;
       }

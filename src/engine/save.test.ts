@@ -106,3 +106,17 @@ test('silmeden sonra yeni oyun kaydedilince işaret kalkar', async () => {
   assert.equal(depo.has('bedelli.save.silindi'), false);
   assert.equal((await yukle())?.gun, 1);
 });
+
+test('bozuk kayıt kenara alınır, oyun buluttaki yedekten devam eder', async () => {
+  depo.set('bedelli.save.v3', '{"version":3,"gun":"dört"');
+  bulut.kayit = { ...ornek(6), version: 3, guncelleme: 1 };
+  const k = await yukle();
+  assert.equal(k?.gun, 6);
+  assert.equal(depo.get('bedelli.save.bozuk'), '{"version":3,"gun":"dört"');
+});
+
+test('stats alanı bozuk kayıt çökme yerine reddedilir', async () => {
+  depo.set('bedelli.save.v3', JSON.stringify({ ...ornek(2), stats: null, version: 3, guncelleme: 1 }));
+  assert.equal(await yukle(), null);
+  assert.ok(depo.has('bedelli.save.bozuk'));
+});

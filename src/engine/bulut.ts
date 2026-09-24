@@ -1,4 +1,5 @@
 import { FIREBASE_CONFIG, firebaseKurulu } from '../firebaseConfig';
+import { kayitDogrula } from './kayitDogrula';
 import { kimlikBaslat } from './kimlik';
 import type { SaveData } from './save';
 
@@ -162,14 +163,8 @@ async function bulutKaydiniGetir(): Promise<SaveData | null> {
   try {
     const { doc, getDoc } = await import('firebase/firestore');
     const anlik = await getDoc(doc(o.db as never, 'oyuncular', o.uid));
-    const veri = anlik.exists()
-      ? (anlik.data() as Omit<SaveData, 'version'> & { version?: number })
-      : null;
-    if (!veri) return null;
-    // v2 buluttan da taşınabilir: eksik telefon alanları store'da dolduruluyor.
-    if (veri.version === 3) return veri as SaveData;
-    if (veri.version === 2) return { ...veri, version: 3 } as SaveData;
-    return null;
+    // Sürüm taşıması (v2 → v3) ve alan doğrulaması cihazdaki kayıtla aynı yoldan.
+    return anlik.exists() ? kayitDogrula(anlik.data()) : null;
   } catch {
     return null;
   }

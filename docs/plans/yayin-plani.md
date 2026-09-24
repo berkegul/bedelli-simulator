@@ -211,7 +211,7 @@ bunun yanında paralel yürür.
   kapatılınca iki test düşüyor (doğrulandı). Tarayıcıda: tek dokunuş soru,
   3 sn sonra geri dönüş, çift dokunuş silme, yenilemede eski oyun yok.
 
-#### S4 · kayıt doğrulama + sürüm zinciri ⬜ (D1)
+#### S4 · kayıt doğrulama + sürüm zinciri ✅ (D1)
 - **Sorun:** `save.ts:61` `JSON.parse(raw) as SaveData` dışında kontrol yok.
   Eksik `stats` alanı ekranda çökme yapar.
 - **Adımlar:**
@@ -226,6 +226,14 @@ bunun yanında paralel yürür.
      kopyalanır (destek için) ve oyun menüden temiz başlar.
 - **Kabul:** birim testleri: boş nesne, eksik stats, string gun, v2 kaydı,
   geçerli v3 kaydı.
+- **Sonuç:** `engine/kayitDogrula.ts`, cihaz, v2 ve bulut kaydı aynı yoldan
+  geçiyor. Zorunlu alan bozuksa kayıt `bedelli.save.bozuk`'a alınıp buluttaki
+  yedeğe düşülüyor. Doğrulayıcının dönüş tipi SaveData'nın her anahtarını
+  zorunlu tutuyor: yeni alan eklenip burada unutulursa tsc hata veriyor
+  (denendi). **Sapma:** store'daki `?? varsayılan` satırları yerinde kaldı;
+  varsayılan sabitleri (BASLANGIC_ILISKI vb.) store'da duruyor, taşınmaları
+  S8'in store bölmesiyle birlikte yapılacak. Doğrulayıcı yanlış tipli alanı
+  düşürüyor, store eksiği dolduruyor. 19 yeni test.
 
 #### S5 · kaydedilmeyen durumlar + kontör iadesi ⬜ (D1, S4'ten sonra)
 - **Sorun:** `persist` (`gameStore.ts:1326`) şunları yazmıyor:
