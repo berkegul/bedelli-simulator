@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BORDER, C, SP } from '../theme';
 import { useSecili } from '../store/secici';
@@ -40,6 +40,9 @@ export function MenuEkrani() {
     'yeniOyun',
   );
   const inset = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
+  // Nizamiye ekranın yarısı: alttaki çentik ve düğmeler sığsın, üstü boş kalmasın.
+  const sahneEk = Math.max(0, Math.round(height * 0.48) - 300);
   const devamEdilebilir =
     g.kayitVar || g.bitenGunler.length > 0 || g.blokIndex > 0 || g.sahneIndex > 0 || !!g.profil.ad;
   const terhisOldu = g.bitenGunler.some((b) => b.gun === TOPLAM_GUN);
@@ -54,7 +57,14 @@ export function MenuEkrani() {
       style={{ flex: 1, backgroundColor: C.bg }}
       contentContainerStyle={{ paddingBottom: inset.bottom + SP.xl, flexGrow: 1 }}
     >
-      <MekanSeridi blokId="d1-nizamiye" saat={simdi} carpan={2} cercevesiz etiketsiz>
+      <MekanSeridi
+        blokId="d1-nizamiye"
+        saat={simdi}
+        carpan={2}
+        ekYukseklik={sahneEk}
+        cercevesiz
+        etiketsiz
+      >
         <View
           style={{
             position: 'absolute',
