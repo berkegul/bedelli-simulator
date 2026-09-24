@@ -10,6 +10,9 @@ import { Daktilo } from "../ui/Daktilo";
 import { PixelButton } from "../ui/PixelButton";
 import { DiyalogKutusu } from "../ui/DiyalogKutusu";
 import { DereceDamgasi } from "../ui/DereceDamgasi";
+import { OgreticiKarti } from "../ui/OgreticiKarti";
+import { OGRETICI } from "../minigames/ogretici";
+import { useAyarlar } from "../ayarlar";
 import { MekanSeridi, mekanBul } from "../ui/MekanSeridi";
 import { PixelSprite } from "../ui/PixelSprite";
 import { PixelText } from "../ui/PixelText";
@@ -39,6 +42,8 @@ import { useDuraklat } from "../ui/duraklat";
 import { ambiyansCal, sesCal } from "../ses";
 
 export function OyunEkrani() {
+  const gorulenOgreticiler = useAyarlar((s) => s.gorulenOgreticiler);
+  const ogreticiGoruldu = useAyarlar((s) => s.ogreticiGoruldu);
   const g = useSecili('bekleyenKusurlar', 'blokIndex', 'denetimBitir', 'dolapDuzeni', 'dolapKapat', 'envanter', 'gun', 'ileri', 'miniAktif', 'miniBaslat', 'miniBitir', 'nikotin', 'panel', 'para', 'profil', 'saat', 'sahneIndex', 'secimYap', 'sonuc', 'sonucuKapat', 'stats', 'yemekYe', 'yoldaVar');
   const gunData = gunGetir(g.gun);
   const blok = gunData?.blocks[g.blokIndex];
@@ -115,14 +120,23 @@ export function OyunEkrani() {
       >
         {g.miniAktif && sahne.kind === "mini" ? (
           <View style={{ flex: 1, padding: SP.lg, justifyContent: "center" }}>
-            <MiniOyun
-              id={sahne.game}
-              zorluk={zorluk}
-              onBitti={(skor) => {
-                sesCal(skor >= 0.6 ? 'basari' : 'basarisiz');
-                g.miniBitir(skor);
-              }}
-            />
+            {/* İlk açılışta önce kart: süre oyuncu okurken işlemesin */}
+            {!gorulenOgreticiler.includes(sahne.game) ? (
+              <OgreticiKarti
+                baslik={MINI_BASLIK[sahne.game]}
+                {...OGRETICI[sahne.game]}
+                onTamam={() => ogreticiGoruldu(sahne.game)}
+              />
+            ) : (
+              <MiniOyun
+                id={sahne.game}
+                zorluk={zorluk}
+                onBitti={(skor) => {
+                  sesCal(skor >= 0.6 ? 'basari' : 'basarisiz');
+                  g.miniBitir(skor);
+                }}
+              />
+            )}
           </View>
         ) : (
           <ScrollView

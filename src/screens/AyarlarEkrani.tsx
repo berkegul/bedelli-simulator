@@ -165,6 +165,33 @@ export function AyarlarEkrani() {
               onDegis={() => a.degistir({ olcumIzni: a.olcumIzni !== true })}
             />
           </Satir>
+          <Satir
+            baslik="Nasıl oynanır kartları"
+            aciklama={
+              a.gorulenOgreticiler.length
+                ? `${a.gorulenOgreticiler.length} oyunun kartı görüldü. Sıfırlarsan her oyunda bir kez daha çıkar.`
+                : 'Her mini oyunun ilk açılışında bir kez çıkar.'
+            }
+          >
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Nasıl oynanır kartlarını sıfırla"
+              disabled={!a.gorulenOgreticiler.length}
+              onPress={() => a.degistir({ gorulenOgreticiler: [] })}
+              style={{
+                borderWidth: BORDER,
+                borderColor: C.ink,
+                backgroundColor: C.surface,
+                paddingHorizontal: SP.md,
+                paddingVertical: SP.xs,
+                opacity: a.gorulenOgreticiler.length ? 1 : 0.4,
+              }}
+            >
+              <PixelText font="command" size="body" color={C.canvasDim}>
+                SIFIRLA
+              </PixelText>
+            </Pressable>
+          </Satir>
         </View>
 
         {kayitVar && (

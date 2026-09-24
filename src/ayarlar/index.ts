@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { olcumIzniAyarla } from '../engine/bulut';
+import type { MiniGameId } from '../engine/types';
 import { sesAyarla } from '../ses';
 import { titresimAyarla } from '../ui/haptik';
 
@@ -23,6 +24,11 @@ export type Ayarlar = {
    * sorulmadı; o durumda da hiçbir şey gönderilmiyor (KVKK onay ekranı M5).
    */
   olcumIzni: boolean | null;
+  /**
+   * "Nasıl oynanır" kartı görülmüş mini oyunlar. Yeni oyunda tekrar
+   * çıkmıyor; ayarlardan sıfırlanabiliyor.
+   */
+  gorulenOgreticiler: MiniGameId[];
 };
 
 export const VARSAYILAN_AYARLAR: Ayarlar = {
@@ -32,6 +38,7 @@ export const VARSAYILAN_AYARLAR: Ayarlar = {
   metinHizi: 'normal',
   hareketAzalt: false,
   olcumIzni: null,
+  gorulenOgreticiler: [],
 };
 
 /** Daktilo için harf başına milisaniye. */
@@ -45,6 +52,7 @@ type AyarDeposu = Ayarlar & {
   ac: () => void;
   kapat: () => void;
   degistir: (p: Partial<Ayarlar>) => void;
+  ogreticiGoruldu: (id: MiniGameId) => void;
   yukle: () => Promise<void>;
 };
 
@@ -56,8 +64,8 @@ function uygula(a: Ayarlar) {
 }
 
 function ayarlariAl(s: AyarDeposu): Ayarlar {
-  const { efekt, ambiyans, titresim, metinHizi, hareketAzalt, olcumIzni } = s;
-  return { efekt, ambiyans, titresim, metinHizi, hareketAzalt, olcumIzni };
+  const { efekt, ambiyans, titresim, metinHizi, hareketAzalt, olcumIzni, gorulenOgreticiler } = s;
+  return { efekt, ambiyans, titresim, metinHizi, hareketAzalt, olcumIzni, gorulenOgreticiler };
 }
 
 export const useAyarlar = create<AyarDeposu>((set, get) => ({
@@ -71,6 +79,11 @@ export const useAyarlar = create<AyarDeposu>((set, get) => ({
     const a = ayarlariAl(get());
     uygula(a);
     void AsyncStorage.setItem(ANAHTAR, JSON.stringify(a)).catch(() => {});
+  },
+
+  ogreticiGoruldu(id) {
+    const g = get().gorulenOgreticiler;
+    if (!g.includes(id)) get().degistir({ gorulenOgreticiler: [...g, id] });
   },
 
   async yukle() {
