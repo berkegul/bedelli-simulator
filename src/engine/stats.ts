@@ -35,12 +35,16 @@ function kazanc(mevcut: number, degisim: number, direncli: boolean) {
   if (!direncli) return degisim;
 
   // Yuvarlama yüzünden hiç kıpırdamamak oyuncuya "hiçbir şey fark etmiyor"
-  // dedirtir; bu yüzden en az 1 puan hareket garanti. Ama bu garanti uçlarda
-  // kalkıyor: yoksa her gün +1 birikip 100'e dayanıyor ve 28 günlük oyunda
-  // beşinci günde tavan görülüyordu. Uçlar artık asimptot.
+  // dedirtir; bu yüzden en az 1 puan hareket garanti. Ama bu garanti 80'in
+  // üstünde kalkıyor: yoksa her küçük ödül +1 birikip tavana dayanıyordu.
+  //
+  // Üs ve eşik `npm run denge` ile ayarlandı (yayin-plani.md · S13): 0.85 /
+  // 92 iken rastgele oynayan ortalama oyuncunun %83'ü 5. günde TAKDİR
+  // alıyordu; 1.3 / 80 ile 5. gün çoğunluk TEMİZ İŞ, en iyi not sonraki
+  // haftalara kalıyor.
   if (degisim > 0) {
-    const olceklenmis = degisim * Math.pow(1 - mevcut / 100, 0.85);
-    return mevcut >= 92 ? olceklenmis : Math.max(1, olceklenmis);
+    const olceklenmis = degisim * Math.pow(1 - mevcut / 100, 1.3);
+    return mevcut >= 80 ? olceklenmis : Math.max(1, olceklenmis);
   }
   // Tabana yaklaşırken de fren var, ama yükselmekten belirgin daha zayıf:
   // disiplin kaybetmek kazanmaktan kolay kalmalı.
@@ -101,7 +105,9 @@ export function uykudanSonra(stats: Stats): Stats {
   // Aç yatmak uykuyu böler; tokluk uyku kalitesine moral kadar etki eder.
   const aclikCezasi = stats.tokluk < 30 ? 0.25 : stats.tokluk < 50 ? 0.1 : 0;
   const kalite = Math.max(0.35, 0.6 + (stats.moral / 100) * 0.4 - aclikCezasi);
-  const yipranma = stats.enerji < 20 ? -7 : stats.enerji < 40 ? -3 : stats.enerji > 65 ? 4 : 1;
+  // Dinç biten gün bedeni biraz güçlendiriyor; eskiden +4'tü ve 28 gecede
+  // tek başına kondisyonu tavana taşıyordu.
+  const yipranma = stats.enerji < 20 ? -7 : stats.enerji < 40 ? -3 : stats.enerji > 65 ? 2 : 0;
   return {
     ...stats,
     enerji: clamp(stats.enerji + 70 * kalite),

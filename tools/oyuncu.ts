@@ -75,7 +75,15 @@ const deger = (e: Effect) =>
 // ── Tek oyun ──────────────────────────────────────────────────────────
 export type GunSonu = { gun: number; stats: Stats; para: number; not: string; puan: number };
 
-export async function oyna(p: Profil, tohum: number, ayrinti = false): Promise<GunSonu[]> {
+/** Kaynak → [kondisyon, disiplin, moral] toplam değişimi. */
+export type KaynakDokumu = Map<string, [number, number, number]>;
+
+export async function oyna(
+  p: Profil,
+  tohum: number,
+  ayrinti = false,
+  dokum?: KaynakDokumu,
+): Promise<GunSonu[]> {
   tohumla(tohum);
   depo.clear();
   const { useGame, aktifSahne } = await import('../src/store/gameStore');
@@ -96,6 +104,21 @@ export async function oyna(p: Profil, tohum: number, ayrinti = false): Promise<G
   }
   g().carsiyiBitir();
 
+  /** Eylemin not statlarına etkisini kaynağına yazar. */
+  const olc = (kaynak: string, eylem: () => void) => {
+    const once = g().stats;
+    const blok = g().blokIndex;
+    eylem();
+    if (!dokum) return;
+    const sonra = g().stats;
+    const ad = g().blokIndex !== blok && kaynak === 'ilerle' ? 'blok geçişi (açlık)' : kaynak;
+    const t = dokum.get(ad) ?? [0, 0, 0];
+    t[0] += sonra.kondisyon - once.kondisyon;
+    t[1] += sonra.disiplin - once.disiplin;
+    t[2] += sonra.moral - once.moral;
+    dokum.set(ad, t);
+  };
+
   const sonuclar: GunSonu[] = [];
   let adim = 0;
   for (; adim < 20_000; adim++) {
@@ -107,13 +130,13 @@ export async function oyna(p: Profil, tohum: number, ayrinti = false): Promise<G
     if (s.ekran === 'gunSonu') {
       const son = s.bitenGunler.find((b) => b.gun === s.gun)!;
       sonuclar.push({ gun: s.gun, stats: { ...s.stats }, para: s.para, not: son.not, puan: son.puan });
-      s.sonrakiGun();
+      olc('gece: uyku + dolap eşyaları', () => s.sonrakiGun());
       continue;
     }
     if (s.ekran !== 'oyun') break; // içerik sonu ya da kilit
 
     if (s.sonuc) {
-      s.sonucuKapat();
+      olc('ilerle', () => s.sonucuKapat());
       continue;
     }
 
@@ -126,88 +149,104 @@ export async function oyna(p: Profil, tohum: number, ayrinti = false): Promise<G
       );
     }
 
-    switch (sahne.kind) {
-      case 'anlati': {
-        const secenekler = sahne.choices ?? [];
-        if (!secenekler.length) {
+    const kaynak =
+      sahne.kind === 'mini'
+        ? `mini: ${sahne.game}`
+        : sahne.kind === 'anlati'
+          ? sahne.choices?.length
+            ? 'anlatı seçimi'
+            : 'ilerle'
+          : sahne.kind === 'serbest'
+            ? 'serbest (dinlenme / yatma)'
+            : sahne.kind === 'yol'
+              ? 'yol (hava)'
+              : sahne.kind === 'ders' || sahne.kind === 'tanitim'
+                ? 'ilerle'
+                : sahne.kind;
+    olc(kaynak, () => {
+      switch (sahne.kind) {
+        case 'anlati': {
+          const secenekler = sahne.choices ?? [];
+          if (!secenekler.length) {
+            s.ileri();
+            break;
+          }
+          const sirali = [...secenekler].sort((a, b) => deger(b.effect) - deger(a.effect));
+          const c =
+            p.secim === 'en-iyi'
+              ? sirali[0]
+              : p.secim === 'en-kotu'
+                ? sirali[sirali.length - 1]
+                : secenekler[Math.floor(Math.random() * secenekler.length)];
+          s.secimYap(c);
+          break;
+        }
+        case 'mini':
+          s.miniBaslat();
+          g().miniBitir(p.skor());
+          break;
+        case 'yemek': {
+          if (p.tokluk === null) {
+            s.yemekYe([]);
+            break;
+          }
+          const menu = [...ogunMenusu(s.gun, sahne.ogun)].sort(
+            (a, b) => (b.kondisyon ?? 0) + (b.moral ?? 0) - ((a.kondisyon ?? 0) + (a.moral ?? 0)),
+          );
+          let tokluk = s.stats.tokluk;
+          const tabak = menu.filter((y) => {
+            if (tokluk + y.tokluk > p.tokluk!) return false;
+            tokluk += y.tokluk;
+            return true;
+          });
+          s.yemekYe(tabak.length ? tabak : menu.slice(0, 1));
+          break;
+        }
+        case 'serbest':
+          if (p.dinlenir && !s.bugunDinlenildi) s.golgedeDinlen();
+          else s.ileri();
+          break;
+        case 'yol':
+          s.yoldaVar();
+          break;
+        case 'ders':
+        case 'tanitim':
           s.ileri();
           break;
-        }
-        const sirali = [...secenekler].sort((a, b) => deger(b.effect) - deger(a.effect));
-        const c =
-          p.secim === 'en-iyi'
-            ? sirali[0]
-            : p.secim === 'en-kotu'
-              ? sirali[sirali.length - 1]
-              : secenekler[Math.floor(Math.random() * secenekler.length)];
-        s.secimYap(c);
-        break;
-      }
-      case 'mini':
-        s.miniBaslat();
-        g().miniBitir(p.skor());
-        break;
-      case 'yemek': {
-        if (p.tokluk === null) {
-          s.yemekYe([]);
+        case 'dolap': {
+          // DolapYerlesimi.tsx'in iki çıkışıyla aynı etkiler.
+          if (p.dolap === null) {
+            const c: Choice = { id: 'sim-hizli', label: '', effect: { disiplin: -4, enerji: 4, moral: 3 }, outcome: '' };
+            s.dolapKapat(c, yiginDuzeni(s.envanter));
+            break;
+          }
+          const parcalar = torbadakiler(s.envanter);
+          const dogruSayisi = Math.round(parcalar.length * p.dolap);
+          const duzen: DolapDuzeni = {
+            yerler: Object.fromEntries(
+              parcalar.map((x, i) => [x.id, i < dogruSayisi ? x.dogru : x.dogru === 'alt' ? 'ust' : 'alt']),
+            ),
+          };
+          const oran = parcalar.length ? dogruSayisi / parcalar.length : 1;
+          const c: Choice = {
+            id: 'sim-duzenli',
+            label: '',
+            effect: { disiplin: Math.round(-2 + oran * 10), enerji: -6, ...(oran === 1 && { moral: 3 }) },
+            outcome: '',
+          };
+          s.dolapKapat(c, duzen);
           break;
         }
-        const menu = [...ogunMenusu(s.gun, sahne.ogun)].sort(
-          (a, b) => (b.kondisyon ?? 0) + (b.moral ?? 0) - ((a.kondisyon ?? 0) + (a.moral ?? 0)),
-        );
-        let tokluk = s.stats.tokluk;
-        const tabak = menu.filter((y) => {
-          if (tokluk + y.tokluk > p.tokluk!) return false;
-          tokluk += y.tokluk;
-          return true;
-        });
-        s.yemekYe(tabak.length ? tabak : menu.slice(0, 1));
-        break;
-      }
-      case 'serbest':
-        if (p.dinlenir && !s.bugunDinlenildi) s.golgedeDinlen();
-        else s.ileri();
-        break;
-      case 'yol':
-        s.yoldaVar();
-        break;
-      case 'ders':
-      case 'tanitim':
-        s.ileri();
-        break;
-      case 'dolap': {
-        // DolapYerlesimi.tsx'in iki çıkışıyla aynı etkiler.
-        if (p.dolap === null) {
-          const c: Choice = { id: 'sim-hizli', label: '', effect: { disiplin: -4, enerji: 4, moral: 3 }, outcome: '' };
-          s.dolapKapat(c, yiginDuzeni(s.envanter));
+        case 'dolapDenetimi': {
+          const d = dolapDenetimi(s.dolapDuzeni);
+          s.secimYap({ id: 'sim-dolap-denetimi', label: '', effect: d.etki, outcome: d.metin });
           break;
         }
-        const parcalar = torbadakiler(s.envanter);
-        const dogruSayisi = Math.round(parcalar.length * p.dolap);
-        const duzen: DolapDuzeni = {
-          yerler: Object.fromEntries(
-            parcalar.map((x, i) => [x.id, i < dogruSayisi ? x.dogru : x.dogru === 'alt' ? 'ust' : 'alt']),
-          ),
-        };
-        const oran = parcalar.length ? dogruSayisi / parcalar.length : 1;
-        const c: Choice = {
-          id: 'sim-duzenli',
-          label: '',
-          effect: { disiplin: Math.round(-2 + oran * 10), enerji: -6, ...(oran === 1 && { moral: 3 }) },
-          outcome: '',
-        };
-        s.dolapKapat(c, duzen);
-        break;
+        case 'denetim':
+          s.denetimBitir(hataSayisi(s.bekleyenKusurlar) > 0 ? p.skor() : null);
+          break;
       }
-      case 'dolapDenetimi': {
-        const d = dolapDenetimi(s.dolapDuzeni);
-        s.secimYap({ id: 'sim-dolap-denetimi', label: '', effect: d.etki, outcome: d.metin });
-        break;
-      }
-      case 'denetim':
-        s.denetimBitir(hataSayisi(s.bekleyenKusurlar) > 0 ? p.skor() : null);
-        break;
-    }
+    });
   }
   // Adım sınırı doldu: bir sahne ilerlemiyor (oynanış kilitlendi).
   if (adim >= 20_000) {

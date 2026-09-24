@@ -8,7 +8,7 @@
  * Aranan tablo: üç profil farklı notlar alıyor, hiçbir istatistik 0 ya da
  * 100'e yapışmıyor, 28 güne yayılacak ilerleme payı kalıyor.
  */
-import { oyna, PROFILLER } from './oyuncu';
+import { oyna, PROFILLER, type KaynakDokumu } from './oyuncu';
 
 // ── Rapor ─────────────────────────────────────────────────────────────
 const UC_UST = 97;
@@ -30,6 +30,14 @@ async function main() {
       );
     }
   }
+
+  // Ortalama oyuncunun 1–5. günlerdeki puanı nereden geliyor.
+  const dokum: KaynakDokumu = new Map();
+  await oyna(PROFILLER[1], 1, false, dokum);
+  console.log('\nORTALAMA OYUNCU · puan kaynakları (yazılı günlerin toplamı)');
+  console.log(`${'kaynak'.padEnd(30)}  KOND  DİSİP  MORAL`);
+  for (const [ad, [k, d, m]] of [...dokum].sort((a, b) => b[1][1] + b[1][0] + b[1][2] - (a[1][1] + a[1][0] + a[1][2])))
+    console.log(`${ad.padEnd(30)}  ${pad(k, 4)}  ${pad(d, 5)}  ${pad(m, 5)}`);
 
   const N = 200;
   const dagilim = new Map<number, Map<string, number>>();

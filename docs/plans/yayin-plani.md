@@ -339,7 +339,7 @@ bunun yanında paralel yürür.
   değil; 200 rastgele oyuncunun %83'ü 5. günde TAKDİR ALDI. İyi oyuncuda
   disiplin 4. günde 98. Kötü oyuncu 3. günde üç statta dipte. → S13.
 
-#### S13 · denge ayarı ⬜ (D2, S10'dan sonra, I5'ten önce)
+#### S13 · denge ayarı ✅ (D2, S10'dan sonra, I5'ten önce)
 - **Sorun:** 1–5. günler ortalama oyuncuyu bile tavana taşıyor; 23 gün için
   ilerleme payı kalmıyor. İçerik yazılmadan önce çözülmeli, çünkü yeni
   günlerin etki ölçeği (±3 / ±6 / ±12) buna göre seçilecek.
@@ -354,6 +354,19 @@ bunun yanında paralel yürür.
   katkısı, `kazanc()` üssü. Günlük etkiler toplamının dökümü için
   `npm run denge -- --ayrinti`.
 - **Kabul:** hedef eğri tutuyor; oynanış testi geçiyor.
+- **Sonuç:** `npm run denge` artık puan kaynaklarını döküyor. Asıl pasif
+  kaynaklar ekipman (standart setle her sabah ham +8 kondisyon, +4 moral,
+  +4 disiplin) ve uyku (+4 kondisyon/gece) idi. Değişenler:
+  - ekipman günlük kazançları yarıya (eksik eşya cezası aynı),
+  - dinç biten gecenin kondisyonu +4 → +2, orta enerji +1 → 0,
+  - `kazanc()` üssü 0.85 → 1.3, "en az 1 puan" eşiği 92 → 80
+    (grid: üs 0.85/1.2/1.3/1.5 × eşik 92/85/80 denendi).
+  Denetim ödülünü küçültmek sonucu değiştirmedi, geri alındı; içerik
+  dosyalarına dokunulmadı, ±3/±6/±12 ölçeği geçerli.
+- **Ölçüm (5. gün):** ortalama oyuncu %90 TEMİZ İŞ, %10 İDARE EDER, %0
+  TAKDİR (eskiden %83 TAKDİR). İyi oyuncu TAKDİR'i ilk kez 5. günde alıyor,
+  disiplin 91 (hedef ≤85 tutmadı; tavana yakın her +12 ödül hâlâ +1 ekliyor,
+  gün 6–12 yazılınca yeniden ölçülecek). Kötü oyuncu hâlâ dipte → I6.
 
 ---
 

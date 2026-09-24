@@ -68,7 +68,7 @@ export const ESYALAR: EsyaTanim[] = [
     nerede: ['hazirlik'],
     kademeli: true,
     maxAdet: 1,
-    gunluk: { kondisyon: 2, moral: 2 },
+    gunluk: { kondisyon: 1, moral: 1 },
     yokluk: { kondisyon: -4, moral: -3 },
   },
   {
@@ -96,7 +96,7 @@ export const ESYALAR: EsyaTanim[] = [
     nerede: ['hazirlik'],
     kademeli: true,
     maxAdet: 1,
-    gunluk: { kondisyon: 4 },
+    gunluk: { kondisyon: 2 },
     yokluk: { kondisyon: -3 },
   },
   {
@@ -109,7 +109,7 @@ export const ESYALAR: EsyaTanim[] = [
     nerede: ['hazirlik', 'kantin'],
     kademeli: true,
     maxAdet: 2,
-    gunluk: { kondisyon: 2 },
+    gunluk: { kondisyon: 1 },
     yokluk: { kondisyon: -2, moral: -1 },
   },
   {
@@ -137,7 +137,7 @@ export const ESYALAR: EsyaTanim[] = [
     nerede: ['hazirlik', 'kantin'],
     kademeli: true,
     maxAdet: 1,
-    gunluk: { disiplin: 3 },
+    gunluk: { disiplin: 1 },
     yokluk: { disiplin: -3 },
   },
   {
@@ -150,7 +150,7 @@ export const ESYALAR: EsyaTanim[] = [
     nerede: ['hazirlik', 'kantin'],
     kademeli: true,
     maxAdet: 1,
-    gunluk: { moral: 2 },
+    gunluk: { moral: 1 },
     yokluk: { moral: -3, para: -8 },
   },
   {
@@ -313,7 +313,10 @@ const olcekle = (etki: Effect, carpan: number): Effect => {
 
 /**
  * Her gün başında uygulanan dolap etkisi: iyi hazırlanan kazanır, eksik
- * gelen her sabah biraz daha kaybeder. Çarşıdaki kararın 28 gün süren
+ * gelen her sabah biraz daha kaybeder. Kazançlar bilerek küçük (+1/+2):
+ * 28 sabah boyunca birikiyorlar; eskiden standart setle her sabah +8
+ * kondisyon geliyordu ve birkaç günde tavana dayanıyordu. Eksik eşyanın
+ * cezası aynı kaldı. Çarşıdaki kararın 28 gün süren
  * karşılığı burada.
  */
 export function gunlukEsyaEtkisi(envanter: Envanter): { etki: Effect; satirlar: string[] } {

@@ -253,8 +253,10 @@ ceza dahil oyunda ne varsa hesaba giriyor, formül kopyası yok. Aranan tablo:
 
 Not: istatistikler tavana yaklaştıkça kazanç azalır (`kazanc()` içinde),
 kayıp da tabana yaklaşırken hafifçe yavaşlar — ama kaybetmek kazanmaktan
-kolay kalır. Uçlarda (92 üstü, 8 altı) "en az 1 puan" garantisi kalkıyor;
-yoksa günde +1 birikip beşinci günde tavan görülüyordu.
+kolay kalır. 80'in üstünde ve 8'in altında "en az 1 puan" garantisi
+kalkıyor; yoksa her küçük ödül +1 birikip beşinci günde tavan görülüyordu.
+Eğrinin üssü ve eşik `npm run denge` ile ayarlandı; değiştirirsen raporu
+yeniden çalıştır.
 
 Analizdeki "en kötü oynayan" profili her seçimde en kötüyü seçen, her mini
 oyunda sıfır alan, hiç yemeyen ve hiç hazırlık yapmayan bir oyuncu — dibe
