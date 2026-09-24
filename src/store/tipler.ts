@@ -26,6 +26,8 @@ export type Ekran =
   | 'gunSonu'
   | 'kilit'
   | 'icerikSonu'
+  | 'karne'
+  | 'final'
   | 'gelistirme';
 
 /** Oyun ekranının üstüne açılan panel — sahne akışını bozmadan geri dönülür. */
@@ -178,6 +180,10 @@ export type Store = {
   miniBaslat: () => void;
   miniBitir: (score: number) => void;
   sonucuKapat: () => void;
+  /** 28. günden sonra: terhis karnesi. Menüden de yeniden açılır. */
+  karneAc: () => void;
+  /** Karneden sonra nizamiye: final kartları ve epilog. */
+  finalAc: () => void;
   sonrakiGun: () => void;
   sifirla: () => Promise<void>;
 

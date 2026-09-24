@@ -7,42 +7,10 @@ import { useSecili } from '../store/secici';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelInput } from '../ui/PixelInput';
 import { KayitSecici } from '../ui/KayitSecici';
+import { Bolum, Damga, Kagit } from '../ui/Kagit';
 import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
 import type { KayitRolu } from '../engine/types';
-
-/** Evrakta bölüm başlığı: numaralı, büyük harf, altı çizgili. */
-function Bolum({
-  no,
-  baslik,
-  children,
-}: {
-  no: string;
-  baslik: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <View style={{ gap: SP.sm }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          gap: SP.sm,
-          borderBottomWidth: BORDER,
-          borderColor: C.murekkep,
-          paddingBottom: 2,
-        }}
-      >
-        <PixelText font="command" size="body" color={C.murekkepSoluk}>
-          {no}
-        </PixelText>
-        <PixelText font="command" size="body" color={C.murekkep} tracking={1}>
-          {baslik}
-        </PixelText>
-      </View>
-      {children}
-    </View>
-  );
-}
 
 /** Kâğıtta işaretlenen kutu: [X] seçili, [ ] boş. */
 function Kutu({
@@ -116,15 +84,7 @@ export function ProfilEkrani() {
       </PixelText>
 
       {/* Kâğıt */}
-      <View
-        style={{
-          backgroundColor: C.kagit,
-          borderWidth: BORDER,
-          borderColor: C.ink,
-          padding: SP.lg,
-          gap: SP.xl,
-        }}
-      >
+      <Kagit>
         {/* Başlık ve damga */}
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: SP.md }}>
           <View style={{ flex: 1, gap: 2 }}>
@@ -138,21 +98,7 @@ export function ProfilEkrani() {
               BEDELLİ · TEMEL EĞİTİM · 28 GÜN
             </PixelText>
           </View>
-          <View
-            style={{
-              borderWidth: 3,
-              borderColor: C.rust,
-              paddingHorizontal: SP.sm,
-              paddingVertical: 2,
-              transform: [{ rotate: '-8deg' }],
-              opacity: 0.85,
-              marginTop: SP.sm,
-            }}
-          >
-            <PixelText font="command" size="lead" color={C.rust} tracking={2}>
-              SEVK
-            </PixelText>
-          </View>
+          <Damga metin="SEVK" />
         </View>
 
         <Bolum no="1." baslik="KİMLİK">
@@ -290,7 +236,7 @@ export function ProfilEkrani() {
         <PixelText font="command" size="small" color={C.murekkepSoluk} center>
           İMZA: {ad.trim() ? ad.trim().toLocaleUpperCase('tr-TR') : '..............'}
         </PixelText>
-      </View>
+      </Kagit>
 
       <PixelButton
         label="İmzala, çarşıya git"

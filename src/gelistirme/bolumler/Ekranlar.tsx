@@ -26,6 +26,8 @@ export function BolumEkranlar() {
     { id: 'gunSonu', ad: 'Gün sonu', alt: 'Günün notu, puan, çentik' },
     { id: 'kilit', ad: 'Kilit', alt: `${BEDAVA_GUN + 1}. günde çıkan satın alma duvarı` },
     { id: 'icerikSonu', ad: 'İçerik sonu', alt: `Yazılı ${GUNLER.length} gün bitince` },
+    { id: 'karne', ad: 'Karne', alt: '28. gün kapanınca · sicil, koğuş, ankesör' },
+    { id: 'final', ad: 'Final', alt: 'Nizamiye dışı · final kartları ve epilog' },
   ];
 
   return (

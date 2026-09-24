@@ -23,3 +23,12 @@ test('aynı tohumla aynı oyun: simülasyon tekrarlanabilir', async () => {
   const b = await oyna(PROFILLER[1], 42);
   assert.deepEqual(a, b);
 });
+
+test('28. gün kapanınca oyun karneye çıkıyor', async () => {
+  const { useGame } = await import('../src/store/gameStore');
+  await oyna(PROFILLER[1], 3);
+  assert.equal(YAZILMIS_GUN_SAYISI, 28);
+  assert.equal(useGame.getState().ekran, 'karne');
+  useGame.getState().finalAc();
+  assert.equal(useGame.getState().ekran, 'final');
+});

@@ -1,5 +1,5 @@
 import { acikSahne, gunGetir, konumDuzelt } from '../../content';
-import { applyEffect, blokGecisi, gunNotu, uykudanSonra } from '../../engine/stats';
+import { TOPLAM_GUN, applyEffect, blokGecisi, gunNotu, uykudanSonra } from '../../engine/stats';
 import { sil, yukle } from '../../engine/save';
 import { blokSonu, dakikaya, sahneSaati } from '../../engine/zaman';
 import { olayYaz } from '../../engine/bulut';
@@ -49,6 +49,8 @@ export const akisDilimi = (
   | 'miniBaslat'
   | 'miniBitir'
   | 'sonucuKapat'
+  | 'karneAc'
+  | 'finalAc'
   | 'sonrakiGun'
   | 'sifirla'
   | 'yoldaVar'
@@ -158,6 +160,14 @@ export const akisDilimi = (
       panel: null,
       saat: sahneninSaati(gun, get().blokIndex, get().sahneIndex),
     });
+  },
+
+  karneAc() {
+    set({ ekran: 'karne', panel: null });
+  },
+
+  finalAc() {
+    set({ ekran: 'final', panel: null });
   },
 
   anaMenu() {
@@ -301,6 +311,12 @@ export const akisDilimi = (
     const { gun, stats } = get();
     const hedef = gun + 1;
 
+    // Yirmi sekizinci gün kapandı: askerlik bitti, sırada karne.
+    if (gun >= TOPLAM_GUN) {
+      void olayYaz('oyun_bitti', { gun });
+      set({ ekran: 'karne', sonuc: null, panel: null });
+      return;
+    }
     if (!gunGetir(hedef)) {
       set({ ekran: 'icerikSonu' });
       return;

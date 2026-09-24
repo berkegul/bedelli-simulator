@@ -12,6 +12,7 @@ import { OnayliButon } from '../ui/OnayliButon';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelText } from '../ui/PixelText';
 import { GELISTIRME_ACIK } from '../gelistirme/ayar';
+import { TOPLAM_GUN } from '../engine/stats';
 
 /** Başlık açık gökyüzünün önünde de okunsun: koyu, piksel keskin gölge. */
 const GOLGE = {
@@ -32,6 +33,7 @@ export function MenuEkrani() {
     'devamEt',
     'gelistirmeAc',
     'gun',
+    'karneAc',
     'kayitVar',
     'profil',
     'sahneIndex',
@@ -40,6 +42,7 @@ export function MenuEkrani() {
   const inset = useSafeAreaInsets();
   const devamEdilebilir =
     g.kayitVar || g.bitenGunler.length > 0 || g.blokIndex > 0 || g.sahneIndex > 0 || !!g.profil.ad;
+  const terhisOldu = g.bitenGunler.some((b) => b.gun === TOPLAM_GUN);
 
   const simdi = useMemo(() => {
     const d = new Date();
@@ -93,29 +96,46 @@ export function MenuEkrani() {
             aciklamasiz
           />
           <PixelText size="small" color={C.canvasDim} center>
-            {g.bitenGunler.length
-              ? `${g.bitenGunler.length} çentik. Sivile ${28 - g.bitenGunler.length} gün. Rengi o günün notu.`
-              : '28 gün. Her gün 05:30’da başlar.'}
+            {terhisOldu
+              ? 'Yirmi sekiz çentik. Terhis oldun.'
+              : g.bitenGunler.length
+                ? `${g.bitenGunler.length} çentik. Sivile ${28 - g.bitenGunler.length} gün. Rengi o günün notu.`
+                : '28 gün. Her gün 05:30’da başlar.'}
           </PixelText>
         </View>
 
         <View style={{ gap: SP.sm }}>
-          {devamEdilebilir && (
-            <PixelButton
-              label={
-                g.bitenGunler.length || g.blokIndex > 0 ? `Devam et · ${g.gun}. gün` : 'Devam et'
-              }
-              onPress={g.devamEt}
-            />
-          )}
-          {devamEdilebilir ? (
-            <OnayliButon
-              label="Baştan başla"
-              onayLabel={`${g.gun}. gündeki kayıt silinecek. Emin misin?`}
-              onPress={() => void g.yeniOyun()}
-            />
+          {terhisOldu ? (
+            <>
+              <PixelButton label="Karneyi gör" onPress={g.karneAc} />
+              <OnayliButon
+                label="Yeniden sevk ol"
+                onayLabel="Karne ve bütün kayıt silinecek. Emin misin?"
+                onPress={() => void g.yeniOyun()}
+              />
+            </>
           ) : (
-            <PixelButton label="Sevk kâğıdını al" onPress={() => void g.yeniOyun()} />
+            <>
+              {devamEdilebilir && (
+                <PixelButton
+                  label={
+                    g.bitenGunler.length || g.blokIndex > 0
+                      ? `Devam et · ${g.gun}. gün`
+                      : 'Devam et'
+                  }
+                  onPress={g.devamEt}
+                />
+              )}
+              {devamEdilebilir ? (
+                <OnayliButon
+                  label="Baştan başla"
+                  onayLabel={`${g.gun}. gündeki kayıt silinecek. Emin misin?`}
+                  onPress={() => void g.yeniOyun()}
+                />
+              ) : (
+                <PixelButton label="Sevk kâğıdını al" onPress={() => void g.yeniOyun()} />
+              )}
+            </>
           )}
           <PixelButton label="Ayarlar" tur="sessiz" onPress={useAyarlar.getState().ac} />
         </View>

@@ -3,7 +3,7 @@ import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BORDER, C, SP } from '../theme';
 import { gunGetir } from '../content';
-import { STAT_ORDER, gunNotu } from '../engine/stats';
+import { STAT_ORDER, TOPLAM_GUN, gunNotu } from '../engine/stats';
 import { useSecili } from '../store/secici';
 import { CentikTakvim } from '../ui/CentikTakvim';
 import { PixelButton } from '../ui/PixelButton';
@@ -81,7 +81,10 @@ export function GunSonuEkrani() {
       <CentikTakvim bitenGunler={g.bitenGunler} aktifGun={g.gun} />
 
       <View style={{ gap: SP.sm }}>
-        <PixelButton label="Yat, ertesi gün" onPress={g.sonrakiGun} />
+        <PixelButton
+          label={g.gun >= TOPLAM_GUN ? 'Karneni al' : 'Yat, ertesi gün'}
+          onPress={g.sonrakiGun}
+        />
         <PixelButton label="Ana menü" tur="sessiz" onPress={g.anaMenu} />
       </View>
     </ScrollView>
