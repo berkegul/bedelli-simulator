@@ -37,7 +37,8 @@
     "web": "expo start --web",
     "telefon:dogrula": "tsx src/content/telefon/calistir-dogrula.ts",
     "telefon:simule": "tsx src/content/telefon/simule.ts",
-    "postinstall": "setup-skia-web"
+    "postinstall": "setup-skia-web",
+    "sprite": "tsx tools/sprite-onizle.ts"
   },
   "private": true
 }

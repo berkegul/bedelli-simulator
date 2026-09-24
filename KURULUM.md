@@ -31,8 +31,7 @@ git --version
 
 ### Python (isteğe bağlı)
 
-Yalnızca `tools/` klasöründeki yardımcı scriptler için gerekli (sprite
-doğrulayıcı ve denge analizi). Oyunu çalıştırmak için gerekmez.
+Yalnızca `tools/denge-analizi.py` için gerekli (denge analizi). Oyunu çalıştırmak için gerekmez.
 [python.org](https://www.python.org/downloads/) → indirirken **"Add Python to
 PATH"** kutusunu işaretle.
 
@@ -101,10 +100,10 @@ npx tsc --noEmit
 
 Hiçbir çıktı vermezse her şey temiz demektir.
 
-## 6. Yardımcı scriptler (Python kuruluysa)
+## 6. Yardımcı scriptler
 
 ```powershell
-python tools\sprite-onizle.py
+npm run sprite
 python tools\denge-analizi.py
 ```
 

@@ -207,7 +207,8 @@ src/
   monetization/  kilit mantığı — model seçilince değişecek TEK dosya
   firebaseConfig.ts  bulut ayarları (boşken oyun tamamen cihazda çalışır)
 tools/
-  sprite-onizle.py   sprite doğrulayıcı ve terminal önizleyici
+  sprite-onizle.ts   sprite doğrulayıcı ve terminal önizleyici (npm run sprite)
+  denge-analizi.py   denge simülasyonu (tsx'e taşınacak)
 ```
 
 ## Yeni gün ekleme
@@ -257,8 +258,12 @@ export const KUPA: SpriteDef = {
 karakter var mı:
 
 ```bash
-python3 tools/sprite-onizle.py
+npm run sprite                        # sorunlar ve özet
+npm run sprite -- --goster KUPA       # adında KUPA geçenleri terminale çiz
 ```
+
+Araç `sprites.ts`'i doğrudan içe aktardığı için yardımcı fonksiyonlarla
+türetilen sprite'lar (sivil kareler, giyinme kareleri) da doğrulanır.
 
 ## Mini oyun ekleme
 
