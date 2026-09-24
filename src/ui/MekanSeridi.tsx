@@ -34,6 +34,17 @@ type Mekan = {
  * koğuş. İç mekanlarda gökyüzü yok, duvar var.
  */
 const MEKANLAR: Record<string, Mekan> = {
+  // Sevkten önceki sabah, askerî malzemecinin önü (çarşı ekranı).
+  carsi: {
+    ad: 'Çarşı',
+    ic: false,
+    kalabalik: 3,
+    ogeler: [
+      { sprite: 'agac', olcek: 2, x: 6 },
+      { sprite: 'kantinBina', olcek: 3, x: 38 },
+      { sprite: 'agac', olcek: 2, x: 84 },
+    ],
+  },
   nizamiye: {
     ad: 'Nizamiye',
     ic: false,

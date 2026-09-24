@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BORDER, C, SP } from '../theme';
 import { useSecili } from '../store/secici';
 import { DukkanListesi } from '../ui/DukkanListesi';
+import { MekanSeridi } from '../ui/MekanSeridi';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelText } from '../ui/PixelText';
 
@@ -17,34 +18,56 @@ export function CarsiEkrani() {
 
   return (
     <View style={{ flex: 1, backgroundColor: C.bg }}>
-      <View
-        style={{
-          paddingTop: inset.top + SP.md,
-          paddingHorizontal: SP.lg,
-          paddingBottom: SP.md,
-          backgroundColor: C.ink,
-          borderBottomWidth: BORDER,
-          borderBottomColor: C.line,
-        }}
-      >
-        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: SP.sm }}>
-          <PixelText font="command" size="h3" color={C.canvas} style={{ flex: 1 }}>
-            ASKERİ MALZEMECİ
-          </PixelText>
-          <PixelText font="command" size="h3" color={C.brass}>
-            {`${g.para} TL`}
-          </PixelText>
+      {/* Dükkânın önü: sabah, tabela, cüzdan */}
+      <MekanSeridi blokId="carsi" saat="09:10" etiketsiz>
+        <View
+          style={{
+            position: 'absolute',
+            top: inset.top + SP.sm,
+            left: SP.md,
+            right: SP.md,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: C.ink,
+              borderWidth: BORDER,
+              borderColor: C.brass,
+              paddingHorizontal: SP.sm,
+              paddingVertical: 2,
+            }}
+          >
+            <PixelText font="command" size="lead" color={C.brass} tracking={1}>
+              ASKERİ MALZEMECİ
+            </PixelText>
+          </View>
+          <View
+            style={{
+              backgroundColor: C.ink,
+              borderWidth: BORDER,
+              borderColor: C.line,
+              paddingHorizontal: SP.sm,
+              paddingVertical: 2,
+              alignItems: 'flex-end',
+            }}
+          >
+            <PixelText font="command" size="lead" color={C.canvas}>
+              {`${g.para} TL`}
+            </PixelText>
+            <PixelText size="micro" color={C.canvasDim}>
+              28 gün bu cepten
+            </PixelText>
+          </View>
         </View>
-        <PixelText size="micro" color={C.canvasFaint}>
-          Bu para 28 gün yetecek. Kantin de aynı cepten.
-        </PixelText>
-      </View>
+      </MekanSeridi>
 
       <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.lg }}>
-        <PixelText size="small" color={C.canvasDim} line="body">
-          Sevk kâğıdının arkasında bir liste var. Dükkân sahibi listeyi eline
-          alıp "hepsi var" diyor. Ucuzu da var kalitelisi de — hangisini
-          aldığını yirmi sekiz gün boyunca hatırlayacaksın.
+        <PixelText size="body" color={C.canvasDim} line="body">
+          Sevk kâğıdının arkasında bir liste var. Dükkân sahibi listeye bakıp "hepsi var" diyor.
+          Ucuzu da var kalitelisi de; hangisini aldığını yirmi sekiz gün boyunca hatırlayacaksın.
         </PixelText>
 
         <DukkanListesi
@@ -53,6 +76,7 @@ export function CarsiEkrani() {
           envanter={g.envanter}
           para={g.para}
           onSatinAl={(t, k) => g.satinAl(t.id, k)}
+          kagit
         />
       </ScrollView>
 
