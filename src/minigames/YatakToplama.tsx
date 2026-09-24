@@ -5,6 +5,7 @@ import Svg, { Rect } from 'react-native-svg';
 import { BORDER, C, SP } from '../theme';
 import { PixelText } from '../ui/PixelText';
 import { clamp01, type MiniOyunProps } from './types';
+import { useZamanlayici } from '../ui/useZamanlayici';
 
 const TUR = 3;
 const BAR_W = 240;
@@ -15,6 +16,7 @@ const BAR_H = 28;
  * okuyoruz — dokunma anıyla ekrandaki kare arasında kayma olmuyor.
  */
 export function YatakToplama({ onBitti, zorluk = 0 }: MiniOyunProps) {
+  const z = useZamanlayici();
   const [tur, setTur] = useState(0);
   const [poz, setPoz] = useState(0);
   const [puanlar, setPuanlar] = useState<number[]>([]);
@@ -60,11 +62,11 @@ export function YatakToplama({ onBitti, zorluk = 0 }: MiniOyunProps) {
     const yeni = [...puanlar, puan];
     setPuanlar(yeni);
 
-    setTimeout(() => {
+    z.sonra(620, () => {
       if (yeni.length >= TUR) onBitti(yeni.reduce((a, b) => a + b, 0) / yeni.length);
       else setTur((n) => n + 1);
-    }, 620);
-  }, [periyot, hedefYari, puanlar, onBitti]);
+    });
+  }, [periyot, hedefYari, puanlar, onBitti, z]);
 
   const hx = (hedef.current - hedefYari) * BAR_W;
   const hw = hedefYari * 2 * BAR_W;

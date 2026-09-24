@@ -11,6 +11,7 @@ import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
 import { useGeriSayim } from './geriSayim';
 import { clamp01, type MiniOyunProps } from './types';
+import { useZamanlayici } from '../ui/useZamanlayici';
 
 /**
  * Tıraş. Lavabo sırası kısa, aynada yüzün. Jileti yüzde sürükledikçe
@@ -50,6 +51,7 @@ const KESIK_CEZA = 0.12;
 const anahtar = (x: number, y: number) => `${x}:${y}`;
 
 export function Tiras({ onBitti, zorluk = 0 }: MiniOyunProps) {
+  const z = useZamanlayici();
   const envanter = useGame((s) => s.envanter);
   const jilet = useMemo(() => jiletBul(envanter), [envanter]);
   const toplam = Math.round((16 - zorluk * 5) * 1000);
@@ -136,7 +138,7 @@ export function Tiras({ onBitti, zorluk = 0 }: MiniOyunProps) {
         setSurum((s) => s + 1);
         let kalan = 0;
         m.forEach((v) => (kalan += v > 0.05 ? 1 : 0));
-        if (kalan === 0) setTimeout(bitir, 400);
+        if (kalan === 0) z.sonra(400, bitir);
       }
     },
     // bitir her çizimde yeniden kuruluyor ama yalnızca ref'lere dokunuyor.

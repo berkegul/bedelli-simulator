@@ -22,6 +22,7 @@ import { Siddet, titret } from '../ui/haptik';
 import { PixelText } from '../ui/PixelText';
 import { spriteResmi } from '../ui/skia/SkiaSprite';
 import { clamp01, type MiniOyunProps } from './types';
+import { useZamanlayici } from '../ui/useZamanlayici';
 
 /** Tam inişin süresi; basılı tuttukça gövde bu hızla yere yaklaşıyor. */
 const INIS_MS = 420;
@@ -50,7 +51,8 @@ export function Ceza({
 }: MiniOyunProps & {
   /** Denetimde kusur sayısına göre veriliyor; yoksa zorluktan. */
   hedef?: number;
-}) {
+}) {  const z = useZamanlayici();
+
   const hedef = verilen ?? 20 + Math.round(zorluk * 10);
   const sure = 6000 + hedef * 800;
 
@@ -128,8 +130,8 @@ export function Ceza({
         true,
       );
     }
-    if (n >= hedef) setTimeout(() => bitir(1), 500);
-  }, [bagir, bitir, hedef, kalkisMs, titreme, zorluk]);
+    if (n >= hedef) z.sonra(500, () => bitir(1));
+  }, [bagir, bitir, hedef, kalkisMs, titreme, zorluk, z]);
 
   const yarim = useCallback(() => {
     titret(Siddet.Rigid);

@@ -7,6 +7,7 @@ import { Bildirim, Siddet, bildir, titret } from '../ui/haptik';
 import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
 import { clamp01, type MiniOyunProps } from './types';
+import { useZamanlayici } from '../ui/useZamanlayici';
 
 const SURE = 26000;
 const DUSUS = 1.05; // uyanıklık / 100ms
@@ -18,10 +19,14 @@ type Faz = 'nobet' | 'devriye' | 'yakalandi' | 'bitti';
  * basman gerek. İki iş aynı anda: uykuyla ve devriyeyle uğraşmak.
  */
 export function Nobet({ onBitti, zorluk = 0 }: MiniOyunProps) {
+  const z = useZamanlayici();
   const [uyaniklik, setUyaniklik] = useState(72);
   const [faz, setFaz] = useState<Faz>('nobet');
   const [kalan, setKalan] = useState(Math.round(SURE / 1000));
   const [ceza, setCeza] = useState(0);
+  // Bitiş zamanlayıcısı açılışta bir kez kuruluyor; state'teki `ceza` orada
+  // hep 0 görünüyordu ve yakalanmak puanı hiç düşürmüyordu. Sayı ref'ten okunuyor.
+  const cezaRef = useRef(0);
 
   const uyaniklikRef = useRef(72);
   const toplamUyku = useRef(0);
@@ -66,10 +71,11 @@ export function Nobet({ onBitti, zorluk = 0 }: MiniOyunProps) {
               () => {
                 if (bittiRef.current) return;
                 if (!ayaktaMi.current) {
-                  setCeza((c) => c + 1);
+                  cezaRef.current += 1;
+                  setCeza(cezaRef.current);
                   setFaz('yakalandi');
                   bildir(Bildirim.Error);
-                  setTimeout(() => !bittiRef.current && setFaz('nobet'), 1400);
+                  z.sonra(1400, () => !bittiRef.current && setFaz('nobet'));
                 } else {
                   setFaz('nobet');
                 }
@@ -87,8 +93,8 @@ export function Nobet({ onBitti, zorluk = 0 }: MiniOyunProps) {
         setFaz('bitti');
         // Puan: uyanık geçen süre ve yakalanmama.
         const uykuOrani = toplamUyku.current / (SURE / 100);
-        const puan = clamp01(1 - uykuOrani * 1.6 - ceza * 0.3);
-        setTimeout(() => onBitti(puan), 700);
+        const puan = clamp01(1 - uykuOrani * 1.6 - cezaRef.current * 0.3);
+        z.sonra(700, () => onBitti(puan));
       }, SURE),
     );
 

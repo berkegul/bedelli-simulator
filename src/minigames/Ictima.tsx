@@ -4,12 +4,14 @@ import { Bildirim, Siddet, bildir, titret } from '../ui/haptik';
 import { BORDER, C, SP } from '../theme';
 import { PixelText } from '../ui/PixelText';
 import { clamp01, type MiniOyunProps } from './types';
+import { useZamanlayici } from '../ui/useZamanlayici';
 
 const TUR = 4;
 type Faz = 'bekle' | 'komut' | 'sonuc';
 
 /** Reaksiyon oyunu: komut anında dokun. Erken dokunmak o turu sıfırlar. */
 export function Ictima({ onBitti, zorluk = 0 }: MiniOyunProps) {
+  const z = useZamanlayici();
   const [tur, setTur] = useState(0);
   const [faz, setFaz] = useState<Faz>('bekle');
   const [puanlar, setPuanlar] = useState<number[]>([]);
@@ -42,12 +44,12 @@ export function Ictima({ onBitti, zorluk = 0 }: MiniOyunProps) {
       setMesaj(metin);
       const yeni = [...puanlar, puan];
       setPuanlar(yeni);
-      setTimeout(() => {
+      z.sonra(760, () => {
         if (yeni.length >= TUR) onBitti(yeni.reduce((a, b) => a + b, 0) / yeni.length);
         else setTur((n) => n + 1);
-      }, 760);
+      });
     },
-    [puanlar, onBitti],
+    [puanlar, onBitti, z],
   );
 
   const dokun = useCallback(() => {

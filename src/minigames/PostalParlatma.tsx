@@ -11,6 +11,7 @@ import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
 import { useGeriSayim } from './geriSayim';
 import { clamp01, type MiniOyunProps } from './types';
+import { useZamanlayici } from '../ui/useZamanlayici';
 
 /**
  * Postal parlatma. Ranzanın altındaki iki postal dünkü çamurla mat.
@@ -55,6 +56,7 @@ const SILME = 0.006;
 const anahtar = (p: number, x: number, y: number) => `${p}:${x}:${y}`;
 
 export function PostalParlatma({ onBitti, zorluk = 0 }: MiniOyunProps) {
+  const z = useZamanlayici();
   const envanter = useGame((s) => s.envanter);
   const arac = useMemo(() => aracBul(envanter), [envanter]);
   const taban = 1 - arac.tavan;
@@ -122,7 +124,7 @@ export function PostalParlatma({ onBitti, zorluk = 0 }: MiniOyunProps) {
       setSurum((s) => s + 1);
 
       // Daha fazla parlatılamıyorsa beklemeye gerek yok.
-      if (parlak === m.size) setTimeout(bitir, 400);
+      if (parlak === m.size) z.sonra(400, bitir);
     },
     // bitir her çizimde yeniden kuruluyor ama yalnızca ref'lere dokunuyor.
     // eslint-disable-next-line react-hooks/exhaustive-deps

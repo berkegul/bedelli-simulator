@@ -261,7 +261,7 @@ bunun yanında paralel yürür.
   ilerlemedi, konsol temiz. "Kimse açmadı" dalı tarayıcıda tetiklenemedi,
   kod okumasıyla doğrulandı.
 
-#### S6 · zamanlayıcı sızıntıları ⬜ (D1)
+#### S6 · zamanlayıcı sızıntıları ✅ (D1)
 - **Sorun:** `YolSahnesi.tsx:316` `setInterval` unmount'ta temizlenmiyor.
   Tur sonu `setTimeout`'ları `YatakToplama.tsx:63`, `Ictima.tsx:45`,
   `SilahSokme.tsx:54`, `Ceza.tsx:131` içinde temizlenmiyor.
@@ -272,6 +272,16 @@ bunun yanında paralel yürür.
   GokyuzuGecisi'nde `onBitti` ref'e alınır, updater dışında bir kez çağrılır.
 - **Kabul:** geliştirme alanından mini oyunu açıp tur bitmeden çık:
   konsolda uyarı yok, sonraki ekrana çift geçiş yok.
+- **Sonuç:** hook `ui/useZamanlayici.ts` (`sonra`, `aralik`, `durdur`).
+  Taşınanlar: YolSahnesi varış karartması, YatakToplama, Ictima, SilahSokme,
+  Ceza, Tiras, PostalParlatma, Nobet, YuruyusRitmi (plandaki dört dosyadan
+  fazlası `onBitti` sızdırıyordu). GokyuzuGecisi: `onBitti` ref'te ve tek
+  seferlik, güncelleyici dışından. **Ek hata:** nöbette bitiş zamanlayıcısı
+  `ceza`yı açılıştaki değeriyle (0) okuyordu, devriyeye yakalanmak puanı hiç
+  düşürmüyordu; ref'e alındı. Giyinme ve Gece'nin kendi `sonra` deseni
+  çalışıyor, S12'de hook'a geçecek. Tarayıcıda: Yatak Toplama sonuna kadar
+  oynandı (tek sonuç), İçtima tur ortasında kapatıldı (geç çağrı yok,
+  konsol temiz). Lint uyarısı 100'de kaldı.
 
 #### S7 · Android geri tuşu ⬜ (D1)
 - **Adımlar:** `App.tsx`'e `BackHandler` dinleyicisi. Sıra: panel açıksa

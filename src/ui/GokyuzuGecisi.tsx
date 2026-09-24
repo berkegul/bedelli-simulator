@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { C } from '../theme';
@@ -39,25 +39,38 @@ export function GokyuzuGecisi({ yon, yukseklik, sure = 2800, onBitti }: Props) {
     };
   }, []);
 
+  // onBitti ref'te: ebeveyn her render'da yeni fonksiyon verse de geçiş baştan
+  // kurulmuyor. `bitti` onu tek seferlik yapıyor; eskiden setState
+  // güncelleyicisinin içinden çağrılıyordu ve StrictMode'da iki kez tetikleniyordu.
+  const onBittiRef = useRef(onBitti);
+  useEffect(() => {
+    onBittiRef.current = onBitti;
+  });
+  const bitti = useRef(false);
+  const bitir = () => {
+    if (bitti.current) return;
+    bitti.current = true;
+    onBittiRef.current?.();
+  };
+
   useEffect(() => {
     if (azaltilmis) {
       setOran(1);
-      onBitti?.();
+      bitir();
       return;
     }
     const adim = 40;
+    let sayac = 0;
     const t = setInterval(() => {
-      setOran((o) => {
-        const yeni = Math.min(1, o + 1 / adim);
-        if (yeni >= 1) {
-          clearInterval(t);
-          onBitti?.();
-        }
-        return yeni;
-      });
+      sayac += 1;
+      setOran(Math.min(1, sayac / adim));
+      if (sayac >= adim) {
+        clearInterval(t);
+        bitir();
+      }
     }, sure / adim);
     return () => clearInterval(t);
-  }, [azaltilmis, sure, onBitti]);
+  }, [azaltilmis, sure]);
 
   const isik: Isik = isikKaristir(bas, son, oran);
   const bant = 6;

@@ -6,11 +6,13 @@ import { PixelSprite } from '../ui/PixelSprite';
 import { sprite } from '../art';
 import { PixelText } from '../ui/PixelText';
 import { clamp01, type MiniOyunProps } from './types';
+import { useZamanlayici } from '../ui/useZamanlayici';
 
 const VURUS = 12;
 
 /** Adım ritmi: her vuruşta dokun. Tempo kademeli hızlanır. */
 export function YuruyusRitmi({ onBitti, zorluk = 0 }: MiniOyunProps) {
+  const z = useZamanlayici();
   const [aktifVurus, setAktifVurus] = useState(-1);
   const [parlak, setParlak] = useState(false);
   const [isaretler, setIsaretler] = useState<number[]>([]);
@@ -48,7 +50,7 @@ export function YuruyusRitmi({ onBitti, zorluk = 0 }: MiniOyunProps) {
             setAktifVurus(i);
             setParlak(true);
             secim();
-            setTimeout(() => setParlak(false), 200);
+            z.sonra(200, () => setParlak(false));
           },
           an - Date.now(),
         ),
@@ -66,7 +68,7 @@ export function YuruyusRitmi({ onBitti, zorluk = 0 }: MiniOyunProps) {
     );
 
     return () => zamanlayicilar.forEach(clearTimeout);
-  }, [geriSayim, onBitti]);
+  }, [geriSayim, onBitti, z]);
 
   const dokun = useCallback(() => {
     if (geriSayim > 0) return;

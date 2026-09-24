@@ -57,6 +57,7 @@ import {
 import { isikDurumu } from '../ui/Gokyuzu';
 import { spriteResmi } from '../ui/skia/SkiaSprite';
 import { PixelText } from '../ui/PixelText';
+import { useZamanlayici } from '../ui/useZamanlayici';
 
 const SAHNE_YUKSEKLIK = 244;
 
@@ -265,6 +266,7 @@ function Sahne({
   sivil,
   onVardi,
 }: SahneProps) {
+  const z = useZamanlayici();
   const { en, yuk, ufuk, ox, oy, oolcek } = geo;
   const isik = isikDurumu(saat);
   const zeminRenk = ZEMIN_RENK[zemin];
@@ -313,16 +315,18 @@ function Sahne({
   const vardi = useCallback(() => {
     titret(Siddet.Medium);
     // Kapıya varınca sahne kararıyor; blok bir anda yerine geçmiyor.
+    // Zamanlayıcı bileşene bağlı: karartma sürerken sahne kalkarsa onVardi
+    // kapanmış ekrandan çağrılmıyor.
     const basla = Date.now();
-    const tik = setInterval(() => {
+    const tik = z.aralik(32, () => {
       const o = Math.min(1, (Date.now() - basla) / 420);
       setKarartma(o);
       if (o >= 1) {
-        clearInterval(tik);
+        z.durdur(tik);
         onVardi();
       }
-    }, 32);
-  }, [onVardi]);
+    });
+  }, [onVardi, z]);
 
   /**
    * Askere "şuraya kadar yürü" demek. Süre kalan mesafeden hesaplanıyor ve

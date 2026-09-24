@@ -4,6 +4,7 @@ import { Bildirim, Siddet, bildir, titret } from '../ui/haptik';
 import { BORDER, C, SP } from '../theme';
 import { PixelText } from '../ui/PixelText';
 import { clamp01, type MiniOyunProps } from './types';
+import { useZamanlayici } from '../ui/useZamanlayici';
 
 const SIRA = [
   'Şarjör',
@@ -25,6 +26,7 @@ function karistir<T>(a: T[]) {
 
 /** Sıralama oyunu: parçaları sökme sırasına göre seç. Yanlış seçim puan götürür. */
 export function SilahSokme({ onBitti, zorluk = 0 }: MiniOyunProps) {
+  const z = useZamanlayici();
   const parcalar = useMemo(() => karistir(SIRA), []);
   const [adim, setAdim] = useState(0);
   const [yanlisSecim, setYanlisSecim] = useState<string | null>(null);
@@ -51,10 +53,10 @@ export function SilahSokme({ onBitti, zorluk = 0 }: MiniOyunProps) {
         bildir(Bildirim.Error);
         hataSayisi.current += 1;
         setYanlisSecim(parca);
-        setTimeout(() => setYanlisSecim(null), 420);
+        z.sonra(420, () => setYanlisSecim(null));
       }
     },
-    [adim, onBitti, sureSiniri],
+    [adim, onBitti, sureSiniri, z],
   );
 
   return (
