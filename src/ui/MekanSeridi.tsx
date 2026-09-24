@@ -7,8 +7,8 @@ import { Gokyuzu } from './Gokyuzu';
 import { PixelSprite } from './PixelSprite';
 import { PixelText } from './PixelText';
 
-const YUKSEKLIK = 150;
-const ZEMIN = 26;
+const TABAN_YUKSEKLIK = 150;
+const TABAN_ZEMIN = 26;
 
 type Oge = {
   sprite: SpriteKey;
@@ -51,8 +51,8 @@ const MEKANLAR: Record<string, Mekan> = {
     kalabalik: 22,
     mevcut: '28 KİŞİ',
     ogeler: [
-      { sprite: 'dolapSirasi', olcek: 2, x: 2, taban: ZEMIN + 30, arka: true },
-      { sprite: 'pencere', olcek: 2, x: 62, taban: ZEMIN + 34, arka: true },
+      { sprite: 'dolapSirasi', olcek: 2, x: 2, taban: TABAN_ZEMIN + 30, arka: true },
+      { sprite: 'pencere', olcek: 2, x: 62, taban: TABAN_ZEMIN + 34, arka: true },
       { sprite: 'ranzaDaginik', olcek: 2, x: 0 },
       { sprite: 'ranzaToplu', olcek: 2, x: 26 },
       { sprite: 'asker', olcek: 2, x: 55 },
@@ -65,8 +65,8 @@ const MEKANLAR: Record<string, Mekan> = {
     kalabalik: 22,
     mevcut: '28 KİŞİ',
     ogeler: [
-      { sprite: 'dolapSirasi', olcek: 2, x: 2, taban: ZEMIN + 30, arka: true },
-      { sprite: 'pencere', olcek: 2, x: 62, taban: ZEMIN + 34, arka: true },
+      { sprite: 'dolapSirasi', olcek: 2, x: 2, taban: TABAN_ZEMIN + 30, arka: true },
+      { sprite: 'pencere', olcek: 2, x: 62, taban: TABAN_ZEMIN + 34, arka: true },
       { sprite: 'ranzaToplu', olcek: 2, x: 0 },
       { sprite: 'ranzaToplu', olcek: 2, x: 26 },
       { sprite: 'postal', olcek: 2, x: 54 },
@@ -80,7 +80,7 @@ const MEKANLAR: Record<string, Mekan> = {
     kalabalik: 14,
     mevcut: 'BÖLÜK',
     ogeler: [
-      { sprite: 'kisla', olcek: 2, x: 34, taban: ZEMIN + 26, arka: true },
+      { sprite: 'kisla', olcek: 2, x: 34, taban: TABAN_ZEMIN + 26, arka: true },
       { sprite: 'agac', olcek: 2, x: 4 },
       { sprite: 'askerSirt', olcek: 2, x: 40 },
       { sprite: 'asker', olcek: 2, x: 62 },
@@ -93,8 +93,8 @@ const MEKANLAR: Record<string, Mekan> = {
     kalabalik: 22,
     mevcut: '28 KİŞİ',
     ogeler: [
-      { sprite: 'dolapSirasi', olcek: 2, x: 2, taban: ZEMIN + 30, arka: true },
-      { sprite: 'pencere', olcek: 2, x: 62, taban: ZEMIN + 34, arka: true },
+      { sprite: 'dolapSirasi', olcek: 2, x: 2, taban: TABAN_ZEMIN + 30, arka: true },
+      { sprite: 'pencere', olcek: 2, x: 62, taban: TABAN_ZEMIN + 34, arka: true },
       { sprite: 'ranzaToplu', olcek: 2, x: 0 },
       { sprite: 'ranzaToplu', olcek: 2, x: 26 },
       { sprite: 'asker', olcek: 2, x: 54 },
@@ -108,12 +108,12 @@ const MEKANLAR: Record<string, Mekan> = {
     kalabalik: 20,
     mevcut: '28 KİŞİ',
     ogeler: [
-      { sprite: 'hedefTahtasi', olcek: 2, x: 4, taban: ZEMIN + 26, arka: true },
-      { sprite: 'pencere', olcek: 2, x: 78, taban: ZEMIN + 34, arka: true },
-      { sprite: 'yemekhaneMasa', olcek: 2, x: 2, taban: ZEMIN + 2 },
-      { sprite: 'yemekhaneMasa', olcek: 2, x: 30, taban: ZEMIN + 2 },
-      { sprite: 'askerSirt', olcek: 2, x: 8, taban: ZEMIN + 12 },
-      { sprite: 'askerSirt', olcek: 2, x: 34, taban: ZEMIN + 12 },
+      { sprite: 'hedefTahtasi', olcek: 2, x: 4, taban: TABAN_ZEMIN + 26, arka: true },
+      { sprite: 'pencere', olcek: 2, x: 78, taban: TABAN_ZEMIN + 34, arka: true },
+      { sprite: 'yemekhaneMasa', olcek: 2, x: 2, taban: TABAN_ZEMIN + 2 },
+      { sprite: 'yemekhaneMasa', olcek: 2, x: 30, taban: TABAN_ZEMIN + 2 },
+      { sprite: 'askerSirt', olcek: 2, x: 8, taban: TABAN_ZEMIN + 12 },
+      { sprite: 'askerSirt', olcek: 2, x: 34, taban: TABAN_ZEMIN + 12 },
       { sprite: 'cavus', olcek: 2, x: 58 },
       { sprite: 'defter', olcek: 2, x: 88 },
     ],
@@ -124,11 +124,11 @@ const MEKANLAR: Record<string, Mekan> = {
     kalabalik: 34,
     mevcut: 'BÖLÜK',
     ogeler: [
-      { sprite: 'kisla', olcek: 2, x: 30, taban: ZEMIN + 26, arka: true },
-      { sprite: 'askerSirt', olcek: 1, x: 22, taban: ZEMIN + 22, arka: true },
-      { sprite: 'askerSirt', olcek: 1, x: 30, taban: ZEMIN + 22, arka: true },
-      { sprite: 'askerSirt', olcek: 1, x: 38, taban: ZEMIN + 22, arka: true },
-      { sprite: 'askerSirt', olcek: 1, x: 46, taban: ZEMIN + 22, arka: true },
+      { sprite: 'kisla', olcek: 2, x: 30, taban: TABAN_ZEMIN + 26, arka: true },
+      { sprite: 'askerSirt', olcek: 1, x: 22, taban: TABAN_ZEMIN + 22, arka: true },
+      { sprite: 'askerSirt', olcek: 1, x: 30, taban: TABAN_ZEMIN + 22, arka: true },
+      { sprite: 'askerSirt', olcek: 1, x: 38, taban: TABAN_ZEMIN + 22, arka: true },
+      { sprite: 'askerSirt', olcek: 1, x: 46, taban: TABAN_ZEMIN + 22, arka: true },
       { sprite: 'bayrak', olcek: 2, x: 4 },
       { sprite: 'asker', olcek: 2, x: 32 },
       { sprite: 'askerEmre', olcek: 2, x: 48 },
@@ -154,13 +154,13 @@ const MEKANLAR: Record<string, Mekan> = {
     kalabalik: 26,
     mevcut: 'SIRA VAR',
     ogeler: [
-      { sprite: 'tepsiBandi', olcek: 2, x: 46, taban: ZEMIN + 32, arka: true },
-      { sprite: 'askerSirt', olcek: 2, x: 52, taban: ZEMIN + 24, arka: true },
-      { sprite: 'askerSirt', olcek: 2, x: 64, taban: ZEMIN + 24, arka: true },
-      { sprite: 'askerSirt', olcek: 2, x: 76, taban: ZEMIN + 24, arka: true },
-      { sprite: 'pencere', olcek: 2, x: 8, taban: ZEMIN + 40, arka: true },
-      { sprite: 'yemekhaneMasa', olcek: 3, x: 0, taban: ZEMIN + 2 },
-      { sprite: 'yemekhaneMasa', olcek: 3, x: 36, taban: ZEMIN + 2 },
+      { sprite: 'tepsiBandi', olcek: 2, x: 46, taban: TABAN_ZEMIN + 32, arka: true },
+      { sprite: 'askerSirt', olcek: 2, x: 52, taban: TABAN_ZEMIN + 24, arka: true },
+      { sprite: 'askerSirt', olcek: 2, x: 64, taban: TABAN_ZEMIN + 24, arka: true },
+      { sprite: 'askerSirt', olcek: 2, x: 76, taban: TABAN_ZEMIN + 24, arka: true },
+      { sprite: 'pencere', olcek: 2, x: 8, taban: TABAN_ZEMIN + 40, arka: true },
+      { sprite: 'yemekhaneMasa', olcek: 3, x: 0, taban: TABAN_ZEMIN + 2 },
+      { sprite: 'yemekhaneMasa', olcek: 3, x: 36, taban: TABAN_ZEMIN + 2 },
       { sprite: 'asker', olcek: 2, x: 74 },
       { sprite: 'askerEmre', olcek: 2, x: 88 },
     ],
@@ -171,13 +171,13 @@ const MEKANLAR: Record<string, Mekan> = {
     kalabalik: 26,
     mevcut: 'SIRA VAR',
     ogeler: [
-      { sprite: 'tepsiBandi', olcek: 2, x: 46, taban: ZEMIN + 32, arka: true },
-      { sprite: 'askerSirt', olcek: 2, x: 52, taban: ZEMIN + 24, arka: true },
-      { sprite: 'askerSirt', olcek: 2, x: 64, taban: ZEMIN + 24, arka: true },
-      { sprite: 'askerSirt', olcek: 2, x: 76, taban: ZEMIN + 24, arka: true },
-      { sprite: 'pencere', olcek: 2, x: 8, taban: ZEMIN + 40, arka: true },
-      { sprite: 'yemekhaneMasa', olcek: 3, x: 0, taban: ZEMIN + 2 },
-      { sprite: 'yemekhaneMasa', olcek: 3, x: 36, taban: ZEMIN + 2 },
+      { sprite: 'tepsiBandi', olcek: 2, x: 46, taban: TABAN_ZEMIN + 32, arka: true },
+      { sprite: 'askerSirt', olcek: 2, x: 52, taban: TABAN_ZEMIN + 24, arka: true },
+      { sprite: 'askerSirt', olcek: 2, x: 64, taban: TABAN_ZEMIN + 24, arka: true },
+      { sprite: 'askerSirt', olcek: 2, x: 76, taban: TABAN_ZEMIN + 24, arka: true },
+      { sprite: 'pencere', olcek: 2, x: 8, taban: TABAN_ZEMIN + 40, arka: true },
+      { sprite: 'yemekhaneMasa', olcek: 3, x: 0, taban: TABAN_ZEMIN + 2 },
+      { sprite: 'yemekhaneMasa', olcek: 3, x: 36, taban: TABAN_ZEMIN + 2 },
       { sprite: 'askerTolga', olcek: 2, x: 74 },
       { sprite: 'asker', olcek: 2, x: 88 },
     ],
@@ -188,13 +188,13 @@ const MEKANLAR: Record<string, Mekan> = {
     kalabalik: 26,
     mevcut: 'SIRA VAR',
     ogeler: [
-      { sprite: 'tepsiBandi', olcek: 2, x: 46, taban: ZEMIN + 32, arka: true },
-      { sprite: 'askerSirt', olcek: 2, x: 52, taban: ZEMIN + 24, arka: true },
-      { sprite: 'askerSirt', olcek: 2, x: 64, taban: ZEMIN + 24, arka: true },
-      { sprite: 'askerSirt', olcek: 2, x: 76, taban: ZEMIN + 24, arka: true },
-      { sprite: 'pencere', olcek: 2, x: 8, taban: ZEMIN + 40, arka: true },
-      { sprite: 'yemekhaneMasa', olcek: 3, x: 0, taban: ZEMIN + 2 },
-      { sprite: 'yemekhaneMasa', olcek: 3, x: 36, taban: ZEMIN + 2 },
+      { sprite: 'tepsiBandi', olcek: 2, x: 46, taban: TABAN_ZEMIN + 32, arka: true },
+      { sprite: 'askerSirt', olcek: 2, x: 52, taban: TABAN_ZEMIN + 24, arka: true },
+      { sprite: 'askerSirt', olcek: 2, x: 64, taban: TABAN_ZEMIN + 24, arka: true },
+      { sprite: 'askerSirt', olcek: 2, x: 76, taban: TABAN_ZEMIN + 24, arka: true },
+      { sprite: 'pencere', olcek: 2, x: 8, taban: TABAN_ZEMIN + 40, arka: true },
+      { sprite: 'yemekhaneMasa', olcek: 3, x: 0, taban: TABAN_ZEMIN + 2 },
+      { sprite: 'yemekhaneMasa', olcek: 3, x: 36, taban: TABAN_ZEMIN + 2 },
       { sprite: 'askerSerkan', olcek: 2, x: 74 },
       { sprite: 'asker', olcek: 2, x: 88 },
     ],
@@ -205,11 +205,11 @@ const MEKANLAR: Record<string, Mekan> = {
     kalabalik: 20,
     mevcut: 'BÖLÜK',
     ogeler: [
-      { sprite: 'agac', olcek: 2, x: 20, taban: ZEMIN + 24, arka: true },
-      { sprite: 'agac', olcek: 2, x: 60, taban: ZEMIN + 24, arka: true },
-      { sprite: 'askerSirt', olcek: 1, x: 34, taban: ZEMIN + 22, arka: true },
-      { sprite: 'askerSirt', olcek: 1, x: 42, taban: ZEMIN + 22, arka: true },
-      { sprite: 'engel', olcek: 2, x: 2, taban: ZEMIN + 2 },
+      { sprite: 'agac', olcek: 2, x: 20, taban: TABAN_ZEMIN + 24, arka: true },
+      { sprite: 'agac', olcek: 2, x: 60, taban: TABAN_ZEMIN + 24, arka: true },
+      { sprite: 'askerSirt', olcek: 1, x: 34, taban: TABAN_ZEMIN + 22, arka: true },
+      { sprite: 'askerSirt', olcek: 1, x: 42, taban: TABAN_ZEMIN + 22, arka: true },
+      { sprite: 'engel', olcek: 2, x: 2, taban: TABAN_ZEMIN + 2 },
       { sprite: 'hedefTahtasi', olcek: 2, x: 42 },
       { sprite: 'asker', olcek: 2, x: 72 },
       { sprite: 'cavus', olcek: 2, x: 88 },
@@ -222,7 +222,7 @@ const MEKANLAR: Record<string, Mekan> = {
     mevcut: 'BÖLÜK',
     ogeler: [
       { sprite: 'hedefTahtasi', olcek: 2, x: 6 },
-      { sprite: 'tufek', olcek: 2, x: 36, taban: ZEMIN + 8 },
+      { sprite: 'tufek', olcek: 2, x: 36, taban: TABAN_ZEMIN + 8 },
       { sprite: 'asker', olcek: 2, x: 72 },
       { sprite: 'cavus', olcek: 2, x: 88 },
     ],
@@ -244,8 +244,8 @@ const MEKANLAR: Record<string, Mekan> = {
     kalabalik: 22,
     mevcut: '28 KİŞİ',
     ogeler: [
-      { sprite: 'dolapSirasi', olcek: 2, x: 2, taban: ZEMIN + 30, arka: true },
-      { sprite: 'pencere', olcek: 2, x: 62, taban: ZEMIN + 34, arka: true },
+      { sprite: 'dolapSirasi', olcek: 2, x: 2, taban: TABAN_ZEMIN + 30, arka: true },
+      { sprite: 'pencere', olcek: 2, x: 62, taban: TABAN_ZEMIN + 34, arka: true },
       { sprite: 'ranzaToplu', olcek: 2, x: 0 },
       { sprite: 'ranzaToplu', olcek: 2, x: 26 },
       { sprite: 'askerTolga', olcek: 2, x: 54 },
@@ -273,17 +273,17 @@ const KALABALIK_YUKSEKLIK = 46;
  * siluet: yirmi sekiz kişilik koğuşta üç asker görünmesin diye var, ama
  * öndeki adı olan askerlerle yarışmasın diye soluk ve detaysız.
  */
-function Kalabalik({ adet, en, ic }: { adet: number; en: number; ic: boolean }) {
+function Kalabalik({ adet, en, ic, k }: { adet: number; en: number; ic: boolean; k: number }) {
   if (!en || adet <= 0) return null;
 
   const arkaAdet = Math.ceil(adet * 0.55);
   const satirlar = [
-    { adet: arkaAdet, u: 2, taban: KALABALIK_YUKSEKLIK - 24, opaklik: ic ? 0.4 : 0.35 },
-    { adet: adet - arkaAdet, u: 2, taban: KALABALIK_YUKSEKLIK - 12, opaklik: ic ? 0.62 : 0.55 },
+    { adet: arkaAdet, u: 2 * k, taban: (KALABALIK_YUKSEKLIK - 24) * k, opaklik: ic ? 0.4 : 0.35 },
+    { adet: adet - arkaAdet, u: 2 * k, taban: (KALABALIK_YUKSEKLIK - 12) * k, opaklik: ic ? 0.62 : 0.55 },
   ];
 
   return (
-    <Svg width={en} height={KALABALIK_YUKSEKLIK}>
+    <Svg width={en} height={KALABALIK_YUKSEKLIK * k}>
       {satirlar.map((satir, si) =>
         Array.from({ length: satir.adet }, (_, i) => {
           const u = satir.u;
@@ -307,10 +307,23 @@ function Kalabalik({ adet, en, ic }: { adet: number; en: number; ic: boolean }) 
   );
 }
 
-type Props = { blokId: string; saat: string };
+type Props = {
+  blokId: string;
+  saat: string;
+  /**
+   * Tam sayı büyütme. Oyun ekranında uzun telefonlarda 2: sahne 300 nokta,
+   * sprite'lar iki kat. Tam sayı olması pikselleri keskin tutuyor.
+   */
+  carpan?: number;
+  /** Kenardan kenara çizimde çerçeve yok. */
+  cercevesiz?: boolean;
+};
 
-export function MekanSeridi({ blokId, saat }: Props) {
+export function MekanSeridi({ blokId, saat, carpan = 1, cercevesiz }: Props) {
   const mekan = mekanBul(blokId);
+  const k = Math.max(1, Math.round(carpan));
+  const YUKSEKLIK = TABAN_YUKSEKLIK * k;
+  const ZEMIN = TABAN_ZEMIN * k;
   // Kalabalık piksel hesabıyla diziliyor; genişliği ölçmeden çizilemez.
   const [en, setEn] = useState(0);
   if (!mekan) return null;
@@ -320,7 +333,8 @@ export function MekanSeridi({ blokId, saat }: Props) {
       onLayout={(e) => setEn(Math.round(e.nativeEvent.layout.width))}
       style={{
         height: YUKSEKLIK,
-        borderWidth: BORDER,
+        borderWidth: cercevesiz ? 0 : BORDER,
+        borderBottomWidth: BORDER,
         borderColor: C.ink,
         backgroundColor: mekan.ic ? '#2B2719' : '#232016',
         overflow: 'hidden',
@@ -349,17 +363,17 @@ export function MekanSeridi({ blokId, saat }: Props) {
 
       {/* Kalabalık dekorun önünde, adı olan askerlerin arkasında duruyor */}
       {!!mekan.kalabalik && (
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: ZEMIN + 2, height: KALABALIK_YUKSEKLIK }}>
-          <Kalabalik adet={mekan.kalabalik} en={en} ic={mekan.ic} />
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: ZEMIN + 2 * k, height: KALABALIK_YUKSEKLIK * k }}>
+          <Kalabalik adet={mekan.kalabalik} en={en} ic={mekan.ic} k={k} />
         </View>
       )}
 
       {mekan.ogeler.map((o, i) => (
         <View
           key={i}
-          style={{ position: 'absolute', left: `${o.x}%`, bottom: o.taban ?? ZEMIN - 4 }}
+          style={{ position: 'absolute', left: `${o.x}%`, bottom: (o.taban ?? TABAN_ZEMIN - 4) * k }}
         >
-          <PixelSprite sprite={sprite(o.sprite)} scale={o.olcek} opacity={o.arka ? 0.5 : 1} />
+          <PixelSprite sprite={sprite(o.sprite)} scale={o.olcek * k} opacity={o.arka ? 0.5 : 1} />
         </View>
       ))}
 

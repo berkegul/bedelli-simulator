@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Animated, Easing, Pressable, ScrollView, View } from "react-native";
+import { Animated, Easing, Pressable, ScrollView, useWindowDimensions, View } from "react-native";
 import { C, SP } from "../theme";
 import { gunGetir } from "../content";
 import { sprite } from "../art";
@@ -8,7 +8,7 @@ import { saate } from "../engine/zaman";
 import { useSecili } from "../store/secici";
 import { Daktilo } from "../ui/Daktilo";
 import { PixelButton } from "../ui/PixelButton";
-import { PixelPanel } from "../ui/PixelPanel";
+import { DiyalogKutusu } from "../ui/DiyalogKutusu";
 import { MekanSeridi, mekanBul } from "../ui/MekanSeridi";
 import { PixelSprite } from "../ui/PixelSprite";
 import { PixelText } from "../ui/PixelText";
@@ -57,6 +57,9 @@ export function OyunEkrani() {
     [],
   );
   const molaAcik = useDuraklat((s) => s.acik);
+  // Uzun telefonda sahne iki kat: 300 nokta, sprite'lar tam sayı büyüklükte.
+  const { height: ekranYuksekligi } = useWindowDimensions();
+  const carpan = ekranYuksekligi >= 720 ? 2 : 1;
 
   const [yazildi, setYazildi] = useState(false);
   const [atla, setAtla] = useState(false);
@@ -127,6 +130,32 @@ export function OyunEkrani() {
             keyboardShouldPersistTaps="handled"
           >
             {/*
+              Sahne kenardan kenara ve animasyonun dışında: aynı mekânda
+              sahneler değişirken arka plan yerinde kalıyor, yalnızca
+              diyalog değişiyor.
+            */}
+            {sahne.kind !== "yol" && sahne.kind !== "tanitim" && mekanVar ? (
+              <MekanSeridi blokId={blok.id} saat={saate(g.saat)} carpan={carpan} cercevesiz />
+            ) : (
+              spriteKey && (
+                <View
+                  style={{
+                    height: 150 * carpan,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "#232016",
+                    borderBottomWidth: 2,
+                    borderColor: C.ink,
+                  }}
+                >
+                  <PixelSprite
+                    sprite={sprite(spriteKey)}
+                    scale={(spriteKey === "kisla" || spriteKey === "tufek" ? 7 : 6) + (carpan > 1 ? 2 : 0)}
+                  />
+                </View>
+              )
+            )}
+            {/*
               Dokununca daktilo metni tamamlanıyor. Bu Pressable eskiden
               ScrollView'ı sarıyordu; dokunma sorumlusunu kaptığı için ekranın
               çoğu yerinden kaydırma çalışmıyordu. Artık listenin içinde.
@@ -151,26 +180,6 @@ export function OyunEkrani() {
                   ],
                 }}
               >
-                {/* Nerede olduğunu gösteren mekan kesiti; yoksa sahnenin kendi görseli */}
-                {sahne.kind !== "yol" &&
-                sahne.kind !== "tanitim" &&
-                mekanVar ? (
-                  <MekanSeridi blokId={blok.id} saat={saate(g.saat)} />
-                ) : (
-                  spriteKey && (
-                    <View
-                      style={{ alignItems: "center", paddingVertical: SP.md }}
-                    >
-                      <PixelSprite
-                        sprite={sprite(spriteKey)}
-                        scale={
-                          spriteKey === "kisla" || spriteKey === "tufek" ? 7 : 6
-                        }
-                      />
-                    </View>
-                  )
-                )}
-
                 {g.sonuc ? (
                   <SonucKarti metin={g.sonuc.metin} />
                 ) : sahne.kind === "yol" ? (
@@ -188,17 +197,7 @@ export function OyunEkrani() {
                     onVardi={g.yoldaVar}
                   />
                 ) : sahne.kind === "anlati" ? (
-                  <PixelPanel style={{ padding: SP.lg }}>
-                    {sahne.speaker && (
-                      <PixelText
-                        font="command"
-                        size="lead"
-                        color={C.brass}
-                        style={{ marginBottom: SP.sm }}
-                      >
-                        {sahne.speaker.toLocaleUpperCase("tr-TR")}
-                      </PixelText>
-                    )}
+                  <DiyalogKutusu konusan={sahne.speaker}>
                     <Daktilo
                       key={sahneAnahtari}
                       text={sahne.text}
@@ -208,17 +207,9 @@ export function OyunEkrani() {
                       line="body"
                       color={sahne.speaker ? C.canvas : C.canvasDim}
                     />
-                  </PixelPanel>
+                  </DiyalogKutusu>
                 ) : sahne.kind === "mini" ? (
-                  <PixelPanel style={{ padding: SP.lg }}>
-                    <PixelText
-                      font="command"
-                      size="h3"
-                      color={C.brass}
-                      style={{ marginBottom: SP.sm }}
-                    >
-                      {MINI_BASLIK[sahne.game]}
-                    </PixelText>
+                  <DiyalogKutusu baslik={MINI_BASLIK[sahne.game]}>
                     <Daktilo
                       key={sahneAnahtari}
                       text={sahne.brief}
@@ -227,9 +218,9 @@ export function OyunEkrani() {
                       size="lead"
                       color={C.canvasDim}
                     />
-                  </PixelPanel>
+                  </DiyalogKutusu>
                 ) : (
-                  <PixelPanel style={{ padding: SP.lg }}>
+                  <DiyalogKutusu>
                     <Daktilo
                       key={sahneAnahtari}
                       text={sahne.brief}
@@ -238,7 +229,7 @@ export function OyunEkrani() {
                       size="lead"
                       color={C.canvasDim}
                     />
-                  </PixelPanel>
+                  </DiyalogKutusu>
                 )}
 
                 {/* Etkileşimli sahneler metin bittikten sonra açılır */}
