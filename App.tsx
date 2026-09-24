@@ -80,19 +80,33 @@ export default function App() {
     <HataSiniri onKurtar={() => useGame.getState().anaMenu()}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
-          <View style={{ flex: 1, backgroundColor: C.bg }} onLayout={yerlesimHazir}>
-            <StatusBar style="light" />
-            {ekran === 'menu' && <MenuEkrani />}
-            {ekran === 'profil' && <ProfilEkrani />}
-            {ekran === 'carsi' && <CarsiEkrani />}
-            {ekran === 'gunBasi' && <GunBasiEkrani />}
-            {ekran === 'oyun' && <OyunEkrani />}
-            {ekran === 'gunSonu' && <GunSonuEkrani />}
-            {ekran === 'kilit' && <KilitEkrani />}
-            {ekran === 'icerikSonu' && <IcerikSonuEkrani />}
-            {ekran === 'gelistirme' && <GelistirmeEkrani />}
-            <GelistirmeRozeti />
-            {ayarlarAcik && <AyarlarEkrani />}
+          {/*
+            Oyun alanı en fazla 480 nokta: tablette ve masaüstü tarayıcıda
+            düğmeler ekranı boydan boya kaplamasın. Kenarlar en koyu tonda.
+          */}
+          <View style={{ flex: 1, backgroundColor: C.ink }} onLayout={yerlesimHazir}>
+            <View
+              style={{
+                flex: 1,
+                width: '100%',
+                maxWidth: 480,
+                alignSelf: 'center',
+                backgroundColor: C.bg,
+              }}
+            >
+              <StatusBar style="light" />
+              {ekran === 'menu' && <MenuEkrani />}
+              {ekran === 'profil' && <ProfilEkrani />}
+              {ekran === 'carsi' && <CarsiEkrani />}
+              {ekran === 'gunBasi' && <GunBasiEkrani />}
+              {ekran === 'oyun' && <OyunEkrani />}
+              {ekran === 'gunSonu' && <GunSonuEkrani />}
+              {ekran === 'kilit' && <KilitEkrani />}
+              {ekran === 'icerikSonu' && <IcerikSonuEkrani />}
+              {ekran === 'gelistirme' && <GelistirmeEkrani />}
+              <GelistirmeRozeti />
+              {ayarlarAcik && <AyarlarEkrani />}
+            </View>
           </View>
         </SafeAreaProvider>
       </GestureHandlerRootView>

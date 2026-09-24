@@ -16,8 +16,9 @@ export const FONT = {
 
 /** Pixel fontlar tam sayı boyutlarda keskin kalır; ölçek buna göre. */
 export const SIZE = {
-  micro: 11,
-  small: 13,
+  // 11/13 telefonda okunmuyordu (G7); en küçük boyutlar bir kademe büyük.
+  micro: 12,
+  small: 14,
   body: 16,
   lead: 19,
   h3: 24,

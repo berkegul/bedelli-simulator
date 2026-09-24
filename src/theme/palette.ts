@@ -13,8 +13,10 @@ export const C = {
 
   // Metin
   canvas: '#E6DCC0',    // kaput bezi beji — ana metin
-  canvasDim: '#A2977A', // ikincil metin
-  canvasFaint: '#6E664E',
+  // Kontrast (#24221A zemin): ana 11.6, ikincil 6.6, soluk 4.8. Soluk eskiden
+  // #6E664E'ydi (2.8:1) ve küçük metinde telefonda okunmuyordu.
+  canvasDim: '#B3A889', // ikincil metin
+  canvasFaint: '#968C70',
 
   // Anlam renkleri
   olive: '#8FA05A',     // asker yeşili — kondisyon, olumlu
