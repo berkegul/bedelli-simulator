@@ -9,6 +9,7 @@ import type { OgunAdi } from '../engine/types';
 import { PixelButton } from '../ui/PixelButton';
 import { PixelText } from '../ui/PixelText';
 import { Tepsi, TepsiOzeti } from '../ui/Tepsi';
+import { DagitimBandi, Masa } from './Yemekhane';
 
 type Props = {
   gun: number;
@@ -54,67 +55,83 @@ export function YemekSahnesi({ gun, blokIndex, ogun, tokluk, onYe }: Props) {
         </PixelText>
       </View>
 
-      {/* Tepsinin kendisi seçim ekranı: hangi göz doldu, gözle görünüyor */}
-      <View style={{ gap: SP.sm }}>
-        <Tepsi
-          menu={menu}
-          secili={secili}
-          onToggle={(i) =>
-            setSecili((s) => (s.includes(i) ? s.filter((x) => x !== i) : [...s, i]))
+      {/*
+        Dağıtım bandından tepsini alıyorsun, masaya oturuyorsun: tepsi masanın
+        üstünde, tokluk göstergesi masanın ön kenarında.
+      */}
+      <View>
+        <DagitimBandi />
+        <Masa
+          kenar={
+            <>
+              <TepsiOzeti adet={secili.length} tokluk={kazanc} />
+              <View style={{ gap: SP.xs }}>
+                <View
+                  style={{
+                    borderWidth: BORDER,
+                    borderColor: C.ink,
+                    backgroundColor: C.ink,
+                    padding: 2,
+                  }}
+                >
+                  <Svg width="100%" height={BAR_YUKSEKLIK}>
+                    <Rect x="0" y="0" width="100%" height={BAR_YUKSEKLIK} fill={C.bg} />
+                    {/* İdeal bant */}
+                    <Rect
+                      x={`${TOKLUK_BANT.alt}%`}
+                      y="0"
+                      width={`${TOKLUK_BANT.ust - TOKLUK_BANT.alt}%`}
+                      height={BAR_YUKSEKLIK}
+                      fill={C.olive}
+                      opacity={0.22}
+                    />
+                    {/* Şu anki tokluk */}
+                    <Rect x="0" y="0" width={`${tokluk}%`} height={BAR_YUKSEKLIK} fill={C.ekmek} />
+                    {/* Seçimle eklenecek kısım */}
+                    {kazanc > 0 && (
+                      <Rect
+                        x={`${tokluk}%`}
+                        y="0"
+                        width={`${doluluk - tokluk}%`}
+                        height={BAR_YUKSEKLIK}
+                        fill={C.brass}
+                        opacity={0.85}
+                      />
+                    )}
+                    {/* Sonraki öğüne varış noktası */}
+                    {varis > 0 && (
+                      <Rect
+                        x={`${varis}%`}
+                        y="0"
+                        width={2}
+                        height={BAR_YUKSEKLIK}
+                        fill={C.canvas}
+                      />
+                    )}
+                  </Svg>
+                </View>
+
+                <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: SP.sm }}>
+                  <PixelText size="micro" color={C.canvasFaint} style={{ flex: 1 }}>
+                    {`Şimdi ${doluluk} · öğüne kadar ${yakilacak} yakarsın · varış ${Math.max(0, varis)}`}
+                  </PixelText>
+                </View>
+                <PixelText font="bodySemi" size="small" color={tavsiye.renk}>
+                  {tavsiye.metin}
+                </PixelText>
+              </View>
+            </>
           }
-        />
-        <TepsiOzeti adet={secili.length} tokluk={kazanc} />
-      </View>
-
-      {/* Tokluk şeridi: ideal bant işaretli, seçim yaptıkça dolan tahmin */}
-      <View style={{ gap: SP.xs }}>
-        <View
-          style={{
-            borderWidth: BORDER,
-            borderColor: C.ink,
-            backgroundColor: C.ink,
-            padding: 2,
-          }}
         >
-          <Svg width="100%" height={BAR_YUKSEKLIK}>
-            <Rect x="0" y="0" width="100%" height={BAR_YUKSEKLIK} fill={C.bg} />
-            {/* İdeal bant */}
-            <Rect
-              x={`${TOKLUK_BANT.alt}%`}
-              y="0"
-              width={`${TOKLUK_BANT.ust - TOKLUK_BANT.alt}%`}
-              height={BAR_YUKSEKLIK}
-              fill={C.olive}
-              opacity={0.22}
-            />
-            {/* Şu anki tokluk */}
-            <Rect x="0" y="0" width={`${tokluk}%`} height={BAR_YUKSEKLIK} fill={C.ekmek} />
-            {/* Seçimle eklenecek kısım */}
-            {kazanc > 0 && (
-              <Rect
-                x={`${tokluk}%`}
-                y="0"
-                width={`${doluluk - tokluk}%`}
-                height={BAR_YUKSEKLIK}
-                fill={C.brass}
-                opacity={0.85}
-              />
-            )}
-            {/* Sonraki öğüne varış noktası */}
-            {varis > 0 && (
-              <Rect x={`${varis}%`} y="0" width={2} height={BAR_YUKSEKLIK} fill={C.canvas} />
-            )}
-          </Svg>
-        </View>
-
-        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: SP.sm }}>
-          <PixelText size="micro" color={C.canvasFaint} style={{ flex: 1 }}>
-            {`Şimdi ${doluluk} · öğüne kadar ${yakilacak} yakarsın · varış ${Math.max(0, varis)}`}
-          </PixelText>
-        </View>
-        <PixelText font="bodySemi" size="small" color={tavsiye.renk}>
-          {tavsiye.metin}
-        </PixelText>
+          {/* Tepsinin kendisi seçim ekranı: hangi göz doldu, gözle görünüyor */}
+          <Tepsi
+            menu={menu}
+            secili={secili}
+            onToggle={(i) =>
+              setSecili((s) => (s.includes(i) ? s.filter((x) => x !== i) : [...s, i]))
+            }
+          />
+        </Masa>
       </View>
 
       {/* Tepsinin yanında kısa liste: iki sütun, tokluk değeriyle */}

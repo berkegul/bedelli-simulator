@@ -14,16 +14,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import type { SharedValue } from 'react-native-reanimated';
-import {
-  Canvas,
-  Group,
-  Oval,
-  Path,
-  Picture,
-  Rect,
-  Skia,
-  createPicture,
-} from '@shopify/react-native-skia';
+import { Canvas, Group, Path, Picture, Rect, Skia, createPicture } from '@shopify/react-native-skia';
 import type { SkPicture } from '@shopify/react-native-skia';
 
 import { BORDER, C, SP } from '../theme';
@@ -32,7 +23,6 @@ import { Siddet, secim, titret } from '../ui/haptik';
 import {
   HAVA_METNI,
   HAVA_YOL_NOTU,
-  ZEMIN_RENK,
   havaDurumu,
   zeminTipi,
   type Hava,
@@ -60,6 +50,15 @@ import { PixelText } from '../ui/PixelText';
 import { useZamanlayici } from '../ui/useZamanlayici';
 import { useHareketAzalt } from '../ui/useHareketAzalt';
 import { sesCal } from '../ses';
+import {
+  YOL_KENARI,
+  bulutCiz,
+  gokCiz,
+  kenarEsyalariCiz,
+  ufukCiz,
+  yolDokusuCiz,
+  zeminCiz,
+} from './yolCizim';
 
 const SAHNE_YUKSEKLIK = 244;
 
@@ -263,8 +262,8 @@ function Sahne({
 }: SahneProps) {
   const z = useZamanlayici();
   const { en, yuk, ufuk, ox, oy, oolcek } = geo;
-  const isik = isikDurumu(saat);
-  const zeminRenk = ZEMIN_RENK[zemin];
+  // Nesne her çağrıda yeni; resimler buna bağlı, saat değişmedikçe yeniden kurulmasın.
+  const isik = useMemo(() => isikDurumu(saat), [saat]);
 
   // Sis ve yağmur uzağı yutuyor: manzara ve hedef bina daha az görünüyor.
   const uzakOpaklik = hava === 'sisli' ? 0.3 : hava === 'yagmurlu' ? 0.52 : 0.72;
@@ -285,6 +284,7 @@ function Sahne({
   const yagmurFaz = useSharedValue(0);
   const tozFaz = useSharedValue(0);
   const ruzgarFaz = useSharedValue(0);
+  const bulutFaz = useSharedValue(0);
 
   const [izler, setIzler] = useState<Iz[]>([]);
   const [karartma, setKarartma] = useState(0);
@@ -386,6 +386,13 @@ function Sahne({
     // Kadraja girdikten sonra parmağı bekleyerek duruyor.
     yuruyor.set(withDelay(GIRIS_SURESI, withTiming(0, { duration: 190 })));
   }, [azaltilmis, faz, giris, t, yuruyor]);
+
+  // Bulutlar çok yavaş kayıyor; bir tur ~90 saniye.
+  useEffect(() => {
+    if (azaltilmis || isik.yildiz) return;
+    bulutFaz.set(withRepeat(withTiming(1, { duration: 90_000, easing: Easing.linear }), -1, false));
+    return () => cancelAnimation(bulutFaz);
+  }, [azaltilmis, bulutFaz, isik.yildiz]);
 
   // Yağmur ve rüzgâr yürüsen de dursan da akıyor.
   useEffect(() => {
@@ -560,10 +567,27 @@ function Sahne({
   });
 
   // ── Sabit çizimler ────────────────────────────────────────────────
-  const zeminResmi = useMemo(
-    () => zeminCiz(en, yuk, ufuk, zemin, zeminRenk, gun + blokIndex),
-    [en, yuk, ufuk, zemin, zeminRenk, gun, blokIndex],
+  const tohum = gun * 7 + blokIndex;
+  const gokResmi = useMemo(() => gokCiz(en, ufuk, isik), [en, ufuk, isik]);
+  const bulutResmi = useMemo(
+    () => (isik.yildiz ? null : bulutCiz(en, ufuk, isik)),
+    [en, ufuk, isik],
   );
+  const ufukResmi = useMemo(
+    () => ufukCiz(en, ufuk, isik.yildiz, tohum),
+    [en, ufuk, isik.yildiz, tohum],
+  );
+  const zeminResmi = useMemo(
+    () => zeminCiz(en, yuk, ufuk, zemin, isik.alt, tohum),
+    [en, yuk, ufuk, zemin, isik.alt, tohum],
+  );
+  const yolDokuResmi = useMemo(
+    () => yolDokusuCiz(en, yuk, ufuk, zemin, tohum),
+    [en, yuk, ufuk, zemin, tohum],
+  );
+  const esyaResmi = useMemo(() => kenarEsyalariCiz(geo, zemin, tohum), [geo, zemin, tohum]);
+  const kenar = YOL_KENARI[zemin];
+  const bulutKaymasi = useDerivedValue(() => [{ translateX: bulutFaz.value * 50 }]);
 
   const yagmurResmi = useMemo(
     () => (hava === 'yagmurlu' ? yagmurCiz(en, yuk) : null),
@@ -591,31 +615,13 @@ function Sahne({
   return (
     <>
       <Canvas style={{ position: 'absolute', top: 0, left: 0, width: en, height: yuk }}>
-        {/* Gökyüzü: yumuşak degrade yok, bant geçişi */}
-        {Array.from({ length: 5 }, (_, i) => (
-          <Rect
-            key={`gok${i}`}
-            x={0}
-            y={(ufuk / 5) * i}
-            width={en}
-            height={ufuk / 5 + 1}
-            color={i < 2.5 ? isik.ust : isik.alt}
-            opacity={i === 2 ? 0.75 : 1}
-          />
-        ))}
-
-        {isik.yildiz &&
-          YILDIZLAR.map((y, i) => (
-            <Rect
-              key={`yil${i}`}
-              x={(y.x / 100) * en}
-              y={(y.y / 100) * ufuk}
-              width={2}
-              height={2}
-              color={C.canvas}
-              opacity={0.55}
-            />
-          ))}
+        {/* Gökyüzü: sekiz basamak, gündüz kayan bulutlar */}
+        <Picture picture={gokResmi} />
+        {bulutResmi && (
+          <Group transform={bulutKaymasi}>
+            <Picture picture={bulutResmi} />
+          </Group>
+        )}
 
         {isik.cisim && (
           <Group
@@ -630,21 +636,33 @@ function Sahne({
           </Group>
         )}
 
+        {/* Ufuk: uzak koğuş blokları, ağaçlar, duvar, tel örgü */}
+        <Picture picture={ufukResmi} />
+
         {/* Zemin ve dokusu */}
         <Picture picture={zeminResmi} />
 
-        {/* Yol şeridi: soluk hâli, üstüne geçtiğin kısım pirinç sarısı */}
-        <Group clip={yolYolu} opacity={0.42}>
-          <Rect x={0} y={0} width={en} height={yuk} color={C.canvasFaint} />
+        {/* Yol: kenarında kaldırım/ot, içinde kendi malzemesi; geçtiğin kısım
+            pirinç tonuna dönüyor (nerede olduğunu gösteren tek iz). */}
+        <Path
+          path={yolYolu}
+          style="stroke"
+          strokeWidth={kenar.kalinlik}
+          color={kenar.renk}
+          opacity={0.9}
+        />
+        <Group clip={yolYolu}>
+          <Picture picture={yolDokuResmi} />
         </Group>
-        {/* Kenar çizgisi olmadan şerit zemine yayılmış bir leke gibi
-            duruyordu; çizgi onu "yol" yapan şey. */}
-        <Path path={yolYolu} style="stroke" strokeWidth={2} color={C.ink} opacity={0.55} />
+        <Path path={yolYolu} style="stroke" strokeWidth={1.5} color={C.ink} opacity={0.6} />
         <Group clip={gecilenKirpma}>
-          <Group clip={yolYolu} opacity={0.72}>
+          <Group clip={yolYolu} opacity={0.34}>
             <Rect x={0} y={0} width={en} height={yuk} color={C.brass} />
           </Group>
         </Group>
+
+        {/* Yol kenarı: lamba, çöp kovası, tabela, bayrak, sınır taşı, ot */}
+        <Picture picture={esyaResmi} />
 
         {/* Ayak izleri: yalnız toprak ve çakılda kalıyor */}
         {izler.map((iz, i) => (
@@ -680,7 +698,8 @@ function Sahne({
 
         {/* Gölge askerin ayağının dibinde */}
         <Group transform={golgeDonusum} opacity={golgeOpaklik}>
-          <Oval x={-11} y={-3.5} width={22} height={7} color={C.ink} />
+          <Rect x={-9} y={-3} width={18} height={3} color={C.ink} />
+          <Rect x={-12} y={0} width={24} height={3} color={C.ink} />
         </Group>
 
         <Group transform={askerDonusum} opacity={askerOpaklik}>
@@ -772,69 +791,6 @@ function ManzaraParcasi({
     <Group transform={donusum} opacity={opaklik}>
       <Picture picture={resim} />
     </Group>
-  );
-}
-
-const YILDIZLAR = [
-  { x: 12, y: 32 },
-  { x: 28, y: 16 },
-  { x: 41, y: 46 },
-  { x: 57, y: 24 },
-  { x: 69, y: 52 },
-  { x: 78, y: 19 },
-  { x: 88, y: 42 },
-  { x: 21, y: 60 },
-  { x: 63, y: 11 },
-  { x: 92, y: 70 },
-];
-
-/** Zemin dokusu: beton derzi, toprak izi, çakıl taneleri. */
-function zeminCiz(
-  en: number,
-  yuk: number,
-  ufuk: number,
-  zemin: Zemin,
-  renk: { ust: string; alt: string },
-  tohum: number,
-) {
-  return createPicture(
-    (canvas) => {
-      const boya = (r: string, o = 1) => {
-        const p = Skia.Paint();
-        p.setColor(Skia.Color(r));
-        p.setAlphaf(o);
-        p.setAntiAlias(false);
-        return p;
-      };
-
-      const h = yuk - ufuk;
-      canvas.drawRect(Skia.XYWHRect(0, ufuk, en, h), boya(renk.ust));
-      canvas.drawRect(Skia.XYWHRect(0, ufuk + h * 0.4, en, h * 0.6), boya(renk.alt));
-      canvas.drawRect(Skia.XYWHRect(0, ufuk, en, 2), boya(C.line));
-
-      if (zemin === 'beton') {
-        // Derzler ufka doğru sıklaşıyor: düz aralık yerine perspektif.
-        for (let i = 1; i <= 6; i++) {
-          const y = ufuk + h * Math.pow(i / 6, 1.9);
-          canvas.drawRect(Skia.XYWHRect(0, y, en, 1), boya(C.ink, 0.42));
-        }
-      } else {
-        const adet = zemin === 'cakil' ? 150 : 70;
-        for (let i = 0; i < adet; i++) {
-          const r1 = serpinti(i * 3 + tohum);
-          const r2 = serpinti(i * 7 + tohum + 41);
-          // Uzaktaki taneler küçük ve sık, yakındakiler iri.
-          const derin = Math.pow(r2, 0.6);
-          const y = ufuk + 4 + derin * (h - 8);
-          const boy = zemin === 'cakil' ? 1 + derin * 2 : 2 + derin * 5;
-          canvas.drawRect(
-            Skia.XYWHRect(r1 * en, y, boy, Math.max(1, boy * 0.5)),
-            boya(zemin === 'cakil' ? C.canvasFaint : C.ink, 0.16 + derin * 0.22),
-          );
-        }
-      }
-    },
-    Skia.XYWHRect(0, 0, en, yuk),
   );
 }
 
