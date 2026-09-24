@@ -724,6 +724,7 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 
 | Tarih | Kayıt |
 |---|---|
+| 2026-09-24 | D2 bitti ve main'e birleşti. Ek: denge ayarı (S13), hafıza koşullu sahneler (I13), yol sahnesi Skia çökmesi. S12'nin riskli kalanı S12b olarak D5'e. |
 | 2026-09-24 | Berke işi devretti (commit/push serbest). K3 → 05:30 uygulandı. |
 | 2026-09-24 | D1 kod olarak bitti. Ek bulunan hatalar: nöbet cezası puana hiç yansımıyordu (S6), yarım görüşme kartı "Devam et"te siliniyordu (S5). Cihaz testleri: S1/S2 Firebase projesiyle (M4), S7 Android'de. |
 | 2026-09-24 | Web yayın hedefi değil (Berke): Y4 ve K4 kaldırıldı, web geliştirme önizlemesi olarak kalıyor. |
