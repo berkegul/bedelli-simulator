@@ -1,4 +1,5 @@
 import { FIREBASE_CONFIG, firebaseKurulu } from '../firebaseConfig';
+import { kimlikBaslat } from './kimlik';
 import type { SaveData } from './save';
 
 /**
@@ -9,19 +10,34 @@ import type { SaveData } from './save';
  * Firebase modülleri ancak yapılandırma varsa yükleniyor — kurulmadığı
  * sürece paket uygulamanın açılışını yavaşlatmıyor.
  */
-let hazirlik: Promise<{ db: unknown; uid: string } | null> | null = null;
+type Oturum = { db: unknown; uid: string };
 
-async function baglan() {
-  if (!firebaseKurulu()) return null;
+/**
+ * Açılışta buluttan okuma bu kadar beklenir. Splash ekranı bunu bekliyor:
+ * internetsiz ilk açılışta oyuncu saniyelerce boş ekrana bakmasın.
+ */
+export const ACILIS_BEKLEME_MS = 4000;
+
+/** Bağlantı başarısız olunca bu süre boyunca yeniden denenmez. */
+const YENIDEN_DENEME_MS = 60_000;
+
+let hazirlik: Promise<Oturum | null> | null = null;
+let sonHata = 0;
+
+async function baglan(): Promise<Oturum | null> {
   try {
-    const [{ initializeApp, getApps }, { getAuth, signInAnonymously }, firestore] = await Promise.all([
+    const [{ initializeApp, getApps }, firestore] = await Promise.all([
       import('firebase/app'),
-      import('firebase/auth'),
       import('firebase/firestore'),
     ]);
 
     const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
-    const auth = getAuth(app);
+    const auth = await kimlikBaslat(app);
+    // Kalıcı oturum diskten asenkron geri yükleniyor; o bitmeden
+    // currentUser null görünür. Beklemeden anonim giriş yapmak her
+    // açılışta yeni bir kimlik açardı.
+    await auth.authStateReady();
+    const { signInAnonymously } = await import('firebase/auth');
     // Anonim oturum: oyuncudan hesap istemeden cihaz başına kimlik verir.
     const kimlik = auth.currentUser ?? (await signInAnonymously(auth)).user;
     return { db: firestore.getFirestore(app), uid: kimlik.uid };
@@ -31,9 +47,32 @@ async function baglan() {
   }
 }
 
-function oturum() {
-  if (!hazirlik) hazirlik = baglan();
+/**
+ * Tek bağlantı paylaşılıyor. Başarısız olursa önbelleğe alınmıyor: ağsız
+ * açılan oyun, ağ gelince bir dakika içinde yedeklemeye başlıyor.
+ */
+function oturum(): Promise<Oturum | null> {
+  if (!firebaseKurulu()) return Promise.resolve(null);
+  if (!hazirlik) {
+    if (Date.now() - sonHata < YENIDEN_DENEME_MS) return Promise.resolve(null);
+    hazirlik = baglan().then((o) => {
+      if (!o) {
+        hazirlik = null;
+        sonHata = Date.now();
+      }
+      return o;
+    });
+  }
   return hazirlik;
+}
+
+/** Söz verilen süre içinde bitmezse yedek değeri döner; iş arkada sürer. */
+export function sureli<T>(is: Promise<T>, ms: number, yedek: T): Promise<T> {
+  let zamanlayici: ReturnType<typeof setTimeout> | undefined;
+  const sure = new Promise<T>((coz) => {
+    zamanlayici = setTimeout(() => coz(yedek), ms);
+  });
+  return Promise.race([is, sure]).finally(() => clearTimeout(zamanlayici));
 }
 
 /** Kaydı buluta yazar. Başarısız olursa yutar; cihazdaki kayıt zaten var. */
@@ -48,8 +87,15 @@ export async function bulutaYaz(data: SaveData) {
   }
 }
 
-/** Cihazda kayıt yoksa buluttan geri yükler — telefon değiştiren oyuncu için. */
-export async function buluttanOku(): Promise<SaveData | null> {
+/**
+ * Cihazda kayıt yoksa buluttan geri yükler — telefon değiştiren oyuncu için.
+ * Açılışı tuttuğu için süreli: ağ yavaşsa oyun cihazdan temiz başlar.
+ */
+export function buluttanOku(): Promise<SaveData | null> {
+  return sureli(bulutKaydiniGetir(), ACILIS_BEKLEME_MS, null);
+}
+
+async function bulutKaydiniGetir(): Promise<SaveData | null> {
   const o = await oturum();
   if (!o) return null;
   try {

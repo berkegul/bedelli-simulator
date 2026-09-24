@@ -1,8 +1,12 @@
 # Yayın planı
 
-Bugünden (24 Eylül 2026, `main @ 30fcb45`) mağaza ve web yayınına kadar
+Bugünden (24 Eylül 2026, `main @ 30fcb45`) App Store ve Play Store yayınına kadar
 yapılacak işler. Yol haritası artifact'ı bu belgeden besleniyor:
 https://claude.ai/artifact/ARK7j9jh7vfbDzuoSG42MQ
+
+Uygulama yalnızca mobil yayınlanıyor. Web (`expo start --web`) geliştirme
+sırasında hızlı deneme için korunuyor ama yayın hedefi değil; web'de
+çalışmayan bir özellik gerekirse web'i kırmadan atlanır.
 
 İşleri Claude uyguluyor, Berke karar veriyor ve onaylıyor. Karar gerektiren
 yerler §1'de toplandı; karar gelmeden o işe başlanmaz, onun dışındaki her iş
@@ -36,7 +40,7 @@ Durum işaretleri: ✅ bitti · 🟡 sürüyor · ⬜ bekliyor · ❓ karar bekl
 | Lint | `npm run lint` (0 hata) | her iş |
 | Birim testleri | `npm test` | her iş |
 | Telefon içeriği | `npm run telefon:dogrula` | içerik veya telefon motoruna dokunan iş |
-| Web derlemesi | `npx expo export -p web` | her iş |
+| Web derlemesi (geliştirme önizlemesi kırılmasın) | `npx expo export -p web` | her iş |
 | Native derlemesi | `npx expo export -p ios` | native modül eklenen veya platforma özel kod içeren iş |
 | Tarayıcıda deneme | `npx expo start --web` + Chrome'da ilgili akış | ekran, akış ya da kayıt davranışına dokunan iş |
 | Cihazda deneme | Expo Go / dev build | ses, haptik, IAP, geri tuşu, auth kalıcılığı |
@@ -60,7 +64,7 @@ Berke telefonda dener. Sonuç bu belgedeki karta yazılır.
 | K1 | Para kazanma modeli | ücretsiz + tek seferlik kilit açma / peşin ücretli / reklamlı | Ücretsiz + kilit açma. Ölçüm verisi bununla toplanır, mağazada indirme bariyeri yok. | M1, M2, M3 |
 | K2 | Kaç gün ücretsiz | 5 / 7 | **7.** Telefonun "bir hafta oldu" eşiği (g07) kilidin önünde kalır; oyuncu ilk duygusal geri dönüşü görüp duvara çarpar. | M2 |
 | K3 | Kalkış saati | 05:00 (telefon g02) / 05:30 (menü, `ilkDurum.saat`, README) / 06:00 (gün dosyaları) | README'deki gerçek program 05:30 diyor; gerçek programa sadık kalınacaksa 05:30. | I4 |
-| K4 | Web'de satış | web ücretsiz tanıtım (ilk N gün) / web'de de ödeme (Stripe vb.) | Web yalnızca tanıtım; ödeme mağazada. Web'de kilit ekranı mağaza bağlantısı gösterir. | M3, Y4 |
+| ~~K4~~ | ~~Web'de satış~~ | — | Kapandı (24 Eyl): web yayınlanmıyor. | — |
 | K5 | Yemin töreni günü | 21 / 26 | 26. Telefon g26 "duygusal yükseliş" günü; törende aile izleyici. | I7, I11 |
 | K6 | Hesaplar | Apple Developer (99$/yıl), Google Play Console (25$ bir kez), Firebase projesi, Sentry | Hepsi Berke adına açılmalı; Claude kurulum adımlarını hazırlar. | M4, M6, Y1, Y5 |
 | K7 | Fiyat | — | Rakip incelemesiyle M3 sırasında önerilecek. | M3 |
@@ -78,7 +82,7 @@ ondan sonra başlar. Süreler tek kişilik yoğun çalışma için kaba tahmin.
 | **D2 · İçerik hazırlığı** | 23 gün yazılmadan önce çelişkileri, aracı ve şablonu hazırla | I4, S10, I12, S8, S12, I10, §4 takvimi | 3–4 gün |
 | **D3 · İkinci hafta + ses** | Gün 6–12, ses, ayarlar, duraklatma | I5, C1, C2, C3 | 5–7 gün |
 | **D4 · Üçüncü hafta + para** | Gün 13–19, satın alma, dev build | I6, Y1, M2, M3, C4, C7 | 6–8 gün |
-| **D5 · Son hafta + uyum** | Gün 20–28, finaller, ölçüm, KVKK, cila | I11, I7, I8, I9, M4, M5, M6, C5, C6, Y2, Y3, Y4 | 7–10 gün |
+| **D5 · Son hafta + uyum** | Gün 20–28, finaller, ölçüm, KVKK, cila | I11, I7, I8, I9, M4, M5, M6, C5, C6, Y2, Y3 | 7–10 gün |
 | **D6 · Yayın** | İç test, mağaza incelemesi, lansman | Y5, Y6, Y7 | 1–2 hafta (inceleme süresi dahil) |
 
 Kritik yol içerik yazımıdır: I4 → I5 → I6 → I7 → I8 → I9 → Y5. Diğer her iş
@@ -136,7 +140,7 @@ bunun yanında paralel yürür.
   koduna sızmasınlar diye ayrıldı). Lint 0 hata, 100 uyarı: hepsi React
   Compiler kuralı, S12'ye bırakıldı. `.github/workflows/kontrol.yml`.
 
-#### S1 · kalıcı anonim kimlik 🔴 ⬜ (D1)
+#### S1 · kalıcı anonim kimlik 🔴 ✅ kod · cihaz testi M4'te (D1)
 - **Sorun:** `engine/bulut.ts:24` `getAuth(app)` React Native'de kalıcılık
   olmadan açılıyor. Her açılış yeni anonim uid alıyor, bulut kaydı hiç
   bulunmuyor, ölçüm verisi oturum başına bölünüyor.
@@ -153,6 +157,14 @@ bunun yanında paralel yürür.
 - **Kabul:** Firebase test projesiyle cihazda uygulamayı üç kez kapatıp aç:
   Firestore'da tek `oyuncular/{uid}` belgesi. Uçak modunda ilk açılış
   4 sn içinde menüye düşüyor.
+- **Sonuç:** `engine/kimlik.native.ts` (AsyncStorage kalıcılığı) ve
+  `engine/kimlik.ts` (web önizlemesi). Asıl yakalanan ikinci hata:
+  kalıcılık açıkken bile `currentUser` ilk anda null; `authStateReady()`
+  beklenmeden anonim giriş yine yeni kimlik açıyordu. Başarısız bağlantı
+  artık önbelleğe alınmıyor (60 sn sonra yeniden deneniyor), açılıştaki
+  bulut okuması 4 sn'lik `sureli` ile sınırlı. iOS paketinde `@firebase/auth`
+  RN girişinin yüklendiği doğrulandı. Cihazda kabul testi Firebase projesi
+  açılınca (K6, M4) yapılacak.
 
 #### S2 · bulut kaydı birleşmesin 🔴 ⬜ (D1, S1'den sonra)
 - **Sorun:** `engine/bulut.ts:45` `setDoc(..., { merge: true })` yerelde
@@ -392,10 +404,9 @@ bunun yanında paralel yürür.
   sonunda derece damgası (MÜKEMMEL / TAMAM / ZAYIF). Hepsi hareket azaltma
   açıksa atlanır.
 
-#### C5 · tablet + web genişliği ⬜ (D5)
+#### C5 · tablet genişliği ⬜ (D5)
 - Oyun alanı en fazla 480 pt genişlikte ortalanır, kenarlar zemin rengi.
-  Masaüstü web'de klavye: Boşluk/Enter ilerle, 1–4 seçim.
-- **Kabul:** iPad simülatöründe ve 1440 px tarayıcıda düzen bozulmuyor.
+- **Kabul:** iPad simülatöründe dikey düzen bozulmuyor.
 
 #### C6 · erişilebilirlik ⬜ (D5)
 - `PixelText`'e `maxFontSizeMultiplier` (1.3). Harita, panel ve mini oyun
@@ -431,7 +442,8 @@ bunun yanında paralel yürür.
      sonuç yerelde de önbelleklenir (çevrimdışı oyuncu kilitte kalmasın).
   2. `KilitEkrani`: fiyat mağazadan okunur, "Tam sürümü aç" + "Satın
      almayı geri yükle".
-  3. Web: K4'e göre mağaza bağlantısı.
+  3. Web (yalnızca geliştirme): satın alma yok, `TAM_SURUM_ACIK` geliştirme
+     alanından açılır.
   4. Olaylar: `satin_alma_basladi`, `satin_alindi`, `satin_alma_iptal`.
 - **Kabul:** sandbox hesabıyla iOS ve Android'de satın al → uygulamayı
   sil, kur → geri yükle → 6. gün açık.
@@ -448,7 +460,8 @@ bunun yanında paralel yürür.
 - İlk açılışta tek ekran: ne toplandığı (anonim kimlik, ilerleme yedeği,
   oyun olayları), "Kabul" / "Yalnızca cihazda oyna". Reddedilirse bulut
   ve olaylar kapalı; ayarlardan değiştirilebilir.
-- Gizlilik politikası sayfası (web sitesinde, Y4 ile aynı hostta), iOS
+- Gizlilik politikası sayfası (mağazaların istediği herkese açık bir adres:
+  Firebase Hosting'de tek statik sayfa ya da GitHub Pages), iOS
   `PrivacyInfo` (app.json `ios.privacyManifests`), Play Data safety formu.
 - Metin hukuki kontrolden geçmeli; Claude taslağı hazırlar.
 
@@ -480,11 +493,7 @@ bunun yanında paralel yürür.
   sahneler), kısa ve uzun açıklama, anahtar kelimeler, yaş derecelendirme
   anketi. AI yalnızca burada serbest (README kuralı).
 
-#### Y4 · web hosting ⬜ (D5)
-- `npx expo export -p web` çıktısına `canvaskit.wasm`'ın girdiği CI'da
-  doğrulanır. Firebase Hosting (Firebase zaten kullanılıyor) ya da Vercel.
-  Gizlilik politikası ve mağaza bağlantıları aynı alan adında.
-- **Kabul:** yayındaki adreste yol sahnesi (Skia) açılıyor.
+#### ~~Y4 · web hosting~~ (kaldırıldı, 24 Eyl: web yayınlanmıyor)
 
 #### Y5 · iç test ⬜ (D6)
 - TestFlight + Play internal testing, 5–10 kişi. Bir hafta: Firebase'de
@@ -538,4 +547,5 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 
 | Tarih | Kayıt |
 |---|---|
+| 2026-09-24 | Web yayın hedefi değil (Berke): Y4 ve K4 kaldırıldı, web geliştirme önizlemesi olarak kalıyor. |
 | 2026-09-24 | İlk inceleme: 3 kritik veri hatası (S1–S3), içerik 5/28, telefon 28/28. Plan yazıldı. |
