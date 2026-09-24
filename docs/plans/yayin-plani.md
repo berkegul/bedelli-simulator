@@ -446,7 +446,7 @@ bunun yanında paralel yürür.
   3 test (açılır / atlanır / her blokta koşulsuz sahne). Gerçek içerikte
   ilk kullanım I5'te (gün 7, 10–12).
 
-#### I10 · atış mini oyunu ⬜ (D2)
+#### I10 · atış mini oyunu ✅ (D2)
 - **Tasarım:** nişangâh dikey salınıyor (nefes), oyuncu basılı tutunca
   salınım yavaşlıyor ama "nefes" çubuğu tükeniyor; bırakınca atış.
   5 mermi, hedef tahtası halkalarından puan. `Date.now()` değil
@@ -456,6 +456,16 @@ bunun yanında paralel yürür.
   (nişangâh, delik).
 - **Kabul:** geliştirme alanında oynanıyor, web'de ve iOS export'ta
   derleniyor, 0–1 puan dönüyor.
+- **Sonuç:** `minigames/Atis.tsx`. Hedef halkaları piksel ızgarası olarak
+  üretilip PixelSprite ile çiziliyor (daire yok, palete ve 4px diline uygun).
+  Nişangâh iki eksende nefesle salınıyor; basılı tutmak salınımı daraltıyor,
+  nefes çubuğu biterse titreme. 5 mermi, halka puanı merkezde 1'den dışa
+  0.18 azalıyor. Hareket azaltmada genlik düşük. Tarayıcıda bulunan hata:
+  anlık dokunuşta pressIn/pressOut sırası garanti değildi ve atış
+  kaçıyordu; basış başına bekleyen atış + onPress yedeği ile düzeldi.
+  Sprite'larda görülen ince çizgiler yakalama aracının küçültmesiydi, oyunda
+  yok. `performance.now` yerine `Date.now` (diğer oyunlarla aynı; tepki
+  ölçümü değil, salınım fazı).
 
 #### I5 · gün 6–12 ⬜ (D3) · I6 · gün 13–19 ⬜ (D4) · I7 · gün 20–27 ⬜ (D5)
 - **Şablon:** her gün `src/content/dayNN.ts`, 8–11 blok. Yazmadan önce

@@ -1,5 +1,6 @@
 import React from 'react';
 import type { MiniGameId } from '../engine/types';
+import { Atis } from './Atis';
 import { Ceza } from './Ceza';
 import { Gece } from './Gece';
 import { Giyinme } from './Giyinme';
@@ -25,6 +26,7 @@ const HARITA: Record<MiniGameId, React.ComponentType<MiniOyunProps>> = {
   postal: PostalParlatma,
   tiras: Tiras,
   gece: Gece,
+  atis: Atis,
 };
 
 export const MINI_BASLIK: Record<MiniGameId, string> = {
@@ -39,6 +41,7 @@ export const MINI_BASLIK: Record<MiniGameId, string> = {
   postal: 'POSTAL PARLATMA',
   tiras: 'TIRAŞ',
   gece: 'YATMA HAZIRLIĞI',
+  atis: 'ATIŞ POLİGONU',
 };
 
 export function MiniOyun({ id, ...props }: { id: MiniGameId } & MiniOyunProps) {

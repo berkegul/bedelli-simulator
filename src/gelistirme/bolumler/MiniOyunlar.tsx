@@ -22,6 +22,7 @@ const MINILER: MiniGameId[] = [
   'postal',
   'tiras',
   'gece',
+  'atis',
 ];
 
 const NE_YAPAR: Record<MiniGameId, string> = {
@@ -36,6 +37,7 @@ const NE_YAPAR: Record<MiniGameId, string> = {
   postal: 'İki postalı parmakla ovarak parlat. Bot bakım seti yoksa bezle: yavaş ve bir yerden sonra parlamıyor.',
   tiras: 'Jileti yüzde aşağı doğru çek. Hızlı ya da ters çekersen keser; kör jilet daha çok keser.',
   gece: 'Üniformayı çıkarıp yerine koy, pijama ve terliği dolaptan al. Çorap, kirli torbası nerede duruyorsa oraya.',
+  atis: 'Basılı tutup nefesini tut, nişangâh daralsın; bırakınca ateş. Nefes biterse eller titrer. Beş mermi.',
 };
 
 /** Oyundaki bu mini oyuna bağlı gerçek sahneleri bulur — ödül eğrisi orada. */

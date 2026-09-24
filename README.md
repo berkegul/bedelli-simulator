@@ -317,7 +317,8 @@ dokunma anıyla ekrandaki kare arasında kayma olmasın.
 
 Mevcut oyunlar: `yatak` (hiza tutturma), `ictima` (reaksiyon), `yurumek`
 (ritim), `silah` (sıralama), `nobet` (dayanma + tepki), `izmarit` (hızlı
-toplama), `ceza` (tempolu tekrar).
+toplama), `ceza` (tempolu tekrar), `giyinme`, `postal`, `tiras`, `gece`
+(rutin işleri) ve `atis` (nefes tutup doğru anda tetik; 9. gün).
 
 ## Türkçe metin yazarken
 

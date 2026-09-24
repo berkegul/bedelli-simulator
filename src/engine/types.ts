@@ -133,7 +133,8 @@ export type MiniGameId =
   | 'giyinme'
   | 'postal'
   | 'tiras'
-  | 'gece';
+  | 'gece'
+  | 'atis';
 
 export type OgunAdi = 'kahvalti' | 'ogle' | 'aksam';
 
