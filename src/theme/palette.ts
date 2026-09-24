@@ -26,6 +26,12 @@ export const C = {
   ekmek: '#B08D57',     // ekmek kabuğu — tokluk
   rust: '#A8442E',      // pas — ceza, uyarı, kayıp
 
+  // Evrak: künye, sevk belgesi. Kaput bezi tonunda kâğıt, üstünde mürekkep.
+  kagit: '#DDD1B0',
+  kagitCizgi: '#B5A882',
+  murekkep: '#26221A',
+  murekkepSoluk: '#5E5440',
+
   // Yardımcılar
   shadow: '#0F0E09',
 } as const;

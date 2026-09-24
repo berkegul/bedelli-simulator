@@ -11,7 +11,86 @@ import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
 import type { KayitRolu } from '../engine/types';
 
-/** Kışlaya girmeden önce: kimsin, sigara içiyor musun, kimleri arayacaksın. */
+/** Evrakta bölüm başlığı: numaralı, büyük harf, altı çizgili. */
+function Bolum({
+  no,
+  baslik,
+  children,
+}: {
+  no: string;
+  baslik: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <View style={{ gap: SP.sm }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: SP.sm,
+          borderBottomWidth: BORDER,
+          borderColor: C.murekkep,
+          paddingBottom: 2,
+        }}
+      >
+        <PixelText font="command" size="body" color={C.murekkepSoluk}>
+          {no}
+        </PixelText>
+        <PixelText font="command" size="body" color={C.murekkep} tracking={1}>
+          {baslik}
+        </PixelText>
+      </View>
+      {children}
+    </View>
+  );
+}
+
+/** Kâğıtta işaretlenen kutu: [X] seçili, [ ] boş. */
+function Kutu({
+  secili,
+  etiket,
+  onPress,
+}: {
+  secili: boolean;
+  etiket: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="radio"
+      accessibilityState={{ selected: secili }}
+      accessibilityLabel={etiket}
+      onPress={onPress}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: SP.sm, paddingVertical: SP.xs }}
+    >
+      <View
+        style={{
+          width: 22,
+          height: 22,
+          borderWidth: BORDER,
+          borderColor: C.murekkep,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {secili && (
+          <PixelText font="command" size="lead" color={C.rust}>
+            X
+          </PixelText>
+        )}
+      </View>
+      <PixelText font="bodySemi" size="body" color={C.murekkep}>
+        {etiket}
+      </PixelText>
+    </Pressable>
+  );
+}
+
+/**
+ * Kışlaya girmeden önce doldurulan sevk belgesi. Eskiden koyu zeminde bir
+ * formdu; şimdi kaput bezi tonunda bir kâğıt: başlık, damga, numaralı
+ * bölümler, alt çizgili alanlar. Oyuncu bir uygulamaya kayıt olmuyor, bir
+ * askerlik evrakı dolduruyor.
+ */
 export function ProfilEkrani() {
   const g = useSecili('kisiEkle', 'kisiSil', 'profil', 'profilKaydet', 'rehber');
   const inset = useSafeAreaInsets();
@@ -25,147 +104,196 @@ export function ProfilEkrani() {
     <ScrollView
       style={{ flex: 1, backgroundColor: C.bg }}
       contentContainerStyle={{
-        paddingTop: inset.top + SP.xl,
+        paddingTop: inset.top + SP.lg,
         paddingBottom: inset.bottom + SP.xl,
-        paddingHorizontal: SP.xl,
-        gap: SP.xl,
+        paddingHorizontal: SP.lg,
+        gap: SP.lg,
       }}
       keyboardShouldPersistTaps="handled"
     >
-      <View style={{ alignItems: 'center', gap: SP.sm }}>
-        <PixelSprite sprite={SPRITES.kunye} scale={5} />
-        <PixelText font="command" size="h2" color={C.canvas} tracking={1} style={{ marginTop: SP.md }}>
-          KÜNYE
-        </PixelText>
-        <PixelText size="small" color={C.canvasFaint} center>
-          Sevkin çıktı. Otobüse binmeden önce birkaç şey.
-        </PixelText>
-      </View>
+      <PixelText size="small" color={C.canvasDim} center>
+        Sevkin çıktı. Otobüse binmeden önce şu kâğıt doldurulacak.
+      </PixelText>
 
-      <PixelInput
-        etiket="Adın"
-        value={ad}
-        onChangeText={setAd}
-        placeholder="Er ..."
-        maxLength={18}
-        autoCapitalize="words"
-      />
-
-      <View style={{ gap: SP.sm }}>
-        <PixelText font="bodyMed" size="small" color={C.canvasDim}>
-          Sigara içiyor musun?
-        </PixelText>
-        <View style={{ flexDirection: 'row', gap: SP.sm }}>
-          {[
-            { deger: false, etiket: 'İçmiyorum' },
-            { deger: true, etiket: 'İçiyorum' },
-          ].map((s) => (
-            <Pressable
-              key={String(s.deger)}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: sigara === s.deger }}
-              onPress={() => setSigara(s.deger)}
-              style={{
-                flex: 1,
-                borderWidth: BORDER,
-                borderColor: sigara === s.deger ? C.brass : C.ink,
-                backgroundColor: sigara === s.deger ? C.surfaceHi : C.surface,
-                paddingVertical: SP.md,
-                alignItems: 'center',
-              }}
-            >
-              <PixelText
-                font="bodySemi"
-                size="body"
-                color={sigara === s.deger ? C.brass : C.canvasDim}
-              >
-                {s.etiket}
-              </PixelText>
-            </Pressable>
-          ))}
-        </View>
-        <PixelText size="micro" color={C.canvasFaint} line="snug">
-          İçiyorsan kantin masrafın artar ve sigarasız geçen saatlerde kriz
-          birikir. İçmiyorsan bu 28 gün cebine kalır.
-        </PixelText>
-      </View>
-
-      <View style={{ gap: SP.sm }}>
-        <PixelText font="bodyMed" size="small" color={C.canvasDim}>
-          Arayacağın kişiler
-        </PixelText>
-        <PixelText size="micro" color={C.canvasFaint} line="snug">
-          Telefonuna kaydet. İçeride bu isimler serbest zamanda karşına çıkacak.
-        </PixelText>
-
-        {g.rehber.map((k) => (
+      {/* Kâğıt */}
+      <View
+        style={{
+          backgroundColor: C.kagit,
+          borderWidth: BORDER,
+          borderColor: C.ink,
+          padding: SP.lg,
+          gap: SP.xl,
+        }}
+      >
+        {/* Başlık ve damga */}
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: SP.md }}>
+          <View style={{ flex: 1, gap: 2 }}>
+            <PixelText font="command" size="small" color={C.murekkepSoluk} tracking={1}>
+              T.C. ASKERLİK ŞUBESİ
+            </PixelText>
+            <PixelText font="command" size="h2" color={C.murekkep} tracking={1}>
+              SEVK BELGESİ
+            </PixelText>
+            <PixelText font="command" size="small" color={C.murekkepSoluk}>
+              BEDELLİ · TEMEL EĞİTİM · 28 GÜN
+            </PixelText>
+          </View>
           <View
-            key={k.id}
             style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: SP.md,
-              borderWidth: BORDER,
-              borderColor: C.line,
-              backgroundColor: C.surface,
-              paddingVertical: SP.sm,
-              paddingHorizontal: SP.md,
+              borderWidth: 3,
+              borderColor: C.rust,
+              paddingHorizontal: SP.sm,
+              paddingVertical: 2,
+              transform: [{ rotate: '-8deg' }],
+              opacity: 0.85,
+              marginTop: SP.sm,
             }}
           >
-            <View style={{ flex: 1 }}>
-              <PixelText font="bodySemi" size="body" color={C.canvas}>
-                {k.ad}
-              </PixelText>
-              <PixelText size="micro" color={C.canvasFaint}>
-                {k.yakinlik}
-              </PixelText>
-            </View>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`${k.ad} kaydını sil`}
-              onPress={() => g.kisiSil(k.id)}
-              hitSlop={10}
-            >
-              <PixelText font="command" size="lead" color={C.rust}>
-                SİL
-              </PixelText>
-            </Pressable>
-          </View>
-        ))}
-
-        <View style={{ flexDirection: 'row', gap: SP.sm }}>
-          <View style={{ flex: 3 }}>
-            <PixelInput value={kisiAd} onChangeText={setKisiAd} placeholder="İsim" maxLength={16} />
-          </View>
-          <View style={{ flex: 2 }}>
-            <PixelInput
-              value={kisiYakinlik}
-              onChangeText={setKisiYakinlik}
-              placeholder="Yakınlık"
-              maxLength={14}
-            />
+            <PixelText font="command" size="lead" color={C.rust} tracking={2}>
+              SEVK
+            </PixelText>
           </View>
         </View>
 
-        <KayitSecici
-          secili={kisiTur}
-          onSec={setKisiTur}
-          devreDisi={g.rehber.some((k) => k.rol === 'ev') ? ['ev'] : []}
-        />
+        <Bolum no="1." baslik="KİMLİK">
+          <View style={{ flexDirection: 'row', gap: SP.md, alignItems: 'flex-end' }}>
+            <View
+              style={{
+                width: 56,
+                height: 56,
+                borderWidth: BORDER,
+                borderColor: C.murekkepSoluk,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <PixelSprite sprite={SPRITES.kunye} scale={2} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <PixelInput
+                kagit
+                etiket="Adı"
+                value={ad}
+                onChangeText={setAd}
+                placeholder="Er ..."
+                maxLength={18}
+                autoCapitalize="words"
+              />
+            </View>
+          </View>
+        </Bolum>
 
-        <PixelButton
-          label="Rehbere ekle"
-          tur="sessiz"
-          onPress={() => {
-            g.kisiEkle(kisiAd, kisiYakinlik, kisiTur);
-            setKisiAd('');
-            setKisiYakinlik('');
-          }}
-        />
+        <Bolum no="2." baslik="SİGARA KULLANIMI">
+          <View style={{ flexDirection: 'row', gap: SP.xl }}>
+            <Kutu secili={!sigara} etiket="Kullanmıyor" onPress={() => setSigara(false)} />
+            <Kutu secili={sigara} etiket="Kullanıyor" onPress={() => setSigara(true)} />
+          </View>
+          <PixelText size="small" color={C.murekkepSoluk} line="snug">
+            İçiyorsan kantin masrafın artar, sigarasız geçen saatlerde kriz birikir. İçmiyorsan bu
+            28 gün cebine kalır.
+          </PixelText>
+        </Bolum>
+
+        <Bolum no="3." baslik="ARANACAK KİŞİLER">
+          <PixelText size="small" color={C.murekkepSoluk} line="snug">
+            Serbest zamanda telefonda bu isimler karşına çıkacak.
+          </PixelText>
+
+          {g.rehber.map((k, i) => (
+            <View
+              key={k.id}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: SP.sm,
+                borderBottomWidth: 1,
+                borderColor: C.kagitCizgi,
+                paddingVertical: SP.xs,
+              }}
+            >
+              <PixelText font="command" size="body" color={C.murekkepSoluk}>
+                {`${i + 1}.`}
+              </PixelText>
+              <View style={{ flex: 1 }}>
+                <PixelText font="bodySemi" size="body" color={C.murekkep}>
+                  {k.ad}
+                </PixelText>
+                <PixelText size="small" color={C.murekkepSoluk}>
+                  {k.yakinlik}
+                </PixelText>
+              </View>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`${k.ad} kaydını sil`}
+                onPress={() => g.kisiSil(k.id)}
+                hitSlop={10}
+              >
+                <PixelText font="command" size="lead" color={C.rust}>
+                  ÇİZ
+                </PixelText>
+              </Pressable>
+            </View>
+          ))}
+
+          <View style={{ flexDirection: 'row', gap: SP.md }}>
+            <View style={{ flex: 3 }}>
+              <PixelInput
+                kagit
+                value={kisiAd}
+                onChangeText={setKisiAd}
+                placeholder="İsim"
+                maxLength={16}
+              />
+            </View>
+            <View style={{ flex: 2 }}>
+              <PixelInput
+                kagit
+                value={kisiYakinlik}
+                onChangeText={setKisiYakinlik}
+                placeholder="Yakınlık"
+                maxLength={14}
+              />
+            </View>
+          </View>
+
+          <KayitSecici
+            kagit
+            secili={kisiTur}
+            onSec={setKisiTur}
+            devreDisi={g.rehber.some((k) => k.rol === 'ev') ? ['ev'] : []}
+          />
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Listeye ekle"
+            disabled={!kisiAd.trim()}
+            onPress={() => {
+              g.kisiEkle(kisiAd, kisiYakinlik, kisiTur);
+              setKisiAd('');
+              setKisiYakinlik('');
+            }}
+            style={{
+              alignSelf: 'flex-start',
+              borderWidth: BORDER,
+              borderColor: C.murekkep,
+              paddingHorizontal: SP.md,
+              paddingVertical: SP.xs,
+              opacity: kisiAd.trim() ? 1 : 0.4,
+            }}
+          >
+            <PixelText font="command" size="body" color={C.murekkep}>
+              + LİSTEYE EKLE
+            </PixelText>
+          </Pressable>
+        </Bolum>
+
+        <PixelText font="command" size="small" color={C.murekkepSoluk} center>
+          İMZA: {ad.trim() ? ad.trim().toLocaleUpperCase('tr-TR') : '..............'}
+        </PixelText>
       </View>
 
       <PixelButton
-        label="Çarşıya git"
+        label="İmzala, çarşıya git"
         onPress={() => g.profilKaydet(ad, sigara)}
         disabled={!ad.trim()}
       />
