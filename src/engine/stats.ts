@@ -35,8 +35,11 @@ function kazanc(mevcut: number, degisim: number, direncli: boolean) {
   if (!direncli) return degisim;
 
   // Yuvarlama yüzünden hiç kıpırdamamak oyuncuya "hiçbir şey fark etmiyor"
-  // dedirtir; bu yüzden en az 1 puan hareket garanti. Ama bu garanti 80'in
+  // dedirtir; bu yüzden en az 1 puan hareket garanti. Ama bu garanti 75'in
   // üstünde kalkıyor: yoksa her küçük ödül +1 birikip tavana dayanıyordu.
+  // Eşik 80'di; 28 gün yazılınca ortalama oyuncu son haftada 80'e yığılıp
+  // her gün TAKDİR alıyordu (26–28'de %70–97). 75 ile en iyi not yine iyi
+  // oynayanın.
   //
   // Üs ve eşik `npm run denge` ile ayarlandı (yayin-plani.md · S13): 0.85 /
   // 92 iken rastgele oynayan ortalama oyuncunun %83'ü 5. günde TAKDİR
@@ -44,7 +47,7 @@ function kazanc(mevcut: number, degisim: number, direncli: boolean) {
   // haftalara kalıyor.
   if (degisim > 0) {
     const olceklenmis = degisim * Math.pow(1 - mevcut / 100, 1.3);
-    return mevcut >= 80 ? olceklenmis : Math.max(1, olceklenmis);
+    return mevcut >= 75 ? olceklenmis : Math.max(1, olceklenmis);
   }
   // Tabana yaklaşırken de fren var, ama yükselmekten belirgin daha zayıf:
   // disiplin kaybetmek kazanmaktan kolay kalmalı.
@@ -93,7 +96,11 @@ const NOT_ESIGI = [
 ];
 
 export function gunNotu(stats: Stats) {
-  const ortalama = (stats.kondisyon + stats.disiplin + stats.moral) / 3;
+  return puanNotu((stats.kondisyon + stats.disiplin + stats.moral) / 3);
+}
+
+/** Ortalama puanın sicil dilindeki karşılığı; karne de aynı eşikleri kullanıyor. */
+export function puanNotu(ortalama: number) {
   const esik = NOT_ESIGI.find((e) => ortalama >= e.min)!;
   return { ...esik, puan: Math.round(ortalama) };
 }

@@ -249,6 +249,81 @@ const MEKANLAR: Record<string, Mekan> = {
       { sprite: 'askerEmre', olcek: 2, x: 84 },
     ],
   },
+  // 7. gün pazar düzeni: çamaşır yıkanıp ipe asılıyor.
+  camasir: {
+    ad: 'Çamaşırhane önü',
+    ic: false,
+    kalabalik: 8,
+    ogeler: [
+      { sprite: 'kisla', olcek: 2, x: 44, taban: TABAN_ZEMIN + 26, arka: true },
+      { sprite: 'camasirTorbasi', olcek: 2, x: 8 },
+      { sprite: 'sabun', olcek: 2, x: 24 },
+      { sprite: 'askerTolga', olcek: 2, x: 40 },
+      { sprite: 'corap', olcek: 2, x: 62 },
+      { sprite: 'agac', olcek: 2, x: 80 },
+    ],
+  },
+  // 26. gün yemin: bölük sırada, aileler arkada tribünde.
+  toren: {
+    ad: 'Tören alanı',
+    ic: false,
+    kalabalik: 40,
+    mevcut: 'BÖLÜK + AİLELER',
+    ogeler: [
+      { sprite: 'sivil', olcek: 1, x: 18, taban: TABAN_ZEMIN + 30, arka: true },
+      { sprite: 'sivil', olcek: 1, x: 26, taban: TABAN_ZEMIN + 30, arka: true },
+      { sprite: 'sivil', olcek: 1, x: 60, taban: TABAN_ZEMIN + 30, arka: true },
+      { sprite: 'sivil', olcek: 1, x: 70, taban: TABAN_ZEMIN + 30, arka: true },
+      { sprite: 'bayrak', olcek: 3, x: 4 },
+      { sprite: 'askerSirt', olcek: 2, x: 28 },
+      { sprite: 'askerSirt', olcek: 2, x: 42 },
+      { sprite: 'askerSirt', olcek: 2, x: 56 },
+      { sprite: 'cavus', olcek: 2, x: 84 },
+    ],
+  },
+  // Törenden sonra ailelerle görüşme: avlunun ağaç altı.
+  ziyaret: {
+    ad: 'Ziyaret alanı',
+    ic: false,
+    kalabalik: 16,
+    ogeler: [
+      { sprite: 'kisla', olcek: 2, x: 56, taban: TABAN_ZEMIN + 26, arka: true },
+      { sprite: 'agac', olcek: 2, x: 4 },
+      { sprite: 'bank', olcek: 2, x: 20 },
+      { sprite: 'sivil', olcek: 2, x: 44 },
+      { sprite: 'asker', olcek: 2, x: 58 },
+      { sprite: 'askerTolga', olcek: 2, x: 84 },
+    ],
+  },
+  // 28. gün: bölük yazıcısının odası, terhis evrakı.
+  evrak: {
+    ad: 'Bölük yazıcısı',
+    ic: true,
+    kalabalik: 6,
+    mevcut: 'KUYRUK',
+    ogeler: [
+      { sprite: 'pencere', olcek: 2, x: 70, taban: TABAN_ZEMIN + 34, arka: true },
+      { sprite: 'yemekhaneMasa', olcek: 2, x: 30, taban: TABAN_ZEMIN + 2 },
+      { sprite: 'defter', olcek: 2, x: 38, taban: TABAN_ZEMIN + 22 },
+      { sprite: 'kunye', olcek: 2, x: 52, taban: TABAN_ZEMIN + 22 },
+      { sprite: 'asker', olcek: 2, x: 4 },
+      { sprite: 'cavus', olcek: 2, x: 84 },
+    ],
+  },
+  // 28. gün: avluda vedalaşma, üçü bir arada.
+  veda: {
+    ad: 'Avlu',
+    ic: false,
+    kalabalik: 10,
+    ogeler: [
+      { sprite: 'kisla', olcek: 2, x: 30, taban: TABAN_ZEMIN + 26, arka: true },
+      { sprite: 'agac', olcek: 2, x: 4 },
+      { sprite: 'askerEmre', olcek: 2, x: 34 },
+      { sprite: 'asker', olcek: 2, x: 50 },
+      { sprite: 'askerTolga', olcek: 2, x: 64 },
+      { sprite: 'askerSerkan', olcek: 2, x: 80 },
+    ],
+  },
   'son-yoklama': {
     ad: 'Koğuş',
     ic: true,

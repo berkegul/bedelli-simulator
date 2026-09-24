@@ -20,6 +20,15 @@ import { gun16 } from './day16';
 import { gun17 } from './day17';
 import { gun18 } from './day18';
 import { gun19 } from './day19';
+import { gun20 } from './day20';
+import { gun21 } from './day21';
+import { gun22 } from './day22';
+import { gun23 } from './day23';
+import { gun24 } from './day24';
+import { gun25 } from './day25';
+import { gun26 } from './day26';
+import { gun27 } from './day27';
+import { gun28 } from './day28';
 import { gunGorevleri } from './gorevTakvimi';
 import { kosulTutar } from './telefon/motor';
 import type { TelefonDurumu } from './telefon/tipler';
@@ -255,12 +264,14 @@ const zenginlestir = (g: Day): Day =>
 /**
  * Yazılı günler. 1. gün sevk, 2–3 alıştırma, 4 denetim, 5 ANT-41;
  * 6–12 ikinci hafta: hesap, bir hafta, rutin, atış, ilk nöbet, bot, hatırlama;
- * 13–19 üçüncü hafta: ölçüm, yarısı, sayım, yorgunluk (revir), koli, on gün, tek hane.
+ * 13–19 üçüncü hafta: ölçüm, yarısı, sayım, yorgunluk (revir), koli, on gün, tek hane;
+ * 20–28 son hafta: söz, prova, sessizlik, özür, evrak, son serbest, yemin, son gece, çıkış.
  * Günlerin teması telefon/gunler/gNN.ts ile aynı; takvim yayin-plani.md §4.
  */
 export const GUNLER: Day[] = [
   gun01, gun02, gun03, gun04, gun05, gun06, gun07, gun08, gun09, gun10, gun11, gun12, gun13, gun14,
-  gun15, gun16, gun17, gun18, gun19,
+  gun15, gun16, gun17, gun18, gun19, gun20, gun21, gun22, gun23, gun24, gun25,
+  gun26, gun27, gun28,
 ].map(zenginlestir);
 
 export const YAZILMIS_GUN_SAYISI = GUNLER.length;
