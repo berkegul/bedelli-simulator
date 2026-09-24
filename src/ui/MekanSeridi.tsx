@@ -469,6 +469,8 @@ type Props = {
   etiketsiz?: boolean;
   /** Sahnenin üstüne serilen içerik (menüde başlık). */
   children?: React.ReactNode;
+  /** Ek yükseklik (nokta): gökyüzüne ya da duvara eklenir, zemin aynı kalır. */
+  ekYukseklik?: number;
 };
 
 /** İç mekân: sabah erken ve gece loş, gündüz pencereden ışık. */
@@ -479,11 +481,19 @@ function icLosluk(saat: string) {
   return 0.06;
 }
 
-export function MekanSeridi({ blokId, saat, carpan = 1, cercevesiz, etiketsiz, children }: Props) {
+export function MekanSeridi({
+  blokId,
+  saat,
+  carpan = 1,
+  cercevesiz,
+  etiketsiz,
+  children,
+  ekYukseklik = 0,
+}: Props) {
   const mekan = mekanBul(blokId);
   const anahtar = blokId.replace(/^d\d+-/, '');
   const k = Math.max(1, Math.round(carpan));
-  const YUKSEKLIK = TABAN_YUKSEKLIK * k;
+  const YUKSEKLIK = TABAN_YUKSEKLIK * k + Math.max(0, Math.round(ekYukseklik / (2 * k)) * 2 * k);
   const ZEMIN = TABAN_ZEMIN * k;
   // Kalabalık piksel hesabıyla diziliyor; genişliği ölçmeden çizilemez.
   const [en, setEn] = useState(0);
@@ -506,7 +516,7 @@ export function MekanSeridi({ blokId, saat, carpan = 1, cercevesiz, etiketsiz, c
           yukseklik={YUKSEKLIK}
           u={2 * k}
           zemin={ZEMIN_TURU[anahtar] ?? (mekan.ic ? 'karo' : 'toprak')}
-          zeminOrani={TABAN_ZEMIN / TABAN_YUKSEKLIK}
+          zeminOrani={(TABAN_ZEMIN * k) / YUKSEKLIK}
           duvar={mekan.ic ? (mekan.duvar ?? 'badana') : undefined}
           saat={saat}
           losluk={mekan.ic ? icLosluk(saat) : 0}

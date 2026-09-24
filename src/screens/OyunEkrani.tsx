@@ -66,6 +66,9 @@ export function OyunEkrani() {
   // Uzun telefonda sahne iki kat: 300 nokta, sprite'lar tam sayı büyüklükte.
   const { height: ekranYuksekligi } = useWindowDimensions();
   const carpan = ekranYuksekligi >= 720 ? 2 : 1;
+  // Sahne ekranın ~%38'i: alttaki diyalog kutusu kısa, eskiden altında
+  // boşluk kalıyordu. Fazlası gökyüzüne/duvara gidiyor; zemin ve figürler yerinde.
+  const sahneEk = Math.max(0, Math.round(ekranYuksekligi * 0.38) - 150 * carpan);
 
   const [yazildi, setYazildi] = useState(false);
   const [atla, setAtla] = useState(false);
@@ -154,7 +157,13 @@ export function OyunEkrani() {
               diyalog değişiyor.
             */}
             {sahne.kind !== "yol" && sahne.kind !== "tanitim" && mekanVar ? (
-              <MekanSeridi blokId={blok.id} saat={saate(g.saat)} carpan={carpan} cercevesiz />
+              <MekanSeridi
+                blokId={blok.id}
+                saat={saate(g.saat)}
+                carpan={carpan}
+                ekYukseklik={sahne.kind === "anlati" || sahne.kind === "mini" ? sahneEk : 0}
+                cercevesiz
+              />
             ) : (
               spriteKey && (
                 <View
