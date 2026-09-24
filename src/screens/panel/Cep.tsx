@@ -1,13 +1,16 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { BORDER, C, SP } from '../../theme';
-import { sprite, type SpriteKey } from '../../art';
+import { sprite } from '../../art';
+import { IZMARIT_EZIK } from '../../art/sahne/avlu';
 import { gunGetir } from '../../content';
 import { sigaraIzni, telefonIzni } from '../../engine/kurallar';
 import { useSecili } from '../../store/secici';
-import { PixelSprite } from '../../ui/PixelSprite';
+import { PixelSprite, type SpriteDef } from '../../ui/PixelSprite';
+import { Golge } from '../../ui/sahne';
 import { PixelText } from '../../ui/PixelText';
 import { PanelKabuk } from './ortak';
+import { ZeminParcasi } from './sahneParcalari';
 
 /**
  * Cep: üstünde taşıdıkların. Telefon avluda bir direk değil, cebinde bir
@@ -34,7 +37,7 @@ export function CepPaneli() {
 
   const satirlar: {
     id: string;
-    sprite: SpriteKey;
+    sprite: SpriteDef;
     ad: string;
     alt: string;
     kapali?: boolean;
@@ -44,7 +47,7 @@ export function CepPaneli() {
   if (telefonVar) {
     satirlar.push({
       id: 'telefon',
-      sprite: 'telefon',
+      sprite: sprite('telefon'),
       ad: 'Kamerasız telefon',
       // Kendi telefonun: kontör yok, hattın sende.
       alt: !telefonOk.olur ? telefonOk.sebep! : 'Rehberi aç · kontör gerekmiyor',
@@ -56,7 +59,7 @@ export function CepPaneli() {
   if (g.profil.sigaraIciyor || dal > 0) {
     satirlar.push({
       id: 'sigara',
-      sprite: 'sigara',
+      sprite: sprite('sigara'),
       ad: 'Sigara',
       alt: !sigaraOk.olur
         ? sigaraOk.sebep!
@@ -71,7 +74,7 @@ export function CepPaneli() {
   if (g.cepteIzmarit > 0) {
     satirlar.push({
       id: 'izmarit',
-      sprite: 'atistirmalik',
+      sprite: IZMARIT_EZIK,
       ad: 'Cebindeki izmaritler',
       alt: `${g.cepteIzmarit} adet · çöpe at`,
       onPress: () => g.izmaritAt(),
@@ -88,47 +91,74 @@ export function CepPaneli() {
         </View>
       )}
 
-      {satirlar.length === 0 ? (
-        <PixelText size="lead" color={C.canvasDim} center line="body">
-          Cebin boş. Telefon ve sigara gibi üstünde taşıdıkların burada durur.
-        </PixelText>
-      ) : (
-        <View style={{ gap: SP.sm }}>
-          {satirlar.map((r) => (
-            <Pressable
-              key={r.id}
-              accessibilityRole="button"
-              accessibilityLabel={r.ad}
-              accessibilityState={{ disabled: !!r.kapali }}
-              disabled={r.kapali}
-              onPress={r.onPress}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: SP.md,
-                borderWidth: BORDER,
-                borderColor: C.ink,
-                backgroundColor: C.surface,
-                padding: SP.md,
-                opacity: r.kapali ? 0.45 : 1,
-              }}
-            >
-              <PixelSprite sprite={sprite(r.sprite)} scale={3} />
-              <View style={{ flex: 1 }}>
-                <PixelText font="bodySemi" size="lead" color={C.canvas}>
-                  {r.ad}
-                </PixelText>
-                <PixelText size="micro" color={C.canvasFaint}>
-                  {r.alt}
-                </PixelText>
-              </View>
-              <PixelText font="command" size="lead" color={C.canvasDim}>
-                {'>'}
-              </PixelText>
-            </Pressable>
-          ))}
-        </View>
-      )}
+      {/* Cebin içi: haki astar, dikiş; eşyalar üstünde dağınık duruyor */}
+      <ZeminParcasi tur="kumas" yukseklik={satirlar.length > 2 ? 300 : 220} u={3} tohum={g.gun}>
+        {satirlar.length === 0 ? (
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: SP.xl }}>
+            <PixelText size="lead" color={C.canvasDim} center line="body">
+              Cebin boş. Telefon ve sigara gibi üstünde taşıdıkların burada durur.
+            </PixelText>
+          </View>
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              justifyContent: 'space-around',
+              alignItems: 'center',
+              padding: SP.lg,
+              gap: SP.md,
+            }}
+          >
+            {satirlar.map((r, i) => (
+              <Pressable
+                key={r.id}
+                accessibilityRole="button"
+                accessibilityLabel={r.ad}
+                accessibilityState={{ disabled: !!r.kapali }}
+                disabled={r.kapali}
+                onPress={r.onPress}
+                style={({ pressed }) => ({
+                  alignItems: 'center',
+                  gap: SP.xs,
+                  maxWidth: 150,
+                  opacity: r.kapali ? 0.5 : 1,
+                  transform: [
+                    { rotate: `${[-6, 4, -2][i % 3]}deg` },
+                    { translateY: pressed ? 3 : 0 },
+                  ],
+                })}
+              >
+                <View style={{ alignItems: 'center' }}>
+                  <PixelSprite sprite={r.sprite} scale={5} />
+                  <View style={{ marginTop: -4 }}>
+                    <Golge genislik={10} u={4} opaklik={0.28} />
+                  </View>
+                </View>
+                {/* Üstünde bant gibi yapışmış etiket */}
+                <View
+                  style={{
+                    backgroundColor: C.kagit,
+                    borderWidth: BORDER,
+                    borderColor: C.ink,
+                    paddingHorizontal: SP.sm,
+                    paddingVertical: 2,
+                    alignItems: 'center',
+                  }}
+                >
+                  <PixelText font="bodySemi" size="small" color={C.murekkep} center>
+                    {r.ad}
+                  </PixelText>
+                  <PixelText size="micro" color={C.murekkepSoluk} center line="snug">
+                    {r.alt}
+                  </PixelText>
+                </View>
+              </Pressable>
+            ))}
+          </View>
+        )}
+      </ZeminParcasi>
     </PanelKabuk>
   );
 }

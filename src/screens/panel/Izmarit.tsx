@@ -1,21 +1,74 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import { BORDER, C, SP } from '../../theme';
+import { C, SP } from '../../theme';
 import { sprite } from '../../art';
+import { IZMARIT_DUZ, IZMARIT_EZIK, TAS, YAPRAK_KURU } from '../../art/sahne/avlu';
 import { useSecili } from '../../store/secici';
 import { PixelButton } from '../../ui/PixelButton';
 import { PixelSprite } from '../../ui/PixelSprite';
 import { PixelText } from '../../ui/PixelText';
+import { Golge, Nefes } from '../../ui/sahne';
 import { PanelKabuk } from './ortak';
+import { Balon, ZeminParcasi } from './sahneParcalari';
+
+/** Avlu toprağında dağınık küçük şeyler: yer boş bir renk olmasın. */
+function YerDetayi() {
+  return (
+    <>
+      <View style={{ position: 'absolute', left: '12%', top: '22%' }}>
+        <PixelSprite sprite={YAPRAK_KURU} scale={3} />
+      </View>
+      <View style={{ position: 'absolute', right: '10%', top: '14%' }}>
+        <PixelSprite sprite={TAS} scale={3} />
+      </View>
+      <View style={{ position: 'absolute', right: '26%', bottom: '14%' }}>
+        <PixelSprite sprite={YAPRAK_KURU} scale={2} />
+      </View>
+    </>
+  );
+}
 
 /** Sigara bitti, elinde izmarit kaldı. Kolay yol her zaman temiz yol değil. */
 export function IzmaritPaneli() {
   const g = useSecili('izmaritKarar');
   return (
-    <PanelKabuk baslik="ELİNDE İZMARİT" alt="Sigara bitti">
-      <View style={{ alignItems: 'center', paddingVertical: SP.md }}>
-        <PixelSprite sprite={sprite('sigara')} scale={4} opacity={0.6} />
-      </View>
+    <PanelKabuk baslik="ELİNDE İZMARİT" alt="Sigara bitti" sahne={{ mekan: 'serbest' }}>
+      {/* Ayağının dibi: toprak, postal ucu, parmaklarının arasındaki izmarit */}
+      <ZeminParcasi tur="toprak" yukseklik={170} u={3} tohum={7}>
+        <YerDetayi />
+        <View style={{ position: 'absolute', left: '14%', bottom: 18, alignItems: 'center' }}>
+          <PixelSprite sprite={sprite('postal')} scale={6} />
+          <View style={{ marginTop: -6 }}>
+            <Golge genislik={14} u={5} />
+          </View>
+        </View>
+        <View style={{ position: 'absolute', right: '20%', top: 46, alignItems: 'center' }}>
+          <PixelSprite sprite={IZMARIT_DUZ} scale={6} />
+          {/* Son duman: iki soluk piksel */}
+          <View
+            style={{
+              position: 'absolute',
+              right: 2,
+              top: -14,
+              width: 6,
+              height: 6,
+              backgroundColor: C.canvasDim,
+              opacity: 0.35,
+            }}
+          />
+          <View
+            style={{
+              position: 'absolute',
+              right: -6,
+              top: -26,
+              width: 6,
+              height: 6,
+              backgroundColor: C.canvasDim,
+              opacity: 0.2,
+            }}
+          />
+        </View>
+      </ZeminParcasi>
 
       <PixelText size="lead" color={C.canvas} line="body">
         Son nefesi çektin. Elinde sönmüş bir izmarit var ve etrafta çöp kutusu görünmüyor.
@@ -69,28 +122,69 @@ export function IzmaritCezasiPaneli() {
   ];
 
   const su = basamaklar[adim];
+  // İlk adımda izmarit hâlâ yerde; eğilince eline geçiyor.
+  const yerde = adim === 0;
+  // Özür adımlarında eğiliyorsun: asker bir boy aşağıda.
+  const egik = adim === 1 || adim === 2;
 
   return (
-    <PanelKabuk baslik="YAKALANDIN" alt={`${adim + 1} / ${basamaklar.length}`}>
-      <View style={{ alignItems: 'center', gap: SP.sm }}>
-        <PixelSprite sprite={sprite('cavus')} scale={4} />
-      </View>
+    <PanelKabuk
+      baslik="YAKALANDIN"
+      alt={`${adim + 1} / ${basamaklar.length}`}
+      sahne={{ mekan: 'mintika' }}
+    >
+      <ZeminParcasi tur="toprak" yukseklik={230} u={3} tohum={11}>
+        <YerDetayi />
+        {yerde && (
+          <View style={{ position: 'absolute', left: '44%', bottom: 26 }}>
+            <PixelSprite sprite={IZMARIT_EZIK} scale={5} />
+          </View>
+        )}
+        {/* Sen: izmaritin başında */}
+        <View
+          style={{
+            position: 'absolute',
+            left: '10%',
+            bottom: 14,
+            alignItems: 'center',
+            transform: [{ translateY: egik ? 18 : 0 }],
+          }}
+        >
+          <PixelSprite sprite={sprite('asker')} scale={5} />
+          <View style={{ marginTop: -5 }}>
+            <Golge genislik={12} u={5} />
+          </View>
+          {!yerde && (
+            <View style={{ position: 'absolute', left: -6, top: 74 }}>
+              <PixelSprite sprite={IZMARIT_DUZ} scale={2} />
+            </View>
+          )}
+        </View>
+        {/* Çavuş: tepende */}
+        <View style={{ position: 'absolute', right: '8%', bottom: 14, alignItems: 'center' }}>
+          <Nefes u={5}>
+            <PixelSprite sprite={sprite('cavus')} scale={5} />
+          </Nefes>
+          <View style={{ marginTop: -5 }}>
+            <Golge genislik={12} u={5} />
+          </View>
+        </View>
+      </ZeminParcasi>
 
-      <View
-        style={{
-          borderWidth: BORDER,
-          borderColor: C.rust,
-          backgroundColor: C.surface,
-          padding: SP.lg,
-          gap: SP.sm,
-        }}
-      >
-        <PixelText font="command" size="lead" color={C.rust}>
-          {su.konusan}
-        </PixelText>
-        <PixelText size="lead" color={C.canvas} line="body">
-          {su.metin}
-        </PixelText>
+      <View style={{ gap: SP.xs }}>
+        <View
+          style={{
+            alignSelf: 'flex-end',
+            backgroundColor: C.ink,
+            paddingHorizontal: SP.sm,
+            paddingVertical: 2,
+          }}
+        >
+          <PixelText font="command" size="body" color={C.rust}>
+            {su.konusan}
+          </PixelText>
+        </View>
+        <Balon metin={su.metin} kuyruk="yok" />
       </View>
 
       <PixelButton

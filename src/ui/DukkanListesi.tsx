@@ -34,123 +34,222 @@ export function DukkanListesi({ dukkan, sigaraIciyor, envanter, para, onSatinAl,
     );
   }
 
+  return <KantinRafi katalog={katalog} envanter={envanter} para={para} onSatinAl={onSatinAl} />;
+}
+
+/** Raf tahtası: üstü ışık alan kenar, altı gölge. Ürün bunun üstünde duruyor. */
+function RafTahtasi() {
+  return (
+    <View>
+      <View style={{ height: 2, backgroundColor: '#8A6238' }} />
+      <View style={{ height: 4, backgroundColor: '#6B4A2B' }} />
+      <View style={{ height: 2, backgroundColor: '#3E2A18' }} />
+      <View style={{ height: 3, backgroundColor: '#000', opacity: 0.35 }} />
+    </View>
+  );
+}
+
+/**
+ * Tahtanın altına iple asılmış karton fiyat etiketi. Satın alınabilirse
+ * dokunulur; alınan kademenin etiketine "ALINDI" damgası basılır.
+ */
+function FiyatEtiketi({
+  ust,
+  tutar,
+  alinabilir,
+  alindi,
+  egim,
+  etiket,
+  onPress,
+}: {
+  ust?: string;
+  tutar: number;
+  alinabilir: boolean;
+  alindi?: boolean;
+  egim: number;
+  etiket: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={etiket}
+      accessibilityState={{ disabled: !alinabilir }}
+      disabled={!alinabilir}
+      onPress={onPress}
+      style={({ pressed }) => ({
+        flex: 1,
+        alignItems: 'center',
+        opacity: alinabilir || alindi ? 1 : 0.4,
+        transform: [{ rotate: `${egim}deg` }, { translateY: pressed ? 2 : 0 }],
+      })}
+    >
+      {/* İp */}
+      <View style={{ width: 2, height: 6, backgroundColor: '#B3A88C' }} />
+      <View
+        style={{
+          alignSelf: 'stretch',
+          backgroundColor: C.kagit,
+          borderWidth: BORDER,
+          borderColor: alindi ? C.rust : C.murekkepSoluk,
+          paddingVertical: SP.xs,
+          alignItems: 'center',
+        }}
+      >
+        <View
+          style={{ position: 'absolute', top: 3, width: 4, height: 4, backgroundColor: '#2E2217' }}
+        />
+        {ust && (
+          <PixelText size="micro" color={C.murekkepSoluk} style={{ marginTop: 4 }}>
+            {ust}
+          </PixelText>
+        )}
+        <PixelText
+          font="command"
+          size="body"
+          color={alindi ? C.rust : C.murekkep}
+          style={ust ? undefined : { marginTop: 4 }}
+        >
+          {alindi ? 'ALINDI' : `${tutar} TL`}
+        </PixelText>
+      </View>
+    </Pressable>
+  );
+}
+
+/**
+ * Kantinin rafı: koyu ahşap arka, her ürün kendi tahtasının üstünde büyük,
+ * fiyatı tahtaya asılı karton etikette. Eskiden her ürün aynı koyu kutudaydı
+ * ve kantin bir form gibi duruyordu.
+ */
+function KantinRafi({
+  katalog,
+  envanter,
+  para,
+  onSatinAl,
+}: {
+  katalog: EsyaTanim[];
+  envanter: Envanter;
+  para: number;
+  onSatinAl: (t: EsyaTanim, kalite: Kalite) => void;
+}) {
   return (
     <View style={{ gap: SP.md }}>
-      {katalog.map((t) => {
-        const kayit = envanter[t.id];
-        const adet = kayit?.adet ?? 0;
-        const dolu = t.maxAdet !== undefined && adet >= t.maxAdet;
+      <View style={{ borderWidth: BORDER, borderColor: C.ink, backgroundColor: '#2E2217' }}>
+        {/* Arka panelin damarı */}
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: '22%',
+            width: 1,
+            backgroundColor: '#3A2B1D',
+          }}
+        />
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: '61%',
+            width: 1,
+            backgroundColor: '#3A2B1D',
+          }}
+        />
 
-        return (
-          <View
-            key={t.id}
-            style={{
-              borderWidth: BORDER,
-              borderColor: adet > 0 ? C.line : C.ink,
-              backgroundColor: C.surface,
-              padding: SP.md,
-              gap: SP.sm,
-            }}
-          >
-            <View style={{ flexDirection: 'row', gap: SP.md, alignItems: 'flex-start' }}>
-              <View style={{ opacity: dolu ? 0.5 : 1, paddingTop: 2 }}>
-                <PixelSprite sprite={sprite(t.sprite)} scale={3} />
-              </View>
+        {katalog.map((t, sira) => {
+          const kayit = envanter[t.id];
+          const adet = kayit?.adet ?? 0;
+          const dolu = t.maxAdet !== undefined && adet >= t.maxAdet;
+          const kademeler: Kalite[] = t.kademeli ? KADEMELER : ['standart'];
 
-              <View style={{ flex: 1, gap: 2 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: SP.sm }}>
-                  <PixelText font="bodySemi" size="body" color={C.canvas} style={{ flex: 1 }}>
-                    {t.ad}
-                  </PixelText>
+          return (
+            <View key={t.id} style={{ paddingTop: SP.md }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  gap: SP.md,
+                  alignItems: 'flex-end',
+                  paddingHorizontal: SP.md,
+                }}
+              >
+                <View style={{ opacity: dolu ? 0.55 : 1, alignItems: 'center', minWidth: 52 }}>
+                  <PixelSprite sprite={sprite(t.sprite)} scale={4} />
                   {adet > 0 && (
-                    <PixelText font="command" size="body" color={C.olive}>
-                      {t.maxAdet === 1 ? 'ALINDI' : `x${adet}`}
-                    </PixelText>
+                    <View
+                      style={{
+                        position: 'absolute',
+                        top: -4,
+                        right: -8,
+                        backgroundColor: C.ink,
+                        paddingHorizontal: 3,
+                      }}
+                    >
+                      <PixelText font="command" size="small" color={C.olive}>
+                        {t.maxAdet === 1 ? '✓' : `x${adet}`}
+                      </PixelText>
+                    </View>
                   )}
                 </View>
 
-                {t.icerik && (
-                  <PixelText size="micro" color={C.brass}>
-                    {t.icerik}
+                <View style={{ flex: 1, gap: 2, paddingBottom: 2 }}>
+                  <PixelText font="bodySemi" size="body" color={C.canvas}>
+                    {t.ad}
                   </PixelText>
-                )}
-                <PixelText size="micro" color={C.canvasFaint} line="snug">
-                  {t.aciklama}
-                </PixelText>
-                {kayit && t.kademeli && (
-                  <PixelText size="micro" color={C.canvasDim}>
-                    {`Dolabında: ${KALITE_ADI[kayit.kalite].toLocaleLowerCase('tr-TR')}`}
+                  {t.icerik && (
+                    <PixelText size="micro" color={C.brass}>
+                      {t.icerik}
+                    </PixelText>
+                  )}
+                  <PixelText size="micro" color={C.canvasDim} line="snug">
+                    {t.aciklama}
                   </PixelText>
-                )}
+                  {kayit && t.kademeli && (
+                    <PixelText size="micro" color={C.canvasDim}>
+                      {`Dolabında: ${KALITE_ADI[kayit.kalite].toLocaleLowerCase('tr-TR')}`}
+                    </PixelText>
+                  )}
+                </View>
               </View>
-            </View>
 
-            {t.kademeli ? (
-              <View style={{ flexDirection: 'row', gap: SP.xs }}>
-                {KADEMELER.map((k) => {
-                  const tutar = fiyat(t, k);
-                  const alinabilir = !dolu && para >= tutar;
-                  return (
-                    <Pressable
-                      key={k}
-                      accessibilityRole="button"
-                      accessibilityLabel={`${t.ad}, ${KALITE_ADI[k]}, ${tutar} lira`}
-                      accessibilityState={{ disabled: !alinabilir }}
-                      disabled={!alinabilir}
-                      onPress={() => onSatinAl(t, k)}
-                      style={{
-                        flex: 1,
-                        borderWidth: BORDER,
-                        borderColor: C.ink,
-                        backgroundColor: alinabilir ? C.surfaceHi : C.bg,
-                        paddingVertical: SP.sm,
-                        alignItems: 'center',
-                        opacity: alinabilir ? 1 : 0.45,
-                      }}
-                    >
-                      <PixelText size="micro" color={alinabilir ? C.canvasDim : C.canvasFaint}>
-                        {KALITE_ADI[k]}
-                      </PixelText>
-                      <PixelText
-                        font="command"
-                        size="body"
-                        color={alinabilir ? C.brass : C.canvasFaint}
-                      >
-                        {`${tutar}`}
-                      </PixelText>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            ) : (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`${t.ad} al, ${t.fiyat} lira`}
-                accessibilityState={{ disabled: dolu || para < t.fiyat }}
-                disabled={dolu || para < t.fiyat}
-                onPress={() => onSatinAl(t, 'standart')}
+              <RafTahtasi />
+
+              <View
                 style={{
-                  borderWidth: BORDER,
-                  borderColor: C.ink,
-                  backgroundColor: !dolu && para >= t.fiyat ? C.surfaceHi : C.bg,
-                  paddingVertical: SP.sm,
-                  paddingHorizontal: SP.md,
                   flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  opacity: !dolu && para >= t.fiyat ? 1 : 0.45,
+                  gap: SP.sm,
+                  paddingHorizontal: SP.md,
+                  paddingBottom: SP.md,
                 }}
               >
-                <PixelText font="bodyMed" size="small" color={C.canvasDim}>
-                  {dolu ? 'Dolabın dolu' : 'Satın al'}
-                </PixelText>
-                <PixelText font="command" size="body" color={C.brass}>
-                  {`${t.fiyat} TL`}
-                </PixelText>
-              </Pressable>
-            )}
-          </View>
-        );
-      })}
+                {kademeler.map((k, i) => {
+                  const tutar = fiyat(t, k);
+                  const alinabilir = !dolu && para >= tutar;
+                  const bu = t.kademeli ? kayit?.kalite === k : dolu;
+                  return (
+                    <FiyatEtiketi
+                      key={k}
+                      ust={t.kademeli ? KALITE_ADI[k] : undefined}
+                      tutar={tutar}
+                      alinabilir={alinabilir}
+                      alindi={bu}
+                      egim={((sira + i) % 3) - 1}
+                      etiket={
+                        t.kademeli
+                          ? `${t.ad}, ${KALITE_ADI[k]}, ${tutar} lira`
+                          : `${t.ad} al, ${tutar} lira`
+                      }
+                      onPress={() => onSatinAl(t, k)}
+                    />
+                  );
+                })}
+                {!t.kademeli && <View style={{ flex: 1 }} />}
+              </View>
+            </View>
+          );
+        })}
+      </View>
 
       <PixelText size="micro" color={C.canvasFaint} center style={{ paddingHorizontal: SP.lg }}>
         {KALITE_NOTU.ekonomik}

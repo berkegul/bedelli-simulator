@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import { BORDER, C, SP } from '../../theme';
+import { C, SP } from '../../theme';
 import { sprite } from '../../art';
 import { arkadas } from '../../content/arkadaslar';
 import { useSecili } from '../../store/secici';
-import { PixelButton } from '../../ui/PixelButton';
 import { PixelSprite } from '../../ui/PixelSprite';
 import { PixelText } from '../../ui/PixelText';
 import { ARKADAS_SPRITE, PanelKabuk } from './ortak';
+import { Balon, ZeminParcasi } from './sahneParcalari';
+import { Golge, Nefes } from '../../ui/sahne';
 
 export function SigaraIstegiPaneli() {
   const g = useSecili('aktifIstek', 'dostluk', 'envanter', 'sigaraVer');
@@ -21,40 +22,79 @@ export function SigaraIstegiPaneli() {
   const laf = kisi.sigaraLafi?.[Math.floor(zar * kisi.sigaraLafi.length)] ?? '"Bir dal var mı?"';
 
   return (
-    <PanelKabuk baslik="BİR DAL İSTİYOR" alt={`Cebinde ${dal} dal kaldı`}>
-      <View style={{ gap: SP.lg }}>
-        <View style={{ alignItems: 'center', gap: SP.xs }}>
-          <PixelSprite sprite={sprite(ARKADAS_SPRITE[id])} scale={4} />
-          <PixelText font="command" size="lead" color={C.brass} style={{ marginTop: SP.sm }}>
-            {kisi.ad.toLocaleUpperCase('tr-TR')}
-          </PixelText>
-          <PixelText size="micro" color={C.canvasFaint}>
-            {`${kisi.meslek} · yakınlık ${g.dostluk[id] ?? 0}`}
-          </PixelText>
-        </View>
+    <PanelKabuk
+      baslik="BİR DAL İSTİYOR"
+      alt={`Cebinde ${dal} dal kaldı`}
+      sahne={{ mekan: 'serbest' }}
+    >
+      <View style={{ gap: SP.md }}>
+        {/* Karşında duruyor: büyük, gölgeli, nefes alıyor; lafı balonda */}
+        <ZeminParcasi tur="toprak" yukseklik={210} u={3} tohum={id.length}>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              alignItems: 'flex-end',
+              padding: SP.md,
+              gap: SP.sm,
+            }}
+          >
+            <View style={{ alignItems: 'center' }}>
+              <Nefes u={6}>
+                <PixelSprite sprite={sprite(ARKADAS_SPRITE[id])} scale={6} />
+              </Nefes>
+              <View style={{ marginTop: -6 }}>
+                <Golge genislik={12} u={6} />
+              </View>
+              {/* Elinde boş paket */}
+              <View
+                style={{
+                  position: 'absolute',
+                  right: -14,
+                  bottom: 58,
+                  transform: [{ rotate: '-12deg' }],
+                }}
+              >
+                <PixelSprite sprite={sprite('sigara')} scale={3} opacity={0.7} />
+              </View>
+            </View>
+            <View style={{ flex: 1, alignSelf: 'flex-start', gap: SP.xs }}>
+              <View
+                style={{
+                  alignSelf: 'flex-start',
+                  backgroundColor: C.ink,
+                  paddingHorizontal: SP.sm,
+                  paddingVertical: 2,
+                }}
+              >
+                <PixelText font="command" size="body" color={C.brass}>
+                  {kisi.ad.toLocaleUpperCase('tr-TR')}
+                </PixelText>
+              </View>
+              <Balon metin={laf} kuyruk="sol" />
+              <PixelText
+                size="micro"
+                color={C.canvasDim}
+                style={{ backgroundColor: C.ink, alignSelf: 'flex-start', paddingHorizontal: 3 }}
+              >
+                {`${kisi.meslek} · yakınlık ${g.dostluk[id] ?? 0}`}
+              </PixelText>
+            </View>
+          </View>
+        </ZeminParcasi>
 
-        <View
-          style={{
-            borderWidth: BORDER,
-            borderColor: C.line,
-            backgroundColor: C.surface,
-            padding: SP.lg,
-          }}
-        >
-          <PixelText size="lead" color={C.canvas} line="body">
-            {laf}
-          </PixelText>
-        </View>
-
-        <View style={{ gap: SP.sm }}>
-          <PixelButton
-            tur="secim"
-            label={`Bir dal ver (${dal} → ${dal - 1})`}
+        {/* Cevabın: senin ağzından çıkan balonlar */}
+        <View style={{ gap: SP.sm, alignItems: 'flex-end' }}>
+          <Balon
+            kuyruk="sag"
+            metin={`"Al kardeşim." (${dal} → ${dal - 1} dal)`}
+            erisimEtiketi={`Bir dal ver, ${dal} dal kaldı`}
             onPress={() => g.sigaraVer(true)}
           />
-          <PixelButton
-            tur="secim"
-            label="Yok, bende de az kaldı"
+          <Balon
+            kuyruk="sag"
+            metin='"Yok, bende de az kaldı."'
+            erisimEtiketi="Yok, bende de az kaldı"
             onPress={() => g.sigaraVer(false)}
           />
         </View>

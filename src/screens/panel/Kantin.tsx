@@ -6,7 +6,11 @@ import { PanelKabuk } from './ortak';
 export function KantinPaneli() {
   const g = useSecili('envanter', 'para', 'profil', 'satinAl');
   return (
-    <PanelKabuk baslik="KANTİN" alt="Fiyatlar burada tartışmaya açık değil">
+    <PanelKabuk
+      baslik="KANTİN"
+      alt="Fiyatlar burada tartışmaya açık değil"
+      sahne={{ mekan: 'kantin' }}
+    >
       <DukkanListesi
         dukkan="kantin"
         sigaraIciyor={g.profil.sigaraIciyor}
