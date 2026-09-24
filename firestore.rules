@@ -1,0 +1,38 @@
+rules_version = '2';
+
+// Bedelli Simülatör · Firestore güvenlik kuralları (yayin-plani.md · M4).
+// Kimlik anonim (cihaz başına). Oyuncu yalnızca kendi kaydını görür;
+// ölçüm olayı yalnızca eklenir, okunmaz, değiştirilmez.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // İlerleme yedeği: belge kimliği oturumun uid'i.
+    match /oyuncular/{uid} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        // Kayıt şeması kayitDogrula.ts'te; burada yalnızca kaba bir sınır.
+        && request.resource.data.size() <= 60;
+    }
+
+    // Ölçüm olayları: izin verilen adlar src/engine/olaylar.ts ile aynı.
+    match /olaylar/{belge} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.ad in [
+          'carsi_bitti',
+          'gun_bitti',
+          'kilit_gorundu',
+          'kayit_cakismasi',
+          'oyun_bitti'
+        ]
+        && request.resource.data.zaman == request.time
+        && request.resource.data.size() <= 8;
+      allow read, update, delete: if false;
+    }
+
+    match /{kalan=**} {
+      allow read, write: if false;
+    }
+  }
+}

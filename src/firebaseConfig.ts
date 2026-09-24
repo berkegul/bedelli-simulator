@@ -1,30 +1,25 @@
 /**
- * Firebase yapılandırması. Boş bırakıldığı sürece oyun tamamen cihazda
- * çalışır — bulut kaydı ve olay günlüğü sessizce devre dışı kalır.
+ * Firebase yapılandırması ortam değişkenlerinden geliyor (M4). Tanımlı
+ * değilse oyun tamamen cihazda çalışır — bulut kaydı ve olay günlüğü
+ * sessizce devre dışı kalır.
  *
- * Doldurmak için: console.firebase.google.com → proje oluştur →
- * Web uygulaması ekle → çıkan config değerlerini buraya yapıştır.
- * Ardından Firestore'u "production mode" ile aç ve Authentication →
- * Sign-in method → Anonymous seçeneğini etkinleştir.
+ * Değerler: console.firebase.google.com → proje → Web uygulaması ekle.
+ *  - Yerelde: `.env.example`'ı `.env.local` olarak kopyalayıp doldur
+ *    (repoya girmez).
+ *  - EAS derlemesinde: `eas env:create` ile aynı adlar, ortam başına.
+ * Expo, `EXPO_PUBLIC_` önekli değişkenleri derleme anında koda gömer; bu
+ * anahtarlar gizli değildir, erişimi `firestore.rules` sınırlar.
  *
- * Firestore güvenlik kuralı olarak şunu kullan; oyuncu yalnızca kendi
- * kaydını okuyup yazabilsin:
- *
- *   match /oyuncular/{uid} {
- *     allow read, write: if request.auth != null && request.auth.uid == uid;
- *   }
- *   match /olaylar/{belge} {
- *     allow create: if request.auth != null;
- *   }
+ * Konsolda ayrıca: Firestore "production mode", Authentication → Anonymous
+ * açık, kurallar `firebase deploy --only firestore:rules` ile.
  */
 export const FIREBASE_CONFIG = {
-  apiKey: '',
-  authDomain: '',
-  projectId: '',
-  storageBucket: '',
-  messagingSenderId: '',
-  appId: '',
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY ?? '',
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN ?? '',
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID ?? '',
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET ?? '',
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? '',
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID ?? '',
 };
 
-export const firebaseKurulu = () =>
-  Boolean(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
+export const firebaseKurulu = () => Boolean(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);

@@ -2,6 +2,7 @@ import { FIREBASE_CONFIG, firebaseKurulu } from '../firebaseConfig';
 import { kayitDogrula } from './kayitDogrula';
 import { kimlikBaslat } from './kimlik';
 import type { SaveData } from './save';
+import type { OlayAdi } from './olaylar';
 
 /**
  * Bulut katmanı isteğe bağlı: yapılandırma yoksa bütün çağrılar sessizce
@@ -195,7 +196,7 @@ export function olcumIzniAyarla(v: boolean) {
  * Ölçüm olayı. Asıl merak edilen soru şu: oyuncular hangi günde bırakıyor?
  * Kilit ekranına kaç kişi geliyor? Satış kararları buna bakılarak verilecek.
  */
-export async function olayYaz(ad: string, veri: Record<string, unknown> = {}) {
+export async function olayYaz(ad: OlayAdi, veri: Record<string, unknown> = {}) {
   if (!olcumIzni) return;
   const o = await oturum();
   if (!o) return;
