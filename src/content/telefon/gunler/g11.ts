@@ -100,7 +100,6 @@ export const GUN_11: Gorusme[] = [
             label: '"Ben de özlemişim. Her konuşma ağır olmak zorunda değil."',
             cevap: '"Aynen." Rahatladı. "Bundan sonra bir komik şey biriktir bana."',
             etki: { iliski: 10, moral: 8 },
-            isaret: { ad: 'hafif_konusma', deger: 'evet' },
           },
           {
             id: 'zor',

@@ -284,7 +284,6 @@ export const GUN_20: Gorusme[] = [
             cevap:
               '"Hı." Kısa bir sessizlik. "İyi. İyi ya." Bunu söylerken pek ikna olmuş değildi.',
             etki: { iliski: 4, moral: 5 },
-            isaret: { ad: 'kanka_kiskanc', deger: 'g20' },
           },
           {
             id: 'gecici',

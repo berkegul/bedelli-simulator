@@ -167,11 +167,109 @@ const EPILOG_METIN: Record<string, Record<string, string>> = {
     yalnizlik: 'En çok kapıyı kapatabilmeyi özlediğini söylemiştin.',
     aile: 'En çok onları özlediğini söylemiştin.',
   },
+  anne_soz: {
+    her_aksam: 'Annene "her akşam ararım" diye söz vermiştin.',
+    belirsiz: 'Annene "her akşam olmayabilir" demiştin.',
+  },
+  sevgili_ilk: {
+    ozledim: 'İlk gece sevgiline "seni özledim" demiştin.',
+    muhtactim: 'İlk gece sevgiline "sesini duymam lazımdı" demiştin.',
+    gecistirdi: 'İlk gece sevgiline "normal işte" demiştin.',
+  },
+  sayma_karari: {
+    sayma: 'Sevgiline "sayma, sayarsak uzuyor" demiştin.',
+  },
+  koli_istegi: {
+    kurabiye: 'Annenden koliye kurabiye istemiştin.',
+    corap: 'Annenden koliye yalnızca kalın çorap istemiştin.',
+    reddetti: 'Annene "gerek yok, her şey var burada" demiştin.',
+  },
+  hafta_sozu: {
+    evet: 'Sevgiline bir haftayı uzun konuşarak geçirmeyi söz vermiştin.',
+    tuttu: 'Bir haftanın akşamı bütün kontörü sevgiline ayırmıştın.',
+    unuttu: 'Bir haftanın akşamı sevgiline "ne sözü?" demiştin.',
+  },
+  randevu_sozu: {
+    kabul: 'Sevgiline "ben de o saati bekliyorum" demiştin.',
+    sartli: 'Sevgiline "bazen arayamıyorum, kızma" demiştin.',
+    reddetti: 'Sevgilinin her akşam o saatte beklemesi sana baskı gibi gelmişti.',
+    tutuyor: 'O saat tutsun diye telefon sırasına erken girmeye başlamıştın.',
+  },
+  anne_nobet: {
+    uyanik: 'İlk nöbet gecesi annene "uyu sen" demiştin.',
+    anlasma: 'İlk nöbet gecesi annenle birlikte uyanık kalmıştınız.',
+  },
+  donunce_anlatacak: {
+    evet: 'Kankana "bot hikâyesini ben gelince kendim anlatırım" demiştin.',
+  },
+  centik_atiyor: {
+    evet: 'Duvara çentik attığını anlatmıştın.',
+  },
+  durustluk: {
+    itiraf: 'Sevgiline yalnızca iyi kısımları anlattığını itiraf etmiştin.',
+    inkar: 'Sevgiline "gizlediğim bir şey yok" demiştin.',
+    koruma: 'Sevgiline "seni üzmek istemiyorum" demiştin.',
+    karsilikli: 'Sevgiline "ben de bazı şeyleri özlemedim" demiştin.',
+  },
+  kacma_dusundu: {
+    evet: 'Babana ilk hafta kaçmayı düşündüğünü söylemiştin.',
+  },
+  yari_tepkisi: {
+    planli: 'Kankana çıkınca ne yapacağını düşündüğünü söylemiştin.',
+    kacinan: 'Kankana "düşünmemeye çalışıyorum" demiştin.',
+    endise: 'Kankana "çıkınca her şey aynı olacak mı" diye sormuştun.',
+  },
+  geliyorum: {
+    soyledi: 'Annene "yetişmez anne, ben geliyorum zaten" demiştin.',
+  },
+  sevgili_mektup: {
+    yazacak: 'Sevgiline "bir şey yaz, kâğıda yaz" demiştin.',
+  },
+  ilk_yemek: {
+    listeledi: 'Annene ilk gün yiyeceğin üç şeyi saymıştın.',
+    uyku_sonra: 'Annene "önce uyuyacağım, sonra yerim" demiştin.',
+  },
+  cikis_bulusma: {
+    evet: 'Sevgiline çıktığın gün onu görmek istediğini söylemiştin.',
+    ertesi: 'Sevgiline "ertesi gün görüşelim" demiştin.',
+    belirsiz: 'Sevgiline "sen ne istersen" demiştin.',
+  },
+  kanka_plan: {
+    dinledi: 'Kankanın çıkış planını sonuna kadar dinlemiştin.',
+    uyku_israri: 'Kankana "ilk gün uyuyacağım demiştim ya" demiştin.',
+    kesin: 'Kankanın planı kesinleşmişti: saat sekiz.',
+    sade: 'Kankana "kalabalık istemiyorum, sadece sen" demiştin.',
+  },
+  kanka_guvence: {
+    verdi: 'Kankana "sen gibisi yok" demiştin.',
+  },
+  aramaya_devam: {
+    soz: 'Annene "yine ararım, başka yerden ararım" demiştin.',
+  },
+  son_soz: {
+    ozlem: 'Sevgiline özlemini kelimeyle anlatamadığını söylemiştin.',
+    tesekkur: 'Sevgiline yirmi beş gün boyunca orada olduğu için teşekkür etmiştin.',
+    ozur: 'Sevgiline kötü günler için özür dilemiştin.',
+    yuz_yuze: 'Sevgiline "yüz yüze söylerim" demiştin.',
+    anneye_tesekkur: 'Annene her akşam orada olduğu için teşekkür etmiştin.',
+  },
 };
+
+/** Epilogda okunan işaretler; doğrulayıcı bunları "okunuyor" sayar. */
+export const EPILOG_ISARETLERI = Object.keys(EPILOG_METIN);
+
+/** Epilog satırları arasında en az bu kadar gün olmalı. */
+const EPILOG_ARALIK = 6;
 
 export type EpilogSatiri = { gun: number; metin: string; gunFarki: string };
 
-/** En eski üç işaret, konduğu günüyle birlikte. */
+/**
+ * Üç satır, konduğu günüyle birlikte. İlki en eski işaret (en uzun mesafeli
+ * geri dönüş); sonrakiler bir öncekinden en az EPILOG_ARALIK gün sonra
+ * konmuş olanlardan seçiliyor. Yoksa birinci günün sözleri üç satırı da
+ * dolduruyor, oyunun ortası hiç geri gelmiyordu. Aralıklı üç satır
+ * çıkmazsa kalanlar sırayla tamamlanır.
+ */
 export function epilog(hafiza: Hafiza, gun = TOPLAM_GUN): EpilogSatiri[] {
   const satirlar: EpilogSatiri[] = [];
 
@@ -187,5 +285,16 @@ export function epilog(hafiza: Hafiza, gun = TOPLAM_GUN): EpilogSatiri[] {
     });
   }
 
-  return satirlar.sort((a, b) => a.gun - b.gun).slice(0, 3);
+  const sirali = satirlar.sort((a, b) => a.gun - b.gun);
+  const secilen: EpilogSatiri[] = [];
+  for (const s of sirali) {
+    if (secilen.length === 3) break;
+    const son = secilen[secilen.length - 1];
+    if (!son || s.gun - son.gun >= EPILOG_ARALIK) secilen.push(s);
+  }
+  for (const s of sirali) {
+    if (secilen.length === 3) break;
+    if (!secilen.includes(s)) secilen.push(s);
+  }
+  return secilen.sort((a, b) => a.gun - b.gun);
 }

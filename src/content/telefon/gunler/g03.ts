@@ -34,7 +34,6 @@ export const GUN_03: Gorusme[] = [
             cevap:
               '"Yirmi kere mi?" İlk defa sesinde bir şey kıpırdadı. "Bize otuz toplatmıştı bizimki."',
             etki: { iliski: 8, moral: 5 },
-            isaret: { ad: 'babaya_acildi', deger: 'g3' },
             sonraki: 'c',
           },
           {
@@ -64,7 +63,6 @@ export const GUN_03: Gorusme[] = [
             cevap:
               'Beklemiyordu. "Ben iyiyim." Sonra: "Annen... Senin odana giriyor sürekli. Bir şey aramıyor da." Sesi düştü.',
             etki: { iliski: 9, moral: 4, digerIliski: { kim: 'anne', puan: 4 } },
-            isaret: { ad: 'babaya_sordu', deger: 'evet' },
             sonraki: 'd',
           },
           {
@@ -217,7 +215,6 @@ export const GUN_03: Gorusme[] = [
             label: '"Seninle konuşunca iyi oluyorum, o kadar."',
             cevap: '"O zaman her gün konuşalım." Pazarlık gibi söyledi ama ciddiydi.',
             etki: { iliski: 8, moral: 9 },
-            isaret: { ad: 'sevgili_bagimlilik', deger: 'evet' },
             sonraki: 'b',
           },
           {
@@ -239,7 +236,6 @@ export const GUN_03: Gorusme[] = [
             label: '"Değil. Ben de burada senin sesini hatırlamaya çalışıyorum."',
             cevap: 'Sessizlik. Sonra: "Off. Ağlatma beni." Ağladı biraz.',
             etki: { iliski: 9, moral: 7, ozlem: 5 },
-            isaret: { ad: 'sevgili_yakinlik', deger: 'g3' },
           },
           {
             id: 'salak',
@@ -316,7 +312,6 @@ export const GUN_03: Gorusme[] = [
             label: '"Koğuşta muhabbet oluyor. Fena da değil aslında."',
             cevap: '"Bak bak, alışmış bile." Hafif bir kıskançlık vardı sesinde.',
             etki: { iliski: 3, moral: 5 },
-            isaret: { ad: 'kanka_kiskanc', deger: 'g3' },
           },
         ],
       },

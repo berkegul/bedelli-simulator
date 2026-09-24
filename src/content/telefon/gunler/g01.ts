@@ -149,7 +149,6 @@ export const GUN_01: Gorusme[] = [
             cevap:
               '"Zordur." Uzun bir duraklama. Nefes aldığını duyuyorsun. "Ben de yaptım. Geçer."',
             etki: { iliski: 8, moral: 6 },
-            isaret: { ad: 'babaya_acildi', deger: 'g1' },
             sonraki: 'e',
           },
         ],
@@ -229,7 +228,6 @@ export const GUN_01: Gorusme[] = [
             cevap:
               '"Kuyruk kısmında güldüm, kusura bakma." Sonuna kadar dinledi, tek kelime kesmedi.',
             etki: { iliski: 7, moral: 6 },
-            isaret: { ad: 'anlatan', deger: 'evet' },
             sonraki: 'c',
           },
           {

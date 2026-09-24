@@ -91,7 +91,6 @@ export const GUN_06: Gorusme[] = [
             cevap:
               'Anlattı. Üç dakikayı aştı, umursamadın. Sonunda: "Off, iyi geldi. Sağ ol."',
             etki: { iliski: 10, moral: 5 },
-            isaret: { ad: 'dinleyen', deger: 'evet' },
             sonraki: 'b',
           },
           {

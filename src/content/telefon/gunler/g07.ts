@@ -60,7 +60,6 @@ export const GUN_07: Gorusme[] = [
             cevap:
               '"\'Duramam\' demiştin. Duruyorsun ama. Bir hafta durdun." Bunu söylerken sesi kırıldı ama gururluydu.',
             etki: { iliski: 9, moral: 10 },
-            isaret: { ad: 'hafta_tepkisi', deger: 'dayandi' },
             sonraki: 'c',
           },
           {
@@ -70,7 +69,6 @@ export const GUN_07: Gorusme[] = [
             cevap:
               '"Garip demiştin, evet. Şimdi sesin garip gelmiyor ama. Alışmışsın sen." Fark etti.',
             etki: { iliski: 7, moral: 8 },
-            isaret: { ad: 'hafta_tepkisi', deger: 'alisti' },
             sonraki: 'c',
           },
           {
@@ -79,7 +77,6 @@ export const GUN_07: Gorusme[] = [
             cevap:
               '"Uzak mı geldi?" Güldü. "İyi işte. Uzak gelmesi iyi." Bunu bir zafer saydı.',
             etki: { iliski: 6, moral: 7 },
-            isaret: { ad: 'hafta_tepkisi', deger: 'unuttu' },
             sonraki: 'c',
           },
         ],

@@ -221,7 +221,6 @@ export const DOLGU: Gorusme[] = [
             cevap:
               '"Yatak toplamayı bu kadar heyecanla anlatan başka biri yoktur." Gülüyor ama sonuna kadar dinledi.',
             etki: { iliski: 8, gerilim: -6, moral: 11 },
-            isaret: { ad: 'anlatan', deger: 'evet' },
           },
           {
             id: 'ayni',

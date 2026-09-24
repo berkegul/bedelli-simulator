@@ -36,7 +36,6 @@ export const GUN_08: Gorusme[] = [
             cevap:
               '"Tamam tamam, anladım." Yarısında kesti ama sonuna kadar dinlemek istedi.',
             etki: { iliski: 6, moral: 3 },
-            isaret: { ad: 'anlatan', deger: 'evet' },
             sonraki: 'b',
           },
         ],

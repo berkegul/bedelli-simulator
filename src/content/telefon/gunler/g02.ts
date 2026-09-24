@@ -50,7 +50,6 @@ export const GUN_02: Gorusme[] = [
             cevap:
               '"Yani sırada duruyorsunuz." Özetledi. "Bunun için mi beş buçukta kalkıyorsunuz?" Haklı aslında.',
             etki: { iliski: 5, moral: 3 },
-            isaret: { ad: 'anlatan', deger: 'evet' },
             sonraki: 'c',
           },
           {
@@ -83,7 +82,6 @@ export const GUN_02: Gorusme[] = [
             label: '"Üşüdüm. Sabah beş buçukta hava buz gibiydi."',
             cevap: '"Biliyordum!" Bunu kazanmış gibi söyledi. "Koli yollayacağım ben sana."',
             etki: { iliski: 5, moral: 2 },
-            isaret: { ad: 'usume_sikayeti', deger: 'evet' },
           },
         ],
       },
@@ -137,7 +135,6 @@ export const GUN_02: Gorusme[] = [
             cevap:
               '"Tamam." Yirmi dakika mutfak dolabının kapağından bahsetti. Hiç sıkılmadın.',
             etki: { iliski: 7, moral: 8 },
-            isaret: { ad: 'normal_hayat', deger: 'istedi' },
             sonraki: 'c',
           },
           {
@@ -164,7 +161,6 @@ export const GUN_02: Gorusme[] = [
             label: '"Ranzanın altında bir çocuk var, Emre. Biraz konuştuk."',
             cevap: '"Emre." Adı kaydetti. Bundan sonra her konuşmada soracak.',
             etki: { iliski: 4, moral: 3 },
-            isaret: { ad: 'arkadas_anlatti', deger: 'emre' },
           },
           {
             id: 'saka',
@@ -249,7 +245,6 @@ export const GUN_02: Gorusme[] = [
             label: '"Gidersin. Herkes gider zaten."',
             cevap: 'Bir sessizlik oldu. "Ben gitmem." Bu sefer şaka yapmadı.',
             etki: { iliski: 7, moral: 4, ozlem: 4 },
-            isaret: { ad: 'kanka_supheli', deger: 'evet' },
           },
         ],
       },

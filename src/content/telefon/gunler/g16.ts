@@ -56,7 +56,6 @@ export const GUN_16: Gorusme[] = [
             label: '"Biliyorum anne."',
             cevap: '"Bilmiyorsun ama ben biliyorum, o yeter." Bu cümle tuttu.',
             etki: { iliski: 8, moral: 9 },
-            isaret: { ad: 'anne_destek', deger: 'g16' },
           },
           {
             id: 'yorgunum',
@@ -64,7 +63,6 @@ export const GUN_16: Gorusme[] = [
             cevap:
               'Bir sessizlik. "Bugün yapma o zaman. Yarın yaparsın." En doğru cevaptı.',
             etki: { iliski: 10, moral: 10 },
-            isaret: { ad: 'anne_destek', deger: 'g16' },
           },
         ],
       },

@@ -51,7 +51,6 @@ export const GUN_05: Gorusme[] = [
             label: '"Yarın nöbetim var. Gece kalkacağım."',
             cevap: '"Gece mi? Tek başına mı?" Yeni bir endişe konusu buldu.',
             etki: { iliski: 3, moral: -1 },
-            isaret: { ad: 'nobet_haberi', deger: 'verdi' },
           },
         ],
       },

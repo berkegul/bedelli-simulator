@@ -9,9 +9,12 @@
 
 import { TOPLAM_GUN } from '../../engine/stats';
 import { TUM_GORUSMELER } from './index';
+import { EPILOG_ISARETLERI } from './finaller';
+import { ISARET_PLANI } from './isaretPlani';
 import type { Gorusme, KayitRolu, Kosul, Rol } from './tipler';
 
-export type Sorun = { seviye: 'hata' | 'uyari'; nerede: string; ne: string };
+/** `plan`: henüz okunmayan ama isaretPlani.ts'te bir yere bağlanmış işaret. */
+export type Sorun = { seviye: 'hata' | 'uyari' | 'plan'; nerede: string; ne: string };
 
 function kosullariTopla(g: Gorusme): Kosul[] {
   const hepsi: Kosul[] = [];
@@ -191,13 +194,38 @@ export function dogrula(): Sorun[] {
     }
   }
 
-  // Yazılıp hiç okunmayan işaretler — ölü ağırlık, hata değil
+  // Epilog de bir okuyucu: "…demiştin" satırları işaretin değerinden geliyor.
+  for (const ad of EPILOG_ISARETLERI) {
+    okunanIsaretler.set(ad, 'epilog');
+    if (!yazilanIsaretler.has(ad)) {
+      sorunlar.push({ seviye: 'hata', nerede: 'epilog', ne: `epilog '${ad}' işaretini okuyor ama bu işaret hiç yazılmıyor` });
+    }
+  }
+
+  // Plan kaydı: her planlı işaret gerçekten yazılıyor olmalı; okunmaya
+  // başladıysa kayıttan silinmeli.
+  for (const [ad, plan] of Object.entries(ISARET_PLANI)) {
+    const nerede = plan.plan === 'gun' ? `plan · gün ${plan.gun}` : 'plan · final';
+    if (!yazilanIsaretler.has(ad)) {
+      sorunlar.push({ seviye: 'hata', nerede, ne: `planlı '${ad}' işareti hiçbir yerde yazılmıyor` });
+    } else if (okunanIsaretler.has(ad)) {
+      sorunlar.push({ seviye: 'uyari', nerede, ne: `'${ad}' artık okunuyor; isaretPlani.ts'ten sil` });
+    } else {
+      sorunlar.push({
+        seviye: 'plan',
+        nerede,
+        ne: plan.plan === 'gun' ? `'${ad}' — ${plan.not}` : `'${ad}'`,
+      });
+    }
+  }
+
+  // Yazılıp hiç okunmayan ve planı da olmayan işaretler — ölü ağırlık.
   for (const ad of yazilanIsaretler) {
-    if (!okunanIsaretler.has(ad)) {
+    if (!okunanIsaretler.has(ad) && !ISARET_PLANI[ad]) {
       sorunlar.push({
         seviye: 'uyari',
         nerede: 'işaretler',
-        ne: `'${ad}' yazılıyor ama hiçbir koşul/metin okumuyor`,
+        ne: `'${ad}' yazılıyor ama hiçbir koşul/metin okumuyor ve planı yok (isaretPlani.ts)`,
       });
     }
   }

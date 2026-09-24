@@ -20,7 +20,6 @@ export const GUN_04: Gorusme[] = [
             label: '"Emre diye biri var, altımdaki ranzada. Onunla takılıyoruz."',
             cevap: '"Emre." Adını not etti. "Nereli? Ailesi ne iş yapıyor?" Başladı.',
             etki: { iliski: 6, moral: 4 },
-            isaret: { ad: 'arkadas_anlatti', deger: 'emre' },
             sonraki: 'b',
           },
           {
@@ -36,7 +35,6 @@ export const GUN_04: Gorusme[] = [
             cevap:
               '"Niye konuşmuyorsun?" Sesi endişeli. "Konuş oğlum. Yalnız kalınca insan daralıyor."',
             etki: { iliski: 4, moral: -3, ozlem: 5 },
-            isaret: { ad: 'yalniz_kaldi', deger: 'g4' },
             sonraki: 'b',
           },
         ],
@@ -111,7 +109,6 @@ export const GUN_04: Gorusme[] = [
             label: '"İyi yapmışsın. Geçtiğini bilmek iyi geldi."',
             cevap: '"Öyle mi?" Sesi yumuşadı. "Yarın da geçerim o zaman."',
             etki: { iliski: 8, moral: 7, ozlem: 4 },
-            isaret: { ad: 'sevgili_yakinlik', deger: 'g4' },
           },
           {
             id: 'uzulme',
@@ -124,7 +121,6 @@ export const GUN_04: Gorusme[] = [
             label: '"Ben de senin sokağını düşünüyorum burada. Sırayla, ev ev."',
             cevap: '"Yapma böyle şeyler." Ama devam etmeni istiyor.',
             etki: { iliski: 9, moral: 6, ozlem: 7 },
-            isaret: { ad: 'sevgili_yakinlik', deger: 'g4' },
           },
         ],
       },

@@ -79,7 +79,7 @@ ondan sonra başlar. Süreler tek kişilik yoğun çalışma için kaba tahmin.
 | Dalga | Amaç | İşler | Tahmin |
 |---|---|---|---|
 | **D1 · Zemin** | Veri kaybettiren hataları kapat, test altyapısını kur | S11, S9, S1, S2, S3, S4, S5, S6, S7 | 2–3 gün |
-| **D2 · İçerik hazırlığı** | 23 gün yazılmadan önce çelişkileri, aracı ve şablonu hazırla | I4, S10, S13, I12, S8, S12, I10, §4 takvimi | 3–4 gün |
+| **D2 · İçerik hazırlığı** | 23 gün yazılmadan önce çelişkileri, aracı ve şablonu hazırla | I4, S10, S13, I12, I13, S8, S12, I10, §4 takvimi | 3–4 gün |
 | **D3 · İkinci hafta + ses** | Gün 6–12, ses, ayarlar, duraklatma | I5, C1, C2, C3 | 5–7 gün |
 | **D4 · Üçüncü hafta + para** | Gün 13–19, satın alma, dev build | I6, Y1, M2, M3, C4, C7 | 6–8 gün |
 | **D5 · Son hafta + uyum** | Gün 20–28, finaller, ölçüm, KVKK, cila | I11, I7, I8, I9, M4, M5, M6, C5, C6, Y2, Y3 | 7–10 gün |
@@ -406,13 +406,39 @@ bunun yanında paralel yürür.
   5 yeni test (takvim, ilk nöbet, kalkış saati). Tarayıcıda 2. gün
   05:30'da açılıyor.
 
-#### I12 · kullanılmayan işaretler ⬜ (D2)
+#### I12 · kullanılmayan işaretler ✅ (D2)
 - **Sorun:** `telefon:dogrula` 70 işaretin yazılıp hiç okunmadığını söylüyor.
 - **Adımlar:** listeyi çıkar, her birini üç gruptan birine koy:
   (a) finalde / epilogda kullanılacak (I9'a not düş), (b) sonraki bir
   telefon gününde geri dönüş olacak (ilgili gNN'e ekle),
   (c) gereksiz, sil. Karar tablosu bu belgenin sonuna eklenir.
 - **Kabul:** uyarı sayısı 0 ya da yalnızca (a) grubu, I9'da kapanacak.
+- **Sonuç:** 70 işaret dört gruba ayrıldı:
+  - **Epilog (21):** söz ve beyanlar (`anne_soz`, `randevu_sozu`, `son_soz`…)
+    `EPILOG_METIN`'e "…demiştin" satırı olarak yazıldı. Doğrulayıcı epilog
+    sözlüğünü artık okuyucu sayıyor (`en_cok_ozlenen` yanlış pozitifti).
+    Epilog seçimi değişti: en eski satır + her biri öncekinden ≥6 gün sonra;
+    yoksa birinci günün sözleri üç satırı da dolduruyordu.
+  - **Final (17)** ve **gün (16):** `telefon/isaretPlani.ts`'e plan olarak
+    yazıldı; doğrulayıcı bunları uyarı değil "PLANLI" listesi olarak basıyor
+    (gün işaretleri hangi güne ait, notuyla). Plan gerçekleşince kayıttan
+    silinmesi gerektiğini doğrulayıcı söylüyor.
+  - **Silinen (16):** ilişki/gerilim sayısını tekrarlayan, karşılığı
+    olmayanlar (`anlatan`, `dinleyen`, `yalniz_kaldi`, `sevgili_yakinlik`…).
+  `telefon:dogrula`: 70 uyarı → 0; 33 planlı. 3 epilog testi.
+- **Not:** gün işaretlerinin gün dosyalarında okunabilmesi için sahneye
+  hafıza koşulu gerekiyor → I13.
+
+#### I13 · gün sahnelerinde telefon hafızası ⬜ (D2, I5'ten önce)
+- **Neden:** telefonda anlatılan şey (bot olayı, atış sonucu, koli)
+  ertesi gün koğuşta karşına çıkmalı; bugün gün sahneleri hafızayı okuyamıyor.
+- **Adımlar:** `Scene`'e opsiyonel `kosul?: Kosul` (telefon motorunun
+  `kosulTutar`'ı yeniden kullanılır); koşulu tutmayan sahne `ileri` ve
+  `blokZenginlestir` sırasında atlanır. Metinlerde `{deger:isaret}`
+  şablonu. `icerik.test.ts`: koşul başka türlü sahne sayısını sıfıra
+  indirmesin (her blokta en az bir koşulsuz sahne).
+- **Kabul:** örnek: 12. gün sahnesi `komik_olay` konmuşsa açılıyor; oynanış
+  testi iki yolda da günü bitiriyor.
 
 #### I10 · atış mini oyunu ⬜ (D2)
 - **Tasarım:** nişangâh dikey salınıyor (nefes), oyuncu basılı tutunca

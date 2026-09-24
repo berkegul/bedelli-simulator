@@ -76,7 +76,6 @@ export const GUN_15: Gorusme[] = [
             cevap:
               'Anlattın. Sözünü hiç kesmedi. Bitince: "Teşekkür ederim." Bunu çok ciddi söyledi.',
             etki: { iliski: 14, gerilim: -14, moral: 8 },
-            isaret: { ad: 'anlatan', deger: 'gercek' },
             sonraki: 'b',
           },
           {
