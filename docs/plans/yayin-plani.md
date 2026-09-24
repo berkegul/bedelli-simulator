@@ -530,7 +530,7 @@ geçer.
   yok. `performance.now` yerine `Date.now` (diğer oyunlarla aynı; tepki
   ölçümü değil, salınım fazı).
 
-#### I5 · gün 6–12 ✅ (D3) · I6 · gün 13–19 ⬜ (D4) · I7 · gün 20–27 ⬜ (D5)
+#### I5 · gün 6–12 ✅ (D3) · I6 · gün 13–19 ✅ (D5) · I7 · gün 20–27 ⬜ (D6)
 - **Şablon:** her gün `src/content/dayNN.ts`, 8–11 blok. Yazmadan önce
   §4'teki satır, ilgili `telefon/gunler/gNN.ts` ve bir önceki gün okunur.
 - **Gün başına içerik:**
@@ -541,6 +541,14 @@ geçer.
   - rutin günlerde (8, 15, 19) blok sayısı az, metin kısa.
 - **Her gün sonunda:** `npm run denge` hedef eğrisinde mi, `tsc`,
   web'de o günü baştan sona oyna.
+- **I6 sonucu:** `day13`–`day19` (Ölçüm, Yarısı, Sayım, Yorgunluk, Koli,
+  On Gün, Tek Hane). Revir dalı: 16. günde herkese ayak yarası seçimi, moral
+  45 altındaysa Çavuş revire gönderiyor (enerji +24, kondisyon +9). Koli
+  17. günde anne ilişkisine göre (75+ kurabiye+mektup, 45–74 normal, 44 altı
+  sade); 18. günde koğuşta paylaşılıyor. Okunan işaretler: ev_yemegi,
+  kanka_takvim, sevgili_surpriz, hasta_oldu, koli_yolda, koli_icerigi,
+  ilk_azar. Günler üç paralel oturumda yazıldı, tek elden birleştirildi.
+  Denge: ortalama oyuncu 13–19'da TEMİZ İŞ (%84–100).
 - **Kabul (hafta başına):** hafta boyunca oynanan bir kayıtla gün sonu
   notları üç profilde farklı, telefonla gün dosyası aynı şeyi anlatıyor.
 - **I5 sonucu:** `day06`–`day12` yazıldı (Hesap, Bir Hafta, Rutin, Atış,
@@ -661,9 +669,13 @@ geçer.
   Hareket azaltma tek bir hook'tan (`useHareketAzalt`) okunur ve değişimi
   dinler; `YolSahnesi.tsx:284`'teki ilk değer hatası bununla düzelir.
 
-#### C7 · mini oyun öğreticileri ⬜ (D4)
+#### C7 · mini oyun öğreticileri ✅ (D5)
 - Her mini oyunun ilk açılışında tek kartlık "nasıl oynanır" (bir cümle +
   animasyonlu el ikonu). Görülenler kayda yazılır.
+- **Sonuç:** kart süre başlamadan çıkıyor (`OgreticiKarti`, metinler
+  `minigames/ogretici.ts`). **Sapma:** görülenler oyun kaydına değil
+  ayarlara yazılıyor; baştan başlayan oyuncu kartları yeniden görmüyor,
+  ayarlardan sıfırlayabiliyor.
 
 ---
 
@@ -773,13 +785,13 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 | 10 | Gece | İlk nöbet | — | ✓ | | ✅ |
 | 11 | Koğuş | Kaybolan bot | arama sahnesi (anlatı + seçim) | | | ✅ |
 | 12 | Hatırlama | Callback günü, koğuşta hikâyeler | — | | | ✅ |
-| 13 | Ölçüm | Kondisyon ölçümü, koşu | — | ✓ | | ⬜ |
-| 14 | Yarısı | İkinci eşik | — | | ✓ | ⬜ |
-| 15 | Sayım | Rutin (kısa gün) | — | | | ⬜ |
-| 16 | Yorgunluk | Ayak yarası, revir dalı | revir: kötü oyuncuya toparlanma | ✓ | | ⬜ |
-| 17 | Koli | Anneden koli | koli içeriği puana göre | | | ⬜ |
-| 18 | On gün | Üçüncü eşik | — | | ✓ | ⬜ |
-| 19 | Tek hane | Rutin (kısa gün) | — | ✓ | | ⬜ |
+| 13 | Ölçüm | Kondisyon ölçümü, koşu | — | ✓ | | ✅ |
+| 14 | Yarısı | İkinci eşik | — | | ✓ | ✅ |
+| 15 | Sayım | Rutin (kısa gün) | — | | | ✅ |
+| 16 | Yorgunluk | Ayak yarası, revir dalı | revir: kötü oyuncuya toparlanma | ✓ | | ✅ |
+| 17 | Koli | Anneden koli | koli içeriği puana göre | | | ✅ |
+| 18 | On gün | Üçüncü eşik | — | | ✓ | ✅ |
+| 19 | Tek hane | Rutin (kısa gün) | — | ✓ | | ✅ |
 | 20 | Söz | Uzun callback kapanıyor | — | | | ⬜ |
 | 21 | Yedi gün | Kanka itirafı; yemin provası | — | | | ⬜ |
 | 22 | Sessizlik | Kanka aramıyor | — | ✓ | | ⬜ |
@@ -796,6 +808,7 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 
 | Tarih | Kayıt |
 |---|---|
+| 2026-09-24 | D5 bitti ve main'e birleşti: gün 13–19 (I6) ve mini oyun öğreticileri (C7). Yazılı gün 19/28. Sıradaki: D6 gün 20–28, yemin, karne, finaller. |
 | 2026-09-24 | D4 bitti ve main'e birleşti: G1 büyük sahne + diyalog kutusu (Berke onayladı), G2 nizamiye menüsü, G3 sevk belgesi, G4 alışveriş listesi, G5 tepsi, G6 avlu, G7 okunabilirlik + 480 genişlik (C5), G8 geçiş/sayaç/damga (C4). Sıradaki: D5 gün 13–19. |
 | 2026-09-24 | Berke: ücretlendirme en sona; önce görsel tasarım (oyun "form gibi" görünüyor), sonra gün 13–28. Dalgalar yeniden sıralandı (D4 görsel dil … D8 ücretlendirme). |
 | 2026-09-24 | D3 bitti ve main'e birleşti: gün 6–12, sentezlenmiş sesler, ayarlar, mola. |
