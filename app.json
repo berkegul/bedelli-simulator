@@ -9,6 +9,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.bedelli.simulator",
+      "appleTeamId": "S2LR654LS8",
       "config": {
         "usesNonExemptEncryption": false
       },
