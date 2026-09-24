@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { bulutaYaz, buluttanOku } from './bulut';
+import { bulutaYaz, bulutlaKarsilastir, buluttanOku } from './bulut';
 import type { ArkadasId, DolapDuzeni, Envanter, Kusur, Profil, RehberKisi, Rol, Stats } from './types';
 
 const KEY = 'bedelli.save.v3';
@@ -50,8 +50,9 @@ export async function kaydet(data: KayitYuku) {
   } catch {
     // Kayıt başarısızsa oyun oynanmaya devam eder; tek kayıp ilerleme olur.
   }
-  // Bulut yedeği beklenmez: ağ yavaşsa oyun takılmasın.
-  void bulutaYaz(payload);
+  // Bulut yedeği beklenmez: ağ yavaşsa oyun takılmasın. Yazmalar toplanıp
+  // aralıklı gidiyor (bulut.ts).
+  bulutaYaz(payload);
 }
 
 export async function yukle(): Promise<SaveData | null> {
@@ -59,7 +60,10 @@ export async function yukle(): Promise<SaveData | null> {
     const raw = await AsyncStorage.getItem(KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as SaveData;
-      if (parsed?.version === 3) return parsed;
+      if (parsed?.version === 3) {
+        void bulutlaKarsilastir(parsed);
+        return parsed;
+      }
     }
 
     // v2 kaydı duruyorsa taşı: ilerleme, envanter ve rehber korunur.

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { View } from 'react-native';
+import { AppState, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
@@ -14,6 +14,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { C } from './src/theme';
+import { bulutuBosalt } from './src/engine/bulut';
 import { useGame } from './src/store/gameStore';
 import { MenuEkrani } from './src/screens/MenuEkrani';
 import { ProfilEkrani } from './src/screens/ProfilEkrani';
@@ -44,6 +45,15 @@ export default function App() {
   useEffect(() => {
     void ilkYukleme();
   }, [ilkYukleme]);
+
+  // Bulut yazmaları toplanıp aralıklı gidiyor; uygulama arka plana düşerken
+  // sonuncusu beklemeden gönderilsin, oyuncu kapatınca kaybolmasın.
+  useEffect(() => {
+    const abone = AppState.addEventListener('change', (durum) => {
+      if (durum !== 'active') void bulutuBosalt();
+    });
+    return () => abone.remove();
+  }, []);
 
   const yerlesimHazir = useCallback(async () => {
     if (fontHazir && hazir) await SplashScreen.hideAsync();

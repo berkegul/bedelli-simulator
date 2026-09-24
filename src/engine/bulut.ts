@@ -75,16 +75,60 @@ export function sureli<T>(is: Promise<T>, ms: number, yedek: T): Promise<T> {
   return Promise.race([is, sure]).finally(() => clearTimeout(zamanlayici));
 }
 
+/**
+ * Firestore `undefined` değer taşıyan belgeyi bütünüyle reddediyor; hata da
+ * aşağıda sessizce yutulduğu için yedek fark edilmeden dururdu. Kayıttaki
+ * opsiyonel alanlardan (saat, rol, sonArananGun…) biri tanımsız kalırsa diye
+ * JSON'dan geçiriyoruz: tanımsız alanlar düşüyor, cihazdaki kayıtla aynı
+ * şekil buluta gidiyor.
+ */
+export function firestoreIcin(data: SaveData): SaveData {
+  return JSON.parse(JSON.stringify(data)) as SaveData;
+}
+
+/**
+ * `persist` her sahnede çağrılıyor; her çağrıyı buluta göndermek hem yazım
+ * maliyeti hem boşuna trafik. Yazmalar toplanıp en fazla bu aralıkla, en son
+ * hâliyle gidiyor. Uygulama arka plana düşerken `bulutuBosalt` bekleyeni
+ * hemen gönderiyor.
+ */
+const YAZMA_ARALIGI_MS = 1500;
+let bekleyen: SaveData | null = null;
+let yazmaZamanlayici: ReturnType<typeof setTimeout> | null = null;
+
 /** Kaydı buluta yazar. Başarısız olursa yutar; cihazdaki kayıt zaten var. */
-export async function bulutaYaz(data: SaveData) {
+export function bulutaYaz(data: SaveData) {
+  if (!firebaseKurulu()) return;
+  bekleyen = data;
+  if (!yazmaZamanlayici) yazmaZamanlayici = setTimeout(() => void bulutuBosalt(), YAZMA_ARALIGI_MS);
+}
+
+/** Bekleyen yazmayı hemen gönderir. */
+export async function bulutuBosalt() {
+  if (yazmaZamanlayici) clearTimeout(yazmaZamanlayici);
+  yazmaZamanlayici = null;
+  const veri = bekleyen;
+  bekleyen = null;
+  if (!veri) return;
+
   const o = await oturum();
   if (!o) return;
   try {
     const { doc, setDoc } = await import('firebase/firestore');
-    await setDoc(doc(o.db as never, 'oyuncular', o.uid), data as never, { merge: true });
+    // Birleştirme yok: kaydın tamamı değişiyor. `merge: true` yerelde
+    // silinen alanları (son sigara, önceki oyunun envanteri) bulutta
+    // bırakıyor, geri yüklenen kayıt iki oyunun karışımı oluyordu.
+    await setDoc(doc(o.db as never, 'oyuncular', o.uid), firestoreIcin(veri) as never);
   } catch {
     // sessiz
   }
+}
+
+/** Gönderilmemiş yazmayı atar: yeni oyunda eski kayıt buluta gitmesin. */
+export function bekleyenYazmayiIptalEt() {
+  if (yazmaZamanlayici) clearTimeout(yazmaZamanlayici);
+  yazmaZamanlayici = null;
+  bekleyen = null;
 }
 
 /**
@@ -111,6 +155,18 @@ async function bulutKaydiniGetir(): Promise<SaveData | null> {
     return null;
   } catch {
     return null;
+  }
+}
+
+/**
+ * Cihazdaki kayıt her zaman kazanıyor; birleştirme yapılmıyor. Ama bulutta
+ * daha yeni bir kayıt varsa (oyuncu başka cihazda oynamış) bunu ölçüyoruz:
+ * sık görülürse bir seçim ekranı gerekecek. Açılışı beklemeden arkada koşar.
+ */
+export async function bulutlaKarsilastir(yerel: SaveData) {
+  const bulut = await bulutKaydiniGetir();
+  if (bulut && bulut.guncelleme > yerel.guncelleme + 60_000) {
+    void olayYaz('kayit_cakismasi', { yerelGun: yerel.gun, bulutGun: bulut.gun });
   }
 }
 

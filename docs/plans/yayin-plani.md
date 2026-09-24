@@ -166,7 +166,7 @@ bunun yanında paralel yürür.
   RN girişinin yüklendiği doğrulandı. Cihazda kabul testi Firebase projesi
   açılınca (K6, M4) yapılacak.
 
-#### S2 · bulut kaydı birleşmesin 🔴 ⬜ (D1, S1'den sonra)
+#### S2 · bulut kaydı birleşmesin 🔴 ✅ kod · cihaz testi M4'te (D1, S1'den sonra)
 - **Sorun:** `engine/bulut.ts:45` `setDoc(..., { merge: true })` yerelde
   silinen alanları (son sigara, eski envanter) bulutta bırakıyor.
 - **Adımlar:**
@@ -179,6 +179,14 @@ bunun yanında paralel yürür.
      maliyeti de düşer).
 - **Kabul:** birim testi: sigarası biten kayıt yazılıp okununca `sigara`
   anahtarı yok. Firestore konsolunda yazım sayısı sahne başına bir değil.
+- **Sonuç:** `setDoc` birleştirmesiz. Yazmalar 1,5 sn'de bir en son hâliyle
+  gidiyor; uygulama arka plana düşerken `App.tsx`'teki AppState dinleyicisi
+  bekleyeni hemen gönderiyor. `bekleyenYazmayiIptalEt()` S3 için hazır.
+  Ek koruma: Firestore `undefined` alanlı belgeyi reddettiği için kayıt
+  yazmadan önce JSON'dan geçiriliyor. Çakışma: cihaz kazanır, bulut 1 dk'dan
+  daha yeniyse `kayit_cakismasi` olayı yazılır. Birleştirmenin gerçek
+  Firestore'da kabulü M4'te; `setDoc` davranışı belgeli olduğu için birim
+  testi `firestoreIcin`'i sınıyor.
 
 #### S3 · yeni oyun: onay + bulut silme 🔴 ⬜ (D1, S2'den sonra)
 - **Sorun:** `MenuEkrani.tsx:50` "Baştan başla" onaysız siliyor;
