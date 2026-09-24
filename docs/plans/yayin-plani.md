@@ -694,6 +694,20 @@ geçer.
 
 ---
 
+#### Berke'nin yapacakları (D7'nin kalanı, sırayla)
+1. **Apple Developer** (yıllık 99 $) ve **Google Play Console** (tek sefer
+   25 $) hesapları; `npx eas login`, `npx eas init` (proje kimliği app.json'a).
+2. **Firebase** projesi: Web uygulaması ekle → değerleri `.env.local`'a ve
+   `eas env:create` ile EAS'e; Firestore production mode; Authentication →
+   Anonymous; `npx firebase deploy --only firestore:rules`.
+3. **Sentry** projesi (ücretsiz katman yeter): `npx @sentry/wizard -i
+   reactNative`, DSN `EXPO_PUBLIC_SENTRY_DSN`; Claude raporlayıcıyı bağlar.
+4. **Gizlilik metni:** `docs/yasal/gizlilik-politikasi.md` köşeli
+   parantezleri doldur, hukukçuya göster; yayın adresi (GitHub Pages ya da
+   Firebase Hosting) Claude'da.
+5. İlk derleme: `npx eas build -p ios --profile development` (ve android);
+   cihazda yemin zamanlaması ve S12b denemesi, ekran görüntüleri.
+
 ### P · Para + ölçüm
 
 #### M0 · kilit mantığı izole ✅
@@ -722,15 +736,18 @@ geçer.
 - **Kabul:** sandbox hesabıyla iOS ve Android'de satın al → uygulamayı
   sil, kur → geri yükle → 6. gün açık.
 
-#### M4 · Firebase projesi + kurallar ⬜ (D5, S3'ten sonra)
+#### M4 · Firebase projesi + kurallar 🔶 (D7, kod hazır; proje Berke'de)
 - Anahtarlar `EXPO_PUBLIC_FIREBASE_*` ortam değişkenlerinden
   (`firebaseConfig.ts` okur, `.env.local` repoya girmez, EAS secret).
 - `firestore.rules` repoya: `oyuncular/{uid}` yalnız sahibi; `olaylar`
   için `request.resource.data.uid == request.auth.uid`, izin verilen
   `ad` listesi, belge boyutu sınırı. `firebase.json` ile deploy.
 - **Kabul:** kurallar Firebase emülatöründe test ediliyor.
+- **Sonuç:** `firebaseConfig.ts` `EXPO_PUBLIC_FIREBASE_*` okuyor (`.env.example`).
+  `firestore.rules` + `firebase.json` repoda; olay adları `engine/olaylar.ts`,
+  test kuraldaki listeyle eşitliği sınıyor. Emülatör testi proje açılınca.
 
-#### M5 · KVKK onayı + gizlilik politikası ⬜ (D5, M4 + C2'den sonra)
+#### M5 · KVKK onayı + gizlilik politikası 🔶 (D7, ekran hazır; metin hukukta)
 - İlk açılışta tek ekran: ne toplandığı (anonim kimlik, ilerleme yedeği,
   oyun olayları), "Kabul" / "Yalnızca cihazda oyna". Reddedilirse bulut
   ve olaylar kapalı; ayarlardan değiştirilebilir.
@@ -738,17 +755,28 @@ geçer.
   Firebase Hosting'de tek statik sayfa ya da GitHub Pages), iOS
   `PrivacyInfo` (app.json `ios.privacyManifests`), Play Data safety formu.
 - Metin hukuki kontrolden geçmeli; Claude taslağı hazırlar.
+- **Sonuç:** `OnayEkrani` ilk açılışta oyundan önce. **Bulgu:** bulut yedeği
+  hiçbir izne bağlı değildi; kayıtta künyedeki ad ve rehberdeki gerçek adlar
+  var. Artık `bulutIzni` ile açılıyor, ikisi de kapalıyken anonim oturum da
+  açılmıyor; ayarlarda "Buluta yedek" kapatılınca buluttaki kopya siliniyor.
+  Metin yurt dışı aktarımı (Firebase) açıkça söylüyor. Taslaklar:
+  `docs/yasal/gizlilik-politikasi.md`, `docs/yasal/magaza-veri-beyanlari.md`;
+  iOS privacy manifest `app.json`'da.
 
-#### M6 · crash raporlama ⬜ (D5)
+#### M6 · crash raporlama 🔶 (D7, katman hazır; Sentry hesabı Berke'de)
 - `@sentry/react-native` Expo config plugin'iyle. Sessiz `catch`
   bloklarına `raporla(hata)` (Sentry'ye breadcrumb, oyuncuya hiçbir şey).
   Kaynak haritaları EAS build'de yüklenir. M5 onayına bağlı.
-
+- **Sonuç:** `engine/rapor.ts`: `raporla(hata, yer)`; kayıt ve bulut
+  catch'leri ile `HataSiniri` bağlı. Kullanım verisi izniyle açılıyor.
+  Sentry hesabı açılınca `npx @sentry/wizard -i reactNative`, ardından
+  `raporlayiciKur(...)` (Sentry.captureException). Hesap olmadan yerel eklenti
+  ve Metro ayarı doğrulanamayacağı için kurulmadı.
 ---
 
 ### Y · Yayın
 
-#### Y1 · eas.json + sürümleme ⬜ (D4)
+#### Y1 · eas.json + sürümleme 🔶 (D7, ayar hazır; ilk derleme hesapla)
 - Expo varsayılan izinleri daraltılacak (`android.blockedPermissions`):
   READ/WRITE_EXTERNAL_STORAGE, SYSTEM_ALERT_WINDOW kullanılmıyor.
 - `eas.json` profilleri: `development` (dev client), `preview` (iç
@@ -758,16 +786,24 @@ geçer.
   plugin yapılandırmasına taşınır (v57 dokümanı: üst seviye yöntem eski).
 - **Kabul:** `eas build -p ios --profile development` ve Android karşılığı
   başarılı, dev build cihazda açılıyor.
+- **Sonuç:** `eas.json` (development/preview/production, sürüm EAS'te),
+  `expo-dev-client`, izin engeli, splash eklentide. **Bulgu:** `expo-doctor`
+  eksik `expo-asset` (expo-audio'nun istediği; gerçek derlemede çökerdi) ve
+  5 yama farkı buldu; düzeltildi, doktor CI'da.
 
-#### Y2 · ikon + splash ⬜ (D5)
+#### Y2 · ikon + splash ✅ (D7)
 - Mevcut ikonlar ilk commit'ten, şablon olabilir. Pixel-art ikon (künye
   ya da çentikli takvim), 1024 px, Android adaptive katmanları ve
   monokrom sürüm. Splash: koyu zemin + tek sprite.
+- **Sonuç:** `tools/ikon-uret.py` (`npm run ikon`): 32x32 künye + çentik,
+  ikon, adaptive ön/arka, tek renk, açılış, favicon aynı kaynaktan.
 
-#### Y3 · mağaza görselleri + metin ⬜ (D5)
+#### Y3 · mağaza görselleri + metin 🔶 (D7, metin hazır; görüntüler derlemeden)
 - iPhone 6.9", iPad 13" ve Android ekran görüntüleri (geliştirme alanından
   sahneler), kısa ve uzun açıklama, anahtar kelimeler, yaş derecelendirme
   anketi. AI yalnızca burada serbest (README kuralı).
+- **Sonuç:** `docs/magaza/metinler.md`: ad, alt başlık, açıklamalar, anahtar
+  kelimeler, yaş anketi (tütün sık → 12+ / PEGI 12), ekran görüntüsü planı.
 
 #### ~~Y4 · web hosting~~ (kaldırıldı, 24 Eyl: web yayınlanmıyor)
 
@@ -823,6 +859,7 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 
 | Tarih | Kayıt |
 |---|---|
+| 2026-09-24 | D7'nin kod tarafı bitti ve main'e birleşti: EAS ayarı, Firebase kuralları, KVKK onayı (bulut yedeği artık izne bağlı), hata raporlama katmanı, piksel ikon, mağaza metinleri. Kalanlar hesap ve hukuk: Firebase + Sentry + Apple/Play hesapları (K6), gizlilik metninin kontrolü, ilk derleme, ekran görüntüleri, cihazda S12b. |
 | 2026-09-24 | D6 bitti ve main'e birleşti: gün 20–28 (I7, I8), yemin oyunu (I11), karne ve finaller akışta (I8, I9), erişilebilirlik (C6). Oyun baştan sona 28 gün oynanabilir. Denge: en az +1 kazanç garantisi 80 → 75 (son hafta ortalama oyuncu her gün TAKDİR alıyordu). S12b D7'ye, cihaz testiyle. |
 | 2026-09-24 | D5 bitti ve main'e birleşti: gün 13–19 (I6) ve mini oyun öğreticileri (C7). Yazılı gün 19/28. Sıradaki: D6 gün 20–28, yemin, karne, finaller. |
 | 2026-09-24 | D4 bitti ve main'e birleşti: G1 büyük sahne + diyalog kutusu (Berke onayladı), G2 nizamiye menüsü, G3 sevk belgesi, G4 alışveriş listesi, G5 tepsi, G6 avlu, G7 okunabilirlik + 480 genişlik (C5), G8 geçiş/sayaç/damga (C4). Sıradaki: D5 gün 13–19. |
