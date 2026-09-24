@@ -83,6 +83,8 @@ export type Sonuc = {
    * eski kartları temizler; bu kart oyuncu görene kadar kalır.
    */
   acilistan?: boolean;
+  /** Mini oyun sonucuysa skor (0–1): kartta derece damgası olarak basılıyor. */
+  derece?: number;
 };
 
 export type Store = {

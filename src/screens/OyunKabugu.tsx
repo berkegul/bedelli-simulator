@@ -11,6 +11,8 @@ import { useDuraklat } from '../ui/duraklat';
 import { PixelSprite } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
 import { StatBar } from '../ui/StatBar';
+import { useHareketAzalt } from '../ui/useHareketAzalt';
+import { useSayac } from '../ui/useSayac';
 
 /** Şeritte tam ad sığmıyor; açılan panelde zaten tam hâli yazıyor. */
 const KISA: Record<StatKey, string> = {
@@ -274,14 +276,16 @@ export function OyunKabugu({
 
 /** Şeritteki tek gösterge: ad, değer, ince çubuk. */
 function Cetele({ stat, value, delta }: { stat: StatKey; value: number; delta?: number }) {
-  const renk = STAT_COLOR[stat];
-  const dolu = Math.round((value / 100) * SEGMENT);
+  const [sayi, sayiyor] = useSayac(value);
+  const renk = sayiyor && delta ? (delta > 0 ? C.olive : C.rust) : STAT_COLOR[stat];
+  const dolu = Math.round((sayi / 100) * SEGMENT);
   const [vurgu] = useState(() => new Animated.Value(0));
+  const azalt = useHareketAzalt();
 
   // Değer değişince gösterge bir kez zıplıyor: sayının kıpırdadığı
   // gözden kaçmıyor, oyuncu seçiminin karşılığını görüyor.
   useEffect(() => {
-    if (!delta) return;
+    if (!delta || azalt) return;
     vurgu.setValue(0);
     Animated.sequence([
       Animated.timing(vurgu, { toValue: 1, duration: 120, useNativeDriver: true }),
@@ -292,7 +296,7 @@ function Cetele({ stat, value, delta }: { stat: StatKey; value: number; delta?: 
         useNativeDriver: true,
       }),
     ]).start();
-  }, [delta, value, vurgu]);
+  }, [delta, value, vurgu, azalt]);
 
   return (
     <Animated.View
@@ -309,7 +313,7 @@ function Cetele({ stat, value, delta }: { stat: StatKey; value: number; delta?: 
       </PixelText>
       <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 2 }}>
         <PixelText font="command" size="lead" color={renk}>
-          {value}
+          {sayi}
         </PixelText>
         {delta !== undefined && delta !== 0 && (
           <PixelText font="command" size="small" color={delta > 0 ? C.olive : C.rust}>

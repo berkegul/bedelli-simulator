@@ -9,6 +9,7 @@ import { useSecili } from "../store/secici";
 import { Daktilo } from "../ui/Daktilo";
 import { PixelButton } from "../ui/PixelButton";
 import { DiyalogKutusu } from "../ui/DiyalogKutusu";
+import { DereceDamgasi } from "../ui/DereceDamgasi";
 import { MekanSeridi, mekanBul } from "../ui/MekanSeridi";
 import { PixelSprite } from "../ui/PixelSprite";
 import { PixelText } from "../ui/PixelText";
@@ -181,7 +182,7 @@ export function OyunEkrani() {
                 }}
               >
                 {g.sonuc ? (
-                  <SonucKarti metin={g.sonuc.metin} />
+                  <SonucKarti metin={g.sonuc.metin} derece={g.sonuc.derece} />
                 ) : sahne.kind === "yol" ? (
                   <YolSahnesi
                     key={sahneAnahtari}
@@ -323,7 +324,7 @@ export function OyunEkrani() {
 }
 
 /** Sonuç kartı kayarak giriyor: ekranın değiştiğini fark etmek kolaylaşıyor. */
-function SonucKarti({ metin }: { metin: string }) {
+function SonucKarti({ metin, derece }: { metin: string; derece?: number }) {
   const [giris] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
@@ -354,9 +355,12 @@ function SonucKarti({ metin }: { metin: string }) {
         ],
       }}
     >
-      <PixelText font="command" size="body" color={C.brass}>
-        SONUÇ
-      </PixelText>
+      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+        <PixelText font="command" size="body" color={C.brass}>
+          SONUÇ
+        </PixelText>
+        {derece !== undefined && <DereceDamgasi skor={derece} />}
+      </View>
       <PixelText size="lead" color={C.canvas} line="body">
         {metin}
       </PixelText>

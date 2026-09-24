@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { C, SP, STAT_COLOR } from '../theme';
 import { STAT_META, type StatKey } from '../engine/types';
 import { PixelText } from './PixelText';
+import { useSayac } from './useSayac';
 
 const SEGMENT = 10;
 
@@ -15,8 +16,9 @@ type Props = {
 };
 
 export function StatBar({ stat, value, delta, kucuk }: Props) {
+  const [sayi] = useSayac(value);
   const renk = STAT_COLOR[stat];
-  const dolu = Math.round((value / 100) * SEGMENT);
+  const dolu = Math.round((sayi / 100) * SEGMENT);
   const yukseklik = kucuk ? 6 : 10;
 
   return (
@@ -32,7 +34,7 @@ export function StatBar({ stat, value, delta, kucuk }: Props) {
           {STAT_META[stat].ad}
         </PixelText>
         <PixelText font="command" size={kucuk ? 'body' : 'lead'} color={renk}>
-          {value}
+          {sayi}
         </PixelText>
         {delta !== undefined && delta !== 0 && (
           <PixelText font="command" size={kucuk ? 'small' : 'body'} color={delta > 0 ? C.olive : C.rust}>

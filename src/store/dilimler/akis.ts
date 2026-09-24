@@ -280,6 +280,8 @@ export const akisDilimi = (
       });
     }
     uygulaEtki(set, get, sahne.reward(score), sahne.verdict(score));
+    const sonuc = get().sonuc;
+    if (sonuc) set({ sonuc: { ...sonuc, derece: score } });
   },
 
   sonucuKapat() {

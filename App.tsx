@@ -30,6 +30,7 @@ import { GunSonuEkrani } from './src/screens/GunSonuEkrani';
 import { KilitEkrani } from './src/screens/KilitEkrani';
 import { IcerikSonuEkrani } from './src/screens/IcerikSonuEkrani';
 import { GelistirmeEkrani } from './src/gelistirme/GelistirmeEkrani';
+import { EkranGecisi } from './src/ui/EkranGecisi';
 import { GelistirmeRozeti } from './src/gelistirme/GelistirmeRozeti';
 
 void SplashScreen.preventAutoHideAsync();
@@ -95,15 +96,17 @@ export default function App() {
               }}
             >
               <StatusBar style="light" />
-              {ekran === 'menu' && <MenuEkrani />}
-              {ekran === 'profil' && <ProfilEkrani />}
-              {ekran === 'carsi' && <CarsiEkrani />}
-              {ekran === 'gunBasi' && <GunBasiEkrani />}
-              {ekran === 'oyun' && <OyunEkrani />}
-              {ekran === 'gunSonu' && <GunSonuEkrani />}
-              {ekran === 'kilit' && <KilitEkrani />}
-              {ekran === 'icerikSonu' && <IcerikSonuEkrani />}
-              {ekran === 'gelistirme' && <GelistirmeEkrani />}
+<EkranGecisi anahtar={ekran}>
+                {ekran === 'menu' && <MenuEkrani />}
+                {ekran === 'profil' && <ProfilEkrani />}
+                {ekran === 'carsi' && <CarsiEkrani />}
+                {ekran === 'gunBasi' && <GunBasiEkrani />}
+                {ekran === 'oyun' && <OyunEkrani />}
+                {ekran === 'gunSonu' && <GunSonuEkrani />}
+                {ekran === 'kilit' && <KilitEkrani />}
+                {ekran === 'icerikSonu' && <IcerikSonuEkrani />}
+                {ekran === 'gelistirme' && <GelistirmeEkrani />}
+              </EkranGecisi>
               <GelistirmeRozeti />
               {ayarlarAcik && <AyarlarEkrani />}
             </View>
