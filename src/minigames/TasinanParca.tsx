@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   cancelAnimation,
@@ -63,18 +63,15 @@ export function TasinanParca<T extends string>({
 
   const parilti = useAnimatedStyle(() => ({ opacity: nabiz.value }));
 
-  const ev = useRef({ x, y });
-  ev.current = { x, y };
-
   useEffect(() => {
     tx.set(withSpring(x, YAY));
     ty.set(withSpring(y, YAY));
   }, [x, y, tx, ty]);
 
   const geri = useCallback(() => {
-    tx.set(withSpring(ev.current.x, YAY));
-    ty.set(withSpring(ev.current.y, YAY));
-  }, [tx, ty]);
+    tx.set(withSpring(x, YAY));
+    ty.set(withSpring(y, YAY));
+  }, [x, y, tx, ty]);
 
   const birak = useCallback(
     (cx: number, cy: number) => {

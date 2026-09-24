@@ -131,30 +131,37 @@ function Ucan({
   );
 }
 
+const ILK_COP = 5;
+
+function copUret(id: number): Cop {
+  const turler: Cop['tur'][] = ['izmarit', 'izmarit', 'kagit', 'kapak'];
+  return {
+    id,
+    x: 6 + Math.random() * 82,
+    y: 6 + Math.random() * 80,
+    tur: turler[Math.floor(Math.random() * turler.length)],
+  };
+}
+
 /**
  * Bölük işleri: avluda ne varsa toplanacak. Süre içinde ne kadar çok
  * toplarsan o kadar iyi; yerde kalan her şey Onbaşı'nın gözüne çarpıyor.
  */
 export function IzmaritToplama({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const hedef = 14 + Math.round(zorluk * 6);
-  const [copler, setCopler] = useState<Cop[]>([]);
+  // Avlu ilk karede beş çöple açılıyor; sonrakiler zamanla düşüyor.
+  const [copler, setCopler] = useState<Cop[]>(() =>
+    Array.from({ length: ILK_COP }, (_, i) => copUret(i)),
+  );
   const [toplanan, setToplanan] = useState(0);
   const [kalan, setKalan] = useState(Math.round(SURE / 1000));
-  const sonrakiId = useRef(0);
+  const sonrakiId = useRef(ILK_COP);
   const bitti = useRef(false);
+  const toplananRef = useRef(0);
 
-  const uret = useCallback((): Cop => {
-    const turler: Cop['tur'][] = ['izmarit', 'izmarit', 'kagit', 'kapak'];
-    return {
-      id: sonrakiId.current++,
-      x: 6 + Math.random() * 82,
-      y: 6 + Math.random() * 80,
-      tur: turler[Math.floor(Math.random() * turler.length)],
-    };
-  }, []);
+  const uret = useCallback((): Cop => copUret(sonrakiId.current++), []);
 
   useEffect(() => {
-    setCopler(Array.from({ length: 5 }, uret));
     const ekle = setInterval(
       () => {
         if (bitti.current) return;
@@ -178,7 +185,6 @@ export function IzmaritToplama({ onBitti, zorluk = 0 }: MiniOyunProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const toplananRef = useRef(0);
   const azalt = useHareketAzalt();
   const [en, setEn] = useState(0);
   const [ucanlar, setUcanlar] = useState<UcanCop[]>([]);

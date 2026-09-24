@@ -19,6 +19,8 @@ const SAHNE_H = 270;
  * Gösterge üçgen dalga ile gidip gelir. Konumu animasyondan değil saatten
  * okuyoruz — dokunma anıyla ekrandaki kare arasında kayma olmuyor.
  */
+const yeniHedef = () => 0.28 + Math.random() * 0.44;
+
 export function YatakToplama({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const z = useZamanlayici();
   const [tur, setTur] = useState(0);
@@ -28,15 +30,14 @@ export function YatakToplama({ onBitti, zorluk = 0 }: MiniOyunProps) {
 
   const periyot = 1700 - zorluk * 500 - tur * 130;
   const hedefYari = 0.13 - zorluk * 0.045 - tur * 0.018;
-  const hedef = useRef(0.5);
+  // Hedef ekranda çiziliyor, o yüzden state; tur ilerlerken yenisi seçiliyor.
+  const [hedef, setHedef] = useState(yeniHedef);
   const t0 = useRef(0);
   const donuyor = useRef(true);
 
   useEffect(() => {
-    hedef.current = 0.28 + Math.random() * 0.44;
     t0.current = Date.now();
     donuyor.current = true;
-    setSonVurus(null);
   }, [tur]);
 
   useEffect(() => {
@@ -58,7 +59,7 @@ export function YatakToplama({ onBitti, zorluk = 0 }: MiniOyunProps) {
 
     const t = ((Date.now() - t0.current) % periyot) / periyot;
     const p = t < 0.5 ? t * 2 : 2 - t * 2;
-    const hata = Math.abs(p - hedef.current);
+    const hata = Math.abs(p - hedef);
     const puan = clamp01(1 - hata / (hedefYari * 2.2));
 
     titret(puan > 0.7 ? Siddet.Medium : Siddet.Rigid);
@@ -68,9 +69,13 @@ export function YatakToplama({ onBitti, zorluk = 0 }: MiniOyunProps) {
 
     z.sonra(620, () => {
       if (yeni.length >= TUR) onBitti(yeni.reduce((a, b) => a + b, 0) / yeni.length);
-      else setTur((n) => n + 1);
+      else {
+        setSonVurus(null);
+        setHedef(yeniHedef());
+        setTur((n) => n + 1);
+      }
     });
-  }, [periyot, hedefYari, puanlar, onBitti, z]);
+  }, [periyot, hedefYari, hedef, puanlar, onBitti, z]);
 
   const [en, setEn] = useState(0);
   const W = Math.floor(en / U);
@@ -94,7 +99,7 @@ export function YatakToplama({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const gx = yatak.battaniyeX * U;
   const gw = yatak.battaniyeW * U;
   const gy = yatak.onKenarY * U + 3 * U;
-  const hx = gx + (hedef.current - hedefYari) * gw;
+  const hx = gx + (hedef - hedefYari) * gw;
   const hw = hedefYari * 2 * gw;
   const imlec = sonVurus ? sonVurus.poz : poz;
 

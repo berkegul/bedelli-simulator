@@ -39,9 +39,8 @@ export function Ictima({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const iyiEsik = 320 - zorluk * 90;
   const kotuEsik = 900 - zorluk * 220;
 
+  // Tur başı: faz ve mesaj, turu ilerleten yerde 'bekle'ye dönüyor.
   useEffect(() => {
-    setFaz('bekle');
-    setMesaj('');
     // Aralık düzensiz: oyuncu ritim ezberleyip erken basamasın.
     const gecikme = 900 + Math.random() * (2600 - zorluk * 700);
     zamanlayici.current = setTimeout(() => {
@@ -63,7 +62,11 @@ export function Ictima({ onBitti, zorluk = 0 }: MiniOyunProps) {
       setPuanlar(yeni);
       z.sonra(760, () => {
         if (yeni.length >= TUR) onBitti(yeni.reduce((a, b) => a + b, 0) / yeni.length);
-        else setTur((n) => n + 1);
+        else {
+          setFaz('bekle');
+          setMesaj('');
+          setTur((n) => n + 1);
+        }
       });
     },
     [puanlar, onBitti, z],

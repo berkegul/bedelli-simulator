@@ -1,34 +1,28 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 
 /**
  * Süreli mini oyunların saati. 100 ms'de bir güncellenir, süre dolunca
- * `bitince` bir kez çağrılır. Oyun kendi bitirirse `durdur` ile saat kesilir.
+ * `bitince` bir kez çağrılır. Oyun kendi bitirirse `durdu` true verilir,
+ * saat o anki değerinde donar.
  */
-export function useGeriSayim(toplam: number, bitince: () => void) {
+export function useGeriSayim(toplam: number, bitince: () => void, durdu = false) {
   const [kalan, setKalan] = useState(toplam);
-  // Başlangıç anı açılışta effect içinde yazılıyor; render saf kalsın.
-  const basla = useRef(0);
-  const durdu = useRef(false);
-  const bitinceRef = useRef(bitince);
-  bitinceRef.current = bitince;
+  const bitir = useEffectEvent(bitince);
 
   useEffect(() => {
-    basla.current = Date.now();
+    if (durdu) return;
+    // Başlangıç anı effect içinde alınıyor; render saf kalsın.
+    const basla = Date.now();
     const id = setInterval(() => {
-      if (durdu.current) return;
-      const k = Math.max(0, toplam - (Date.now() - basla.current));
+      const k = Math.max(0, toplam - (Date.now() - basla));
       setKalan(k);
       if (k <= 0) {
-        durdu.current = true;
-        bitinceRef.current();
+        clearInterval(id);
+        bitir();
       }
     }, 100);
     return () => clearInterval(id);
-  }, [toplam]);
+  }, [toplam, durdu]);
 
-  const durdur = useCallback(() => {
-    durdu.current = true;
-  }, []);
-
-  return { kalan, oran: kalan / toplam, durdur };
+  return { kalan, oran: kalan / toplam };
 }

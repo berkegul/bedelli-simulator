@@ -191,6 +191,9 @@ export function Ceza({
     bagir('TAM KALK!', true);
   }, [bagir]);
 
+  // Jest kurucusu worklet'leri saklıyor, render sırasında çağırmıyor;
+  // derleyici shared value'ları ref sayıp okuma sanıyor (yanlış pozitif).
+  /* eslint-disable react-hooks/refs */
   const jest = useMemo(
     () =>
       Gesture.Pan()
@@ -200,22 +203,22 @@ export function Ceza({
         .onTouchesDown((_e, durum) => {
           'worklet';
           durum.activate();
-          if (kapali.value) return;
+          if (kapali.get()) return;
           // Kalkış bitmeden yeniden inmek: o şınav gitti.
-          if (kalkiyor.value && derinlik.value > 0.12) runOnJS(erken)();
+          if (kalkiyor.get() && derinlik.get() > 0.12) runOnJS(erken)();
           kalkiyor.set(0);
           cancelAnimation(derinlik);
           derinlik.set(
             withTiming(1, {
-              duration: INIS_MS * (1 - derinlik.value),
+              duration: INIS_MS * (1 - derinlik.get()),
               easing: Easing.out(Easing.quad),
             }),
           );
         })
         .onFinalize(() => {
           'worklet';
-          if (kapali.value) return;
-          const ulasilan = derinlik.value;
+          if (kapali.get()) return;
+          const ulasilan = derinlik.get();
           cancelAnimation(derinlik);
           const tam = ulasilan >= ESIK;
           if (!tam && ulasilan > 0.15) runOnJS(yarim)();
@@ -224,12 +227,12 @@ export function Ceza({
             withTiming(
               0,
               {
-                duration: kalkisMs.value * Math.max(0.25, ulasilan),
+                duration: kalkisMs.get() * Math.max(0.25, ulasilan),
                 easing: Easing.inOut(Easing.quad),
               },
               (tamamlandi) => {
-                if (tamamlandi && kalkiyor.value) {
-                  kalkiyor.value = 0;
+                if (tamamlandi && kalkiyor.get()) {
+                  kalkiyor.set(0);
                   runOnJS(say)();
                 }
               },
@@ -238,6 +241,7 @@ export function Ceza({
         }),
     [derinlik, erken, kalkisMs, kalkiyor, kapali, say, yarim],
   );
+  /* eslint-enable react-hooks/refs */
 
   const govdeX = en * 0.36;
   const onbasiX = en * 0.84;

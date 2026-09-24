@@ -9,14 +9,12 @@ module.exports = defineConfig([
   },
   {
     rules: {
-      // React Compiler kuralları. Proje compiler kullanmıyor; bu desenlerin
-      // çoğu (Animated.Value ref'i, shared value ataması) bugün doğru
-      // çalışıyor. Uyarı olarak kalıyorlar ve dosyasına dokunan iş onları
-      // temizliyor (yayin-plani.md · S12). Sayı sıfıra inince "error" olacak.
-      'react-hooks/refs': 'warn',
-      'react-hooks/immutability': 'warn',
-      'react-hooks/set-state-in-effect': 'warn',
-      'react-hooks/purity': 'warn',
+      // React Compiler kuralları (yayin-plani.md · S12, S12b). Jest kurucusu
+      // ve worklet'lerdeki yanlış pozitifler dosyasında gerekçesiyle kapatıldı.
+      'react-hooks/refs': 'error',
+      'react-hooks/immutability': 'error',
+      'react-hooks/set-state-in-effect': 'error',
+      'react-hooks/purity': 'error',
       // HTML için yazılmış bir kural; React Native <Text> içinde kesme işareti
       // ve tırnak kaçırılmadan yazılıyor.
       'react/no-unescaped-entities': 'off',

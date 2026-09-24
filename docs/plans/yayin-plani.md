@@ -373,7 +373,7 @@ geçer.
   tut/bırak sayımı tarayıcı aracıyla sınanamadı → cihaz testine.
 - **Kalan 36 → S12b.**
 
-#### S12b · kalan React Compiler uyarıları ⬜ (D7, cihaz testiyle)
+#### S12b · kalan React Compiler uyarıları ✅ kod · jestler cihaz testinde (D7)
 - `react-hooks/refs` (26): render sırasında ref okuma (Tiras, PostalParlatma,
   YatakToplama ekranda ref'ten türetilen değerler), `xRef.current = x`
   "son değer" kalıpları (React 19.2 `useEffectEvent` ile), jest
@@ -384,6 +384,26 @@ geçer.
 - `react-hooks/immutability` (4): hook dönüş değerinde metot çağrısı
   (`sure.durdur()`), ref'e `+=`.
 - Mini oyun mantığına dokunduğu için her dosya sonrası cihazda deneme şart.
+- **Yapılan (25 Eyl):** 36 → 0; dört kural `error`'da.
+  - "Son değer" ref'leri → `useEffectEvent` (geri sayım, Daktilo, gökyüzü geçişi).
+  - `useGeriSayim` artık `durdur()` döndürmüyor, `durdu` bayrağı alıyor;
+    Tıraş/Gece/Postal'daki "tanımlanmadan kullanım" döngüsü kalktı.
+  - Tıraş ve Postal: jest mantığı ref'teki canlı haritayla, çizim state'teki
+    kopyadan (eskiden `setSurum` ile zorla yeniden çizim + render'da ref okuma).
+  - Prop değişince sıfırlanan state: İçtima ve Yatak toplamada turu
+    ilerleten yerde, OyunEkrani'nda render sırasında (sahne anahtarı).
+    **Düzelen hata:** atlanan bir metinden sonra yeni sahnenin ilk karesi
+    eski "atla" ile çiziliyordu; yeni metin bir an tam görünüp bitiş
+    sinyali erken gidiyordu.
+  - Gece/Giyinme adım ref'i yalnızca artış anında yazılıyor; TasinanParca ve
+    Dolap'ta hedef ref'i yerine doğrudan prop.
+  - Jest kurucusu ve worklet'lerdeki yanlış pozitifler (RNGH 2 geri çağrıları
+    saklıyor, render'da çağırmıyor) dosyasında gerekçeli, blok kapsamlı
+    `eslint-disable react-hooks/refs` ile (Tıraş, Postal, Ceza).
+  - Web'de denendi: İçtima tur sıfırlama, Yatak hedefi, Gece adım ilerlemesi,
+    Bölük işleri toplama, Daktilo atlama + sonraki sahne, saatler. Sürükleme
+    jestleri (Tıraş, Postal, Giyinme, Dolap, Ceza) tarayıcı aracıyla
+    tetiklenmiyor → ilk derlemede cihazda.
 
 #### S10 · denge simülasyonu tsx ✅ (D2)
 - **Sorun:** `tools/denge-analizi.py`, `stats.ts`'i elle kopyalıyor, rutin /
@@ -865,6 +885,7 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 
 | Tarih | Kayıt |
 |---|---|
+| 2026-09-25 | S12b: React Compiler uyarıları 36 → 0, kurallar `error`. Yan kazanç: atlanan metinden sonraki sahnenin erken "bitti" sayılması düzeldi. Sürükleme jestleri cihaz testine kaldı. Plandaki kod işleri bitti; kalanlar Berke'de (hesaplar, K1/K2/K7, gizlilik metni). |
 | 2026-09-24 | D4c: paneller ve kalan sahneler aynı görsel dile geçti (dört paralel kol + web'de görsel kontrol). Not: web geliştirme sunucusu `CI=1` ile başlatılırsa dosya değişikliklerini izlemiyor; eski paketlerle başlamış sunucu `expo install --fix` sonrası yeniden başlatılmalı. |
 | 2026-09-24 | Berke: "grafik anlamında çok eksik, en iyi hâle getir", "mini oyunların sahneleri eksik, gerçekçiliği yok". D4b: sahne kiti; 13 mini oyun gerçek mekânlarında (dört paralel kol, görsel kontrol web'de); asker/Çavuş yeniden çizildi; oyun ekranında sahne %38; gökyüzü basamaklı + bulut; gün başı ve gün sonu koğuşta. README kuralı korundu: AI raster yok, zenginlik katmandan. |
 | 2026-09-24 | Berke: yemin töreni son gün olmalı (gerçekte törenden sonra aileyle çıkılıyor); yemin 26 → 28, K5 güncellendi. 26 genel prova günü oldu; 28'de sıra: dolap, tören, aileler, evrak ve künye, sivil, veda, nizamiye. 20–27'deki gün sayısı atıfları düzeltildi. |

@@ -51,6 +51,13 @@ const TERS_ESIK = 0.6;
 const KESIK_CEZA = 0.12;
 
 const anahtar = (x: number, y: number) => `${x}:${y}`;
+const yeniKil = () => new Map(SAKAL.map(([x, y]) => [anahtar(x, y), 1]));
+
+const temizlikOrani = (kil: Map<string, number>) => {
+  let t = 0;
+  kil.forEach((v) => (t += 1 - v));
+  return t / kil.size;
+};
 
 export function Tiras({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const z = useZamanlayici();
@@ -59,19 +66,23 @@ export function Tiras({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const toplam = Math.round((16 - zorluk * 5) * 1000);
 
   const [en, setEn] = useState(0);
-  const [, setSurum] = useState(0);
+  // Çizim bu kopyadan; jest mantığı ref'teki canlı haritayla çalışıyor.
+  const [gorunum, setGorunum] = useState(() => ({
+    kil: yeniKil(),
+    kesikler: new Set<string>(),
+  }));
   const [bicak, setBicak] = useState<{ x: number; y: number } | null>(null);
   const [mesaj, setMesaj] = useState<string | null>(null);
+  const [durdu, setDurdu] = useState(false);
 
   const kil = useRef<Map<string, number> | null>(null);
-  if (!kil.current) {
-    kil.current = new Map(SAKAL.map(([x, y]) => [anahtar(x, y), 1]));
-  }
+  const harita = () => (kil.current ??= yeniKil());
   const kesikler = useRef<Set<string>>(new Set());
   /** Bu çekişte değilen hücreler: kesik her hücrede çekiş başına bir kez sınanıyor. */
   const cekis = useRef<Set<string>>(new Set());
   const son = useRef<{ x: number; y: number } | null>(null);
   const bitti = useRef(false);
+  const gorunumKesik = useRef(0);
   const mesajZamani = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const olcek = en > 0 ? Math.max(8, Math.min(20, Math.floor(Math.min(en, 320) / SUTUN))) : 0;
@@ -99,21 +110,14 @@ export function Tiras({ onBitti, zorluk = 0 }: MiniOyunProps) {
     ];
   }, [olcek, su, en, sahneH, fx, fw, cer, aynaUst, aynaAlt]);
 
-  const temizlik = () => {
-    let t = 0;
-    kil.current!.forEach((v) => (t += 1 - v));
-    return t / kil.current!.size;
-  };
-  const puan = () => temizlik() - kesikler.current.size * KESIK_CEZA;
-
   const bitir = () => {
     if (bitti.current) return;
     bitti.current = true;
-    sure.durdur();
+    setDurdu(true);
     setBicak(null);
-    onBitti(clamp01(puan()));
+    onBitti(clamp01(temizlikOrani(harita()) - kesikler.current.size * KESIK_CEZA));
   };
-  const sure = useGeriSayim(toplam, () => bitir());
+  const sure = useGeriSayim(toplam, bitir, durdu);
 
   const goster = useCallback((m: string) => {
     setMesaj(m);
@@ -131,7 +135,7 @@ export function Tiras({ onBitti, zorluk = 0 }: MiniOyunProps) {
 
       const px = Math.floor(x / olcek);
       const py = Math.floor(y / olcek);
-      const m = kil.current!;
+      const m = harita();
       let degisti = false;
 
       for (const ax of AGIZ) {
@@ -159,8 +163,9 @@ export function Tiras({ onBitti, zorluk = 0 }: MiniOyunProps) {
         }
       }
 
-      if (degisti) {
-        setSurum((s) => s + 1);
+      if (degisti || kesikler.current.size !== gorunumKesik.current) {
+        gorunumKesik.current = kesikler.current.size;
+        setGorunum({ kil: new Map(m), kesikler: new Set(kesikler.current) });
         let kalan = 0;
         m.forEach((v) => (kalan += v > 0.05 ? 1 : 0));
         if (kalan === 0) z.sonra(400, bitir);
@@ -171,6 +176,9 @@ export function Tiras({ onBitti, zorluk = 0 }: MiniOyunProps) {
     [goster, jilet.limit, jilet.verim, olcek],
   );
 
+  // Jest kurucusu geri çağrıları saklıyor, render sırasında çağırmıyor;
+  // derleyici bunu bilemediği için ref okuması sanıyor (yanlış pozitif).
+  /* eslint-disable react-hooks/refs */
   const jest = useMemo(
     () =>
       Gesture.Pan()
@@ -196,9 +204,10 @@ export function Tiras({ onBitti, zorluk = 0 }: MiniOyunProps) {
         }),
     [cek],
   );
+  /* eslint-enable react-hooks/refs */
 
-  const yuzde = Math.round(temizlik() * 100);
-  const kesik = kesikler.current.size;
+  const yuzde = Math.round(temizlikOrani(gorunum.kil) * 100);
+  const kesik = gorunum.kesikler.size;
   const az = sure.oran < 0.3;
 
   return (
@@ -270,8 +279,8 @@ export function Tiras({ onBitti, zorluk = 0 }: MiniOyunProps) {
 
                   {SAKAL.map(([x, y]) => {
                     const k = anahtar(x, y);
-                    const v = kil.current!.get(k)!;
-                    const kesildi = kesikler.current.has(k);
+                    const v = gorunum.kil.get(k)!;
+                    const kesildi = gorunum.kesikler.has(k);
                     if (v <= 0.02 && !kesildi) return null;
                     return (
                       <View

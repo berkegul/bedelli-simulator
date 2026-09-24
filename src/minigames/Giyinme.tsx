@@ -86,8 +86,8 @@ export function Giyinme({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const [kalan, setKalan] = useState(toplam);
   const [mesaj, setMesaj] = useState<string | null>(null);
 
+  // Zamanlayıcılardan okunan aşama; artış yalnızca `giy` içinde.
   const asamaRef = useRef(0);
-  asamaRef.current = asama;
   const yanlis = useRef(0);
   const durdu = useRef(false);
   const bitti = useRef(false);
@@ -176,7 +176,8 @@ export function Giyinme({ onBitti, zorluk = 0 }: MiniOyunProps) {
         return;
       }
       titret(Siddet.Medium);
-      setAsama((a) => a + 1);
+      asamaRef.current += 1;
+      setAsama(asamaRef.current);
     },
     [giysiler, goster],
   );

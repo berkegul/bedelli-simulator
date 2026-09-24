@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { PixelText } from './PixelText';
 import type { ComponentProps } from 'react';
 import { useHareketAzalt } from './useHareketAzalt';
@@ -24,9 +24,8 @@ export function Daktilo({ text, hiz, atla, onBitti, ...rest }: Props) {
   const [yazilan, setYazilan] = useState(text);
   const azaltilmisHareket = useHareketAzalt();
 
-  const bildirildi = useRef(false);
-  const onBittiRef = useRef(onBitti);
-  onBittiRef.current = onBitti;
+  // Hangi metin için bitiş bildirildiği; aynı metin için bir kez.
+  const bildirilen = useRef<string | null>(null);
 
   // Sıfırlamayı effect'e bırakırsak bir önceki metnin uzunluğu yeni ve daha
   // kısa metni "bitmiş" gösteriyor; bitiş sinyali erken yanıp bir daha
@@ -34,26 +33,24 @@ export function Daktilo({ text, hiz, atla, onBitti, ...rest }: Props) {
   if (yazilan !== text) {
     setYazilan(text);
     setUzunluk(0);
-    bildirildi.current = false;
   }
 
+  const aninda = azaltilmisHareket || !!atla || harfMs === 0;
+  const gorunen = aninda ? text.length : uzunluk;
 
   useEffect(() => {
-    if (azaltilmisHareket || atla || harfMs === 0) {
-      setUzunluk(text.length);
-      return;
-    }
-    if (uzunluk >= text.length) return;
+    if (aninda || uzunluk >= text.length) return;
     const t = setTimeout(() => setUzunluk((n) => n + 1), harfMs);
     return () => clearTimeout(t);
-  }, [uzunluk, text, harfMs, atla, azaltilmisHareket]);
+  }, [uzunluk, text, harfMs, aninda]);
 
+  const bitti = useEffectEvent(() => onBitti?.());
   useEffect(() => {
-    if (yazilan === text && uzunluk >= text.length && !bildirildi.current) {
-      bildirildi.current = true;
-      onBittiRef.current?.();
+    if (yazilan === text && gorunen >= text.length && bildirilen.current !== text) {
+      bildirilen.current = text;
+      bitti();
     }
-  }, [uzunluk, text, yazilan]);
+  }, [gorunen, text, yazilan]);
 
-  return <PixelText {...rest}>{text.slice(0, uzunluk)}</PixelText>;
+  return <PixelText {...rest}>{text.slice(0, gorunen)}</PixelText>;
 }

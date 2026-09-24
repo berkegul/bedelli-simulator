@@ -662,9 +662,6 @@ function Esya({
   const basY = useSharedValue(0);
   const tutuluyor = useSharedValue(0);
 
-  const hedefRef = useRef(hedef);
-  hedefRef.current = hedef;
-
   useEffect(() => {
     x.set(withSpring(hedef.x, YAY));
     y.set(withSpring(hedef.y, YAY));
@@ -673,9 +670,9 @@ function Esya({
   // Bırakılınca önce bildiği yere dönüyor; yeri değiştiyse bir sonraki
   // çizimde hedef güncelleniyor ve yay yeni yere kıvrılıyor.
   const yerineOtur = useCallback(() => {
-    x.set(withSpring(hedefRef.current.x, YAY));
-    y.set(withSpring(hedefRef.current.y, YAY));
-  }, [x, y]);
+    x.set(withSpring(hedef.x, YAY));
+    y.set(withSpring(hedef.y, YAY));
+  }, [hedef.x, hedef.y, x, y]);
 
   const id = parca.id;
   const basla = useCallback(() => onBasla(id), [id, onBasla]);
