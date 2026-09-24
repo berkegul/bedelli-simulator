@@ -74,7 +74,7 @@ export const gun20: Day = {
           id: 'd20-i1',
           sprite: 'cavus',
           speaker: 'Çavuş Kaya',
-          text: 'Terhis işlemleri dört gün sonra başlıyor. O güne kadar kimse evrak sormayacak, kimse izin sormayacak. Yemine altı gün var. Altı gün boyunca ben size soracağım.',
+          text: 'Terhis işlemleri dört gün sonra başlıyor. O güne kadar kimse evrak sormayacak, kimse izin sormayacak. Yemine sekiz gün var. Sekiz gün boyunca ben size soracağım.',
         },
         {
           kind: 'mini',

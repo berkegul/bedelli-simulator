@@ -3,7 +3,7 @@ import type { Day } from '../engine/types';
 /**
  * 21. gün — YEDİ GÜN. Telefonda kanka yirmi bir gündür sakladığını söylüyor.
  * Kışlada yemin provası: tören adımı ve yemin metni ilk defa bir ağızdan.
- * Asıl tören 26. günde, aileler tribünde. Serkan defterini kapatıyor.
+ * Asıl tören 28. günde, son gün: aileler tribünde, törenden sonra beraber çıkılıyor. Serkan defterini kapatıyor.
  */
 export const gun21: Day = {
   day: 21,
@@ -236,13 +236,13 @@ export const gun21: Day = {
           id: 'd21-ai1',
           sprite: 'cavus',
           speaker: 'Çavuş Kaya',
-          text: 'Yemin töreni 26\'sında, saat onda. Aileler dokuzda kapıda olur. Kim gelecekse haber verin, kapı listesi yazılacak. Kimse gelmeyecekse onu da söyleyin; o da listeye yazılır.',
+          text: 'Yemin töreni 28\'inde, son gün, saat onda. Aileler dokuzda kapıda olur. Kim gelecekse haber verin, kapı listesi yazılacak. Kimse gelmeyecekse onu da söyleyin; o da listeye yazılır.',
           choices: [
             {
               id: 'd21-liste-yaz',
               label: 'Gelecekleri yazdır',
               effect: { moral: 2 },
-              outcome: 'Kâğıda isim yazdırmak, onları kapının önüne koymak gibi geldi. Beş gün sonra orada olacaklar.',
+              outcome: 'Kâğıda isim yazdırmak, onları kapının önüne koymak gibi geldi. Bir hafta sonra orada olacaklar; tören bitince de seni oradan alacaklar.',
             },
             {
               id: 'd21-liste-bos',

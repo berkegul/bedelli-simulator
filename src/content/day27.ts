@@ -1,8 +1,8 @@
 import type { Day } from '../engine/types';
 
 /**
- * 27. gün — SON GECE. Nöbet de ceza da yok. Gündüz teslim başlıyor:
- * battaniye, çarşaf, matara. Gece koğuşta üç veda: Emre, Tolga, Serkan.
+ * 27. gün — SON GECE. Nöbet de ceza da yok. Yarın yemin töreni ve çıkış.
+ * Gündüz teslim başlıyor: yedek battaniye, matara, teçhizat. Gece koğuşta üç veda: Emre, Tolga, Serkan.
  * Vedalar dostluk puanına bağlı değil, herkese geliyor; ne söyleyeceğin
  * seçim. Telefonun son gecesi (g27) serbest zamanda.
  */
@@ -52,7 +52,7 @@ export const gun27: Day = {
           id: 'd27-i1',
           sprite: 'cavus',
           speaker: 'Çavuş Kaya',
-          text: 'Bugün son tam gün. Kimse yarın çıkıyorum diye bugün çıkmış gibi davranmasın. Kışla sizi yarın saat dokuzda bırakır, bir dakika önce değil.',
+          text: 'Bugün son tam gün. Kimse yarın çıkıyorum diye bugün çıkmış gibi davranmasın. Kışla sizi yarın yeminden, evraktan sonra bırakır, bir dakika önce değil.',
         },
         {
           kind: 'mini',
@@ -126,9 +126,9 @@ export const gun27: Day = {
           choices: [
             {
               id: 'd27-emre-inanir',
-              label: '"İnanır. Tören günü sana nasıl baktı?"',
+              label: '"İnanır. Yarın tribünden görecek."',
               effect: { moral: 4, dostluk: { kim: 'emre', puan: 4 } },
-              outcome: 'Emre sustu, sonra güldü. "Doğru. Önce düğmeye, sonra bana." Suyunu sana uzattı; senin mataran boştu.',
+              outcome: 'Emre sustu, sonra güldü. "Önce düğmeye bakar, sonra bana." Suyunu sana uzattı; senin mataran boştu.',
             },
             {
               id: 'd27-emre-merdiven',
@@ -167,13 +167,13 @@ export const gun27: Day = {
           id: 'd27-t1',
           sprite: 'defter',
           speaker: 'Onbaşı Recep',
-          text: 'Battaniye iki, katlanmış, dört köşe. Matara boş ve kuru. Postal boyalı. Listede ne varsa masaya, listede olmayan dolaba geri. Yarın sabah dolap boş olacak, bugün yarı boş.',
+          text: 'Yedek battaniye, katlanmış, dört köşe. Matara boş ve kuru. Kemer, eldiven, yağmurluk. Listede ne varsa masaya, listede olmayan dolaba geri. Yarın sabah dolap boş olacak, bugün yarı boş.',
         },
         {
           kind: 'anlati',
           id: 'd27-t2',
           sprite: 'uniformaKatli',
-          text: 'Mataran dolabın arkasında, bir poşetin içinde duruyordu. Onbaşının masasına sırayla koydun: battaniye, battaniye, matara. Her biri bir işaret aldı. İlk gün bunları eline tutuştururken kimse işaret koymamıştı.',
+          text: 'Mataran dolabın arkasında, bir poşetin içinde duruyordu. Onbaşının masasına sırayla koydun: battaniye, matara, kemer. Her biri bir işaret aldı. İlk gün bunları eline tutuştururken kimse işaret koymamıştı.',
           choices: [
             {
               id: 'd27-teslim-duzgun',
@@ -224,7 +224,7 @@ export const gun27: Day = {
           id: 'd27-ai1',
           sprite: 'cavus',
           speaker: 'Çavuş Kaya',
-          text: 'Yarın 06:00 son yoklama. 07:00 evrak. 08:30 dolaplar boş, anahtar kapıda. 09:00 nizamiye. Sivilleriniz yarın sabah dolabın alt gözünden çıkacak; bir gece daha orada kalsın. Bu gece nöbet yok. Uyuyun. Uyuyamayacaksınız, biliyorum; yine de yatın.',
+          text: 'Yarın 06:00 son yoklama. 07:00 dolaplar boşalır, tören kıyafeti üstünüzde, siviller çantada. 09:00 aileler kapıda, 10:00 yemin. Sonra evrak, sonra nizamiye; aileleriniz sizi kapının önünde bekler. Bu gece nöbet yok. Uyuyun. Uyuyamayacaksınız, biliyorum; yine de yatın.',
         },
       ],
     },
@@ -337,7 +337,7 @@ export const gun27: Day = {
           kind: 'anlati',
           id: 'd27-sy2',
           sprite: 'ay',
-          text: 'Yirmi yedi gün bitti. Bir gün kaldı; o da sayılmaz, diyor herkes, yarım gün. Duvardaki çentiklere dokundun karanlıkta. Yirmi yedi. Sayılabiliyor.',
+          text: 'Yirmi yedi gün bitti. Bir gün kaldı: bir yemin, bir kapı. Duvardaki çentiklere dokundun karanlıkta. Yirmi yedi. Sayılabiliyor.',
         },
       ],
     },

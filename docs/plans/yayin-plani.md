@@ -65,7 +65,7 @@ Berke telefonda dener. Sonuç bu belgedeki karta yazılır.
 | K2 | Kaç gün ücretsiz | 5 / 7 | **7.** Telefonun "bir hafta oldu" eşiği (g07) kilidin önünde kalır; oyuncu ilk duygusal geri dönüşü görüp duvara çarpar. | M2 |
 | K3 | Kalkış saati | 05:00 (telefon g02) / 05:30 (menü, `ilkDurum.saat`, README) / 06:00 (gün dosyaları) | ✅ **05:30** (24 Eyl, öneriyle; Berke işi devretti). | I4 |
 | ~~K4~~ | ~~Web'de satış~~ | — | Kapandı (24 Eyl): web yayınlanmıyor. | — |
-| K5 | Yemin töreni günü | 21 / 26 | 26. Telefon g26 "duygusal yükseliş" günü; törende aile izleyici. | I7, I11 |
+| K5 | Yemin töreni günü | 21 / 26 / 28 | **28** (Berke, 24 Eyl): gerçekte tören son gün, törenden sonra aileyle çıkılıyor. Eskiden 26'ydı. | I7, I11 |
 | K6 | Hesaplar | Apple Developer (99$/yıl), Google Play Console (25$ bir kez), Firebase projesi, Sentry | Hepsi Berke adına açılmalı; Claude kurulum adımlarını hazırlar. | M4, M6, Y1, Y5 |
 | K7 | Fiyat | — | Rakip incelemesiyle M3 sırasında önerilecek. | M3 |
 
@@ -849,9 +849,9 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 | 23 | Özür | — | — | | | ✅ |
 | 24 | Evrak | Terhis işlemleri başlıyor | evrak kuyruğu | | | ✅ |
 | 25 | Son serbest | Son uzun serbest zaman | — | ✓ | | ✅ |
-| 26 | İki gün | Yemin töreni (K5), teslim listesi | **I11 yemin** | | | ✅ |
+| 26 | İki gün | Genel prova (tören kıyafetiyle), silah teslimi, teslim listesi | — | | | ✅ |
 | 27 | Son gece | Koğuşta son gece | — | | | ✅ |
-| 28 | Çıkış | Evrak, dolap boşaltma, nizamiye, karne | **I8 karne**, I9 finaller | | | ✅ |
+| 28 | Yemin | Dolap boşaltma, yemin töreni (K5), aileler, evrak ve künye, sivil, nizamiye, karne | **I11 yemin**, **I8 karne**, I9 finaller | | | ✅ |
 
 ---
 
@@ -859,6 +859,7 @@ ilk nöbet 10. gün, tema günlerinde görev yok).
 
 | Tarih | Kayıt |
 |---|---|
+| 2026-09-24 | Berke: yemin töreni son gün olmalı (gerçekte törenden sonra aileyle çıkılıyor); yemin 26 → 28, K5 güncellendi. 26 genel prova günü oldu; 28'de sıra: dolap, tören, aileler, evrak ve künye, sivil, veda, nizamiye. 20–27'deki gün sayısı atıfları düzeltildi. |
 | 2026-09-24 | D7'nin kod tarafı bitti ve main'e birleşti: EAS ayarı, Firebase kuralları, KVKK onayı (bulut yedeği artık izne bağlı), hata raporlama katmanı, piksel ikon, mağaza metinleri. Kalanlar hesap ve hukuk: Firebase + Sentry + Apple/Play hesapları (K6), gizlilik metninin kontrolü, ilk derleme, ekran görüntüleri, cihazda S12b. |
 | 2026-09-24 | D6 bitti ve main'e birleşti: gün 20–28 (I7, I8), yemin oyunu (I11), karne ve finaller akışta (I8, I9), erişilebilirlik (C6). Oyun baştan sona 28 gün oynanabilir. Denge: en az +1 kazanç garantisi 80 → 75 (son hafta ortalama oyuncu her gün TAKDİR alıyordu). S12b D7'ye, cihaz testiyle. |
 | 2026-09-24 | D5 bitti ve main'e birleşti: gün 13–19 (I6) ve mini oyun öğreticileri (C7). Yazılı gün 19/28. Sıradaki: D6 gün 20–28, yemin, karne, finaller. |

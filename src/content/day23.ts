@@ -127,7 +127,7 @@ export const gun23: Day = {
           id: 'd23-e1',
           sprite: 'cavus',
           speaker: 'Çavuş Kaya',
-          text: 'Üç gün sonra aileleriniz karşınızda. Yemin metnini ezbere bilmeyen kalmayacak. Satır satır: ben okurum, siz tekrar edersiniz. Bir ağızdan.',
+          text: 'Beş gün sonra aileleriniz karşınızda. Yemin metnini ezbere bilmeyen kalmayacak. Satır satır: ben okurum, siz tekrar edersiniz. Bir ağızdan.',
         },
         {
           kind: 'mini',

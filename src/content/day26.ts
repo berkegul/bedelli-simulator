@@ -1,15 +1,16 @@
 import type { Day } from '../engine/types';
 
 /**
- * 26. gün — İKİ GÜN. Yemin töreni (K5). Aileler tribünde; rehberde kimi
- * yazdıysan o geliyor (Yemin mini oyunu tribünü rehberden diziyor). Telefon
- * g25'te "yüz yüze söylerim" dediysen (son_soz) törenden sonra söylüyorsun.
- * Akşam içtimasında teslim listesi okunuyor: dolap yarın boşalmaya başlıyor.
+ * 26. gün — İKİ GÜN. Genel prova: tören kıyafetiyle, boş tribünün önünde.
+ * Yemin töreni son gün (28); gerçekte tören biter, aile tribünden iner ve
+ * asker onlarla kışladan çıkar. Bugün kapı listesinde son değişiklik,
+ * öğleden sonra silahların son sökümü ve teslimi, akşam teslim listesi:
+ * dolap yarın boşalmaya başlıyor.
  */
 export const gun26: Day = {
   day: 26,
   title: 'İki Gün',
-  epigraph: 'Bugün yüksek sesle bir söz vereceksin ve herkes duyacak.',
+  epigraph: 'Boş sandalyelerin önünde, iki gün sonra dolu olacakmış gibi.',
   blocks: [
     {
       id: 'd26-kalkis',
@@ -22,20 +23,20 @@ export const gun26: Day = {
           kind: 'anlati',
           id: 'd26-k1',
           sprite: 'duduk',
-          text: 'Yirmi altıncı sabah. Düdükten önce koğuşun yarısı uyanıktı. Kimse konuşmuyor ama herkes aynı şeyi düşünüyor: bugün tribün dolu olacak.',
+          text: 'Yirmi altıncı sabah. Kapıdaki tebeşirde "2". Düdükten önce koğuşun yarısı uyanıktı; kimse konuşmuyor, herkes aynı hesabı yapıyor: iki sabah daha, sonra tribün.',
         },
         {
           kind: 'mini',
           id: 'd26-k2',
           game: 'yatak',
           sprite: 'ranzaToplu',
-          brief: 'Tören sabahı. Yatağı bugün kimse denetlemeyecek; yine de topluyorsun.',
+          brief: 'Genel prova sabahı. Yatağı bugün kimse denetlemeyecek; yine de topluyorsun.',
           reward: (s) => ({ disiplin: Math.round(-4 + s * 11), moral: Math.round(-1 + s * 4) }),
           verdict: (s) =>
             s > 0.85
               ? 'Kimse bakmayacaktı. Kusursuz yaptın, çünkü artık başka türlü yapamıyorsun.'
               : s > 0.55
-                ? 'Toplandı. Aklın tribünde.'
+                ? 'Toplandı. Aklın provada.'
                 : 'Köşe kalkık kaldı. Bugün kimse fark etmez; sen fark ettin.',
         },
         {
@@ -43,7 +44,7 @@ export const gun26: Day = {
           id: 'd26-k3',
           sprite: 'uniformaKatli',
           speaker: 'Onbaşı Recep',
-          text: 'Tören üniforması dolabın üst rafında. Ütü izi tek, kırışık yok, düğme eksik yok. Aileniz sizi ilk defa üniformayla görecek. Rezil etmeyin, kendinizi de beni de.',
+          text: 'Tören üniforması dolabın üst rafında. Bugün prova onunla; ütü izi tek, kırışık yok, düğme eksik yok. İki gün sonra aileniz sizi ilk defa üniformayla görecek. Provada ne giyerseniz törende de o.',
           choices: [
             {
               id: 'd26-utu',
@@ -73,21 +74,21 @@ export const gun26: Day = {
           id: 'd26-i1',
           sprite: 'cavus',
           speaker: 'Çavuş Kaya',
-          text: 'Saat onda tören alanındasınız. Dün prova ettiğiniz gibi: sıra, selam, yemin. Yemini komutan okur, siz tekrarlarsınız. Önüne geçen olursa tribün duyar. Arkada kalan olursa ben duyarım.',
+          text: 'Bugün genel prova, tören kıyafetiyle. Sandalyeler dizildi, tribün boş. Sıra, selam, yemin; iki gün sonra aynısı, aileleriniz önünde. Provada hata yapan törende de yapar, yalnızca bu sefer tribün duyar.',
         },
         {
           kind: 'mini',
           id: 'd26-i2',
           game: 'ictima',
           sprite: 'asker',
-          brief: 'Yoklama. Bugün isimler iki kez okunuyor: biri burada, biri tören listesinde.',
+          brief: 'Yoklama. İsimler bugün tören listesindeki sırayla okunuyor.',
           reward: (s) => ({ disiplin: Math.round(-5 + s * 13), enerji: -4 }),
           verdict: (s) =>
             s > 0.85
-              ? 'Tek seferde. Bugün sesin herkesinkinden net çıktı.'
+              ? 'Tek seferde. Sesin tören listesine yakışır çıktı.'
               : s > 0.5
                 ? 'Normal. Tören sesini saklıyorsun.'
-                : 'Geç kaldın. Çavuş bir şey demedi; bugün demeyecek, yarın hatırlayacak.',
+                : 'Geç kaldın. "Törende de mi?" dedi Çavuş. Cevap vermedin.',
         },
       ],
     },
@@ -103,162 +104,73 @@ export const gun26: Day = {
           id: 'd26-ka1',
           sprite: 'askerSerkan',
           speaker: 'Serkan',
-          text: '"Tribünde otuz aile, altmış kişi, en az yüz yirmi telefon." Serkan hesabı yapmıştı. "Her birimiz en az kırk fotoğrafa gireceğiz. Yüz ifadesi bugün kalıcı. Bunu yemek yerken düşünün."',
+          text: '"İki gün. Kırk sekiz saat eksi uyku, yani otuz iki." Serkan defteri kapalı olsa da hesabı bırakmamıştı. "Dört tepsi, bir prova, bir son gece, bir tören. Bir de kapı." Parmaklarını saydı, sonra saymayı bıraktı.',
           choices: [
             {
               id: 'd26-serkan-gul',
-              label: '"Sen hangi yüzü yapacaksın?"',
-              effect: { moral: 4, dostluk: { kim: 'serkan', puan: 3 } },
-              outcome: 'Serkan kaşlarını çattı, çenesini kaldırdı, gözünü bir noktaya dikti. "Bu. Ciddi ama yorgun değil." Masadakilerin hepsi aynı yüzü denedi.',
+              label: '"Kapıyı hesaba katma, o sayılmaz"',
+              effect: { moral: 3, dostluk: { kim: 'serkan', puan: 3 } },
+              outcome: '"En çok o sayılır," dedi Serkan. "Ama haklısın, deftere yazılmaz." Çayını sana doğru kaydırdı; kendi bardağı doluydu.',
             },
             {
               id: 'd26-serkan-sus',
               label: 'Çayını iç, tepsiye bak',
               effect: { enerji: 3 },
-              outcome: 'Bugün kalabalık olacak. Şu an sadece çay var, sıcak. Bunu da biriktirdin.',
+              outcome: 'Hesap onun işi. Şu an sadece çay var, sıcak. Bunu da biriktirdin.',
             },
           ],
         },
       ],
     },
     {
-      id: 'd26-toren',
+      id: 'd26-egitim-sabah',
       from: '08:00',
       to: '12:00',
-      title: 'Yemin Töreni',
+      title: 'Genel Prova',
       sprite: 'bayrak',
       scenes: [
         {
           kind: 'anlati',
-          id: 'd26-t1',
+          id: 'd26-e1',
           sprite: 'bayrak',
-          text: 'Tören alanı. Bayrak direğinin iki yanında hoparlör, karşıda tribün. Tribün sabahtan doldu; yüzler seçilmiyor, sadece renkler ve el sallayanlar. Bölük adım adım yerine yürüdü. Bu sefer kimse ayak saymadı, ayaklar zaten aynıydı.',
-        },
-        {
-          kind: 'anlati',
-          id: 'd26-t2',
-          sprite: 'askerTolga',
-          text: 'Yanındaki Tolga tribüne bakmıyor. Beş gün önce kapı listesine bir isim yazmıştı, sonra üstünü çizmişti, sonra çizginin yanına yeniden yazmıştı. Gelip gelmediğine bakmıyor. Sıra hareketsizken kolunun kolunla aynı hizada durduğunu fark ettin.',
-          choices: [
-            {
-              id: 'd26-tolga-fisilti',
-              label: '"Benimkiler seni de alkışlar" diye fısılda',
-              effect: { disiplin: -2, moral: 3, dostluk: { kim: 'tolga', puan: 6 } },
-              outcome: 'Tolga cevap vermedi, gözünü bayraktan ayırmadı. Ama bir an sonra başını, fark edilmeyecek kadar, salladı.',
-            },
-            {
-              id: 'd26-tolga-dur',
-              label: 'Kıpırdama, hizada dur',
-              effect: { disiplin: 3 },
-              outcome: 'İkiniz de kıpırdamadınız. Hizada durmak da bir şey söylüyordu; Tolga onu da duydu.',
-            },
-          ],
+          text: 'Tören alanı. Bayrak direğinin iki yanında hoparlör, karşıda sandalye sıraları. Hepsi boş; yalnızca ön sırada bir er oturuyor, "aile" rolünde, elinde bir kâğıt, üzerinde "TRİBÜN" yazıyor. Kimse gülmedi. Kuralı iki gün sonra kimin bozacağını herkes biliyor: kendi annesi.',
         },
         {
           kind: 'mini',
-          id: 'd26-t3',
-          game: 'yemin',
-          sprite: 'bayrak',
-          brief: 'Komutan kürsüde. "Yemin için sağ el sol göğse!" Bölük bir ağızdan, yirmi sekiz kişi.',
+          id: 'd26-e2',
+          game: 'yurumek',
+          sprite: 'asker',
+          brief: 'Tören geçişi, tribünün önünden. Tempo yavaş, her adım ağır; hızlanan tek kalır.',
           reward: (s) => ({
-            disiplin: Math.round(-6 + s * 18),
-            moral: Math.round(-4 + s * 16),
-            enerji: -8,
+            kondisyon: Math.round(-2 + s * 6),
+            disiplin: Math.round(-4 + s * 11),
+            enerji: -12,
           }),
           verdict: (s) =>
             s > 0.85
-              ? 'Tek bir ses gibi çıktı. Son satırda tribünde biri ağladı; seninkiler olup olmadığını bilmiyorsun, olsun istedin.'
+              ? 'Tek bir vuruş gibi geçtiniz. "TRİBÜN" yazılı kâğıdı tutan er bile başını çevirdi.'
               : s > 0.5
-                ? 'Birkaç satırda yarım adım geride kaldın, ama söz verildi. Tribünden alkış geldi, herkese.'
-                : 'Bir satırda tek başına kaldın. Sesin hoparlörsüz, bütün alanda duyuldu. Yemin yine de yemin.',
+                ? 'Bir iki adımda senin topuğun ayrı duyuldu. Az ama duyuldu.'
+                : 'Senin adımın ikinci ses oldu. Baştan. Tribün boş olduğu için baştan.',
         },
         {
           kind: 'anlati',
-          id: 'd26-t4',
+          id: 'd26-e3',
           sprite: 'cavus',
           speaker: 'Çavuş Kaya',
-          text: 'Rahat. Yarım saat aileleriniz sizin. Tribünün önüne kadar, çitten ileri değil. Yarım saat dediysem otuz dakika; otuz birinci dakikada burada olmayanın ailesi onu bir gün daha görür.',
-        },
-      ],
-    },
-    {
-      id: 'd26-ziyaret',
-      from: '12:00',
-      to: '12:30',
-      title: 'Ziyaret',
-      sprite: 'sivil',
-      scenes: [
-        {
-          kind: 'anlati',
-          id: 'd26-z1',
-          sprite: 'sivil',
-          text: 'Çitin önü kalabalık. Birinin annesi oğlunun yüzünü iki eliyle tutmuş, bırakmıyor. Sen kalabalığın içinde seninkileri aradın ve bulduğunda ilk düşündüğün şey, onların seni bulmakta zorlandığıydı. Üniforma herkesi birbirine benzetiyor.',
+          text: 'Yemin satırları, son kez provada. Ben okurum, bitirdiğim anda siz. Sağ el sol göğüste; kol düşerse göğüs de düşer. Kapı listesinde son değişiklik bugün öğlene kadar. Gelmeyecek diye yazdırdığınız biri gelecekse, kapıda bekletmeyin.',
           choices: [
             {
-              id: 'd26-z-saril',
-              label: 'Çitin üstünden sarıl',
-              effect: { moral: 5, disiplin: -2 },
-              outcome: 'Çit göğsüne battı. Farkına bile varmadın. Ağzına bir şey tıkıştırdılar, tadını sonra düşündün: börek.',
+              id: 'd26-liste-ekle',
+              label: 'Kapı listesine bir isim daha ekle',
+              effect: { moral: 3, disiplin: -1 },
+              outcome: 'Molada bölük yazıcısının masasına gittin. Listenin altına bir satır. Yazıcı başını kaldırmadan "son değişiklik bu" dedi. Son değişiklik buydu.',
             },
             {
-              id: 'd26-z-anlat',
-              label: 'Yirmi altı günü anlat, kısa kısa',
-              effect: { moral: 4, enerji: -2 },
-              outcome: 'Telefonda anlattıklarının hepsini bir daha anlattın. Bu sefer yüzlerini gördün; hangisinde güldüklerini, hangisinde sustuklarını.',
-            },
-          ],
-        },
-        {
-          kind: 'anlati',
-          id: 'd26-z-yuz',
-          sprite: 'sivil',
-          kosul: { isaret: 'son_soz', isaretDeger: 'yuz_yuze' },
-          text: 'Telefonda "yüz yüze söylerim" demiştin. Şimdi yüz yüzesin ve yarım saatin on dakikası geçti. Söyleyeceğin şey telefonda daha kolaydı; bunu herkes biliyordu, sen de.',
-          choices: [
-            {
-              id: 'd26-yuz-soyle',
-              label: 'Söyle',
-              effect: { moral: 4 },
-              outcome: 'İki cümleydi. Arkasından ikiniz de başka bir şeyden bahsettiniz, hava gibi. Ama söylendi, ve çitin iki tarafı da bunu duydu.',
-            },
-            {
-              id: 'd26-yuz-sonra',
-              label: '"Eve gelince"',
-              effect: { moral: -2 },
-              outcome: '"Eve gelince," dediler, anlayışla. İki gün sonra da aynı şeyi söyleyeceğini ikiniz de biliyordunuz.',
-            },
-          ],
-        },
-        {
-          kind: 'anlati',
-          id: 'd26-z-sevgili',
-          sprite: 'sivil',
-          kosul: { sevgiliVar: true },
-          text: 'Kalabalığın arkasında biri parmak uçlarına kalkmış seni arıyor. Sesini duymadan tanıdın. Yirmi altı günde onu en çok sesinden tanımaya alışmıştın; şimdi yüzü sese yetişmeye çalışıyor.',
-        },
-        {
-          kind: 'anlati',
-          id: 'd26-z2',
-          sprite: 'duduk',
-          text: 'Düdük. Otuz dakika bitti. Ayrılmak girmekten zor değildi; iki gün sonra aynı kapıdan beraber çıkacaksınız. El salladın, sıraya döndün.',
-        },
-        {
-          kind: 'anlati',
-          id: 'd26-z-tolga',
-          sprite: 'askerTolga',
-          text: 'Çitin en ucunda Tolga diz çökmüş. Karşısında beş yaşında bir kız, elinde katlanmış bir kâğıt: yirmi sekiz kutulu takvim, yirmi altısının üstü çizili. Kız ağlamıyor. Tolga ağlıyor, sesi çıkmadan. Kız kâğıdı babasının cebine koydu, cebin düğmesini kendisi ilikledi.',
-          choices: [
-            {
-              id: 'd26-tolga-uzak',
-              label: 'Uzaktan bak, yanlarına gitme',
-              effect: { moral: 4, dostluk: { kim: 'tolga', puan: 4 } },
-              outcome: 'Yirmi altı gün boyunca Tolga\'nın neden aramadığını kimse sormadı. Şimdi sormaya gerek kalmadı.',
-            },
-            {
-              id: 'd26-tolga-kalem',
-              label: 'Kıza kalemini ver: "Kalan iki kutu için"',
-              effect: { moral: 3, dostluk: { kim: 'tolga', puan: 7 } },
-              outcome: 'Kız kalemi aldı, sana değil babasına baktı. Tolga başını salladı. Kalem gitti; kutular kaldı, iki tane.',
+              id: 'd26-liste-tamam',
+              label: 'Liste tamam, satırları tekrarla',
+              effect: { disiplin: 3 },
+              outcome: 'Beş satır, bir kez daha, dudaklarını oynatmadan. Son satırda "and içerim" derken sesin çıktı; yanındaki de öyle.',
             },
           ],
         },
@@ -266,7 +178,7 @@ export const gun26: Day = {
     },
     {
       id: 'd26-ogle',
-      from: '12:30',
+      from: '12:00',
       to: '13:30',
       title: 'Öğle Yemeği',
       sprite: 'tepsi',
@@ -275,7 +187,7 @@ export const gun26: Day = {
           kind: 'anlati',
           id: 'd26-o1',
           sprite: 'yemekhaneMasa',
-          text: 'Yemekhanede herkesin cebinde bir şey var: börek, lokum, katlanmış bir kâğıt. Masanın ortasında kimsenin sahiplenmediği bir kutu kurabiye dolaşıyor. Bugün tepsi kimseye yetmiyor, çünkü kimse tepsiye bakmıyor.',
+          text: 'Yemekhanede tören kıyafetleri askıda, herkes fanilayla yiyor; kimse çorbayı ceketine dökmek istemiyor. Masada konu iki gün sonrası: kim gelecek, kaçta yola çıkacaklar, otoparkta yer bulabilecekler mi.',
         },
       ],
     },
@@ -321,7 +233,7 @@ export const gun26: Day = {
           id: 'd26-ai1',
           sprite: 'defter',
           speaker: 'Çavuş Kaya',
-          text: 'Teslim listesi. Battaniye iki, çarşaf iki, yastık kılıfı bir, üniforma takımı, postal, matara, künye. Yarın akşam dolaplar kontrol edilir, eksik olan terhis belgesini alamaz. Künyeyi en son teslim edeceksiniz; bu kışlada adınızla birlikte en son o çıkar.',
+          text: 'Teslim listesi. Battaniye iki, çarşaf iki, yastık kılıfı bir, üniforma takımı, postal, matara, künye. Yarın yedekler ve teçhizat, öbür sabah üstünüzdekiler. Eksik olan terhis belgesini alamaz. Künye en son, törenden sonra; bu kışlada adınızla birlikte en son o çıkar.',
           choices: [
             {
               id: 'd26-liste-yaz',
@@ -351,7 +263,7 @@ export const gun26: Day = {
           id: 'd26-ay1',
           sprite: 'askerEmre',
           speaker: 'Emre',
-          text: '"Karım düğmeye baktı," dedi Emre, tabağını itip. "Sonra bana baktı. Sonra yine düğmeye. Bir şey diyecekti, demedi." Masada kimse gülmedi; bu defa gülünecek bir şey anlatmıyordu.',
+          text: '"Karım yemine geliyor," dedi Emre, tabağını itip. "Çocukları da getiriyor. Yirmi sekiz gün beni telefonda dinlediler; şimdi görecekler." Sonra düğmesine baktı, dikili olana. Masada kimse gülmedi; bu defa gülünecek bir şey anlatmıyordu.',
         },
       ],
     },
@@ -365,7 +277,7 @@ export const gun26: Day = {
         {
           kind: 'anlati',
           id: 'd26-s1',
-          text: 'Avluda ilk defa kimse telefon kuyruğunda acele etmiyor. Aileler öğlen buradaydı; söylenecekler söylendi. Ankesörün önünde bu akşam yalnızca bugün kimsesi gelmemiş olanlar var.',
+          text: 'Ankesörün önünde herkes evine aynı şeyi söylüyor: saat onda tören, kapı dokuzda, erken gelin, otopark küçük. Bir kişi ahizeye "üniformayla göreceksin beni" dedi ve sesini alçalttı, arkadaki duymasın diye. Arkadaki duydu.',
         },
       ],
     },
@@ -380,7 +292,7 @@ export const gun26: Day = {
           kind: 'anlati',
           id: 'd26-sy1',
           sprite: 'ay',
-          text: 'Yirmi altı gün bitti, iki kaldı. Işıklar söndü. Koğuşta biri karanlıkta yemini baştan fısıldadı, kelimesi kelimesine. Kimse susturmadı. Son satırda birkaç ses daha katıldı.',
+          text: 'Yirmi altı gün bitti, iki kaldı. Işıklar söndü. Koğuşta biri karanlıkta yemini baştan fısıldadı, kelimesi kelimesine. Kimse susturmadı. Son satırda birkaç ses daha katıldı; prova, törenden önceki son.',
         },
       ],
     },
