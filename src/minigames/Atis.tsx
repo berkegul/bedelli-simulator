@@ -2,6 +2,9 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { BORDER, C, SP } from '../theme';
+import { SPRITES } from '../art';
+import { KUM_TORBASI, NAMLU, NAMLU_ALEVI, RUZGAR_BAYRAGI, TOZ } from '../art/sahne/poligon';
+import { PikselKatman, Sahne, hash, type Piksel } from '../ui/sahne';
 import { Siddet, titret } from '../ui/haptik';
 import { PixelSprite, type SpriteDef } from '../ui/PixelSprite';
 import { PixelText } from '../ui/PixelText';
@@ -18,6 +21,29 @@ const BOY = HUCRE * PX;
 const MERKEZ = BOY / 2;
 /** Halka yarıçapları (piksel), içten dışa; dışı karton. */
 const HALKALAR = [3, 7, 11, 15, 19];
+
+/** Poligon sahnesi: yükseklik, piksel hücresi, setin tabanı, hedefin üstü. */
+const SAHNE_H = 372;
+const U = 3;
+const SET_TABAN = 174;
+const HEDEF_UST = 18;
+/** Hedef tahtasının ahşap çerçevesi. */
+const CERCEVE = 4;
+
+/** Hedeflerin arkasındaki toprak set: engebeli sırt, üstünde ot. */
+function setPikselleri(W: number): Piksel[] {
+  const taban = Math.round(SET_TABAN / U);
+  const out: Piksel[] = [];
+  for (let x = 0; x < W; x++) {
+    const h = 13 + Math.round(3 * Math.sin(x / 9) + 2 * hash(Math.floor(x / 4), 2, 7));
+    out.push({ x, y: taban - h, w: 1, h, c: hash(x, 1, 3) < 0.15 ? '#5E4E33' : '#6A583A' });
+    out.push({ x, y: taban - h, w: 1, h: 1, c: '#56622F' });
+    if (hash(x, 4, 9) < 0.3) out.push({ x, y: taban - h - 1, w: 1, h: 1, c: '#4A5528' });
+    if (hash(x, 5, 9) < 0.08)
+      out.push({ x, y: taban - h + 3 + Math.floor(hash(x, 6, 1) * 6), w: 2, h: 1, c: '#524330' });
+  }
+  return out;
+}
 
 /** Nefes tutulabilen süre; bitince nişangâh titremeye başlıyor. */
 const NEFES_MS = 2600;
@@ -70,6 +96,11 @@ export function Atis({ onBitti, zorluk = 0 }: MiniOyunProps) {
   const [nefes, setNefes] = useState(1);
   const [delikler, setDelikler] = useState<{ x: number; y: number; puan: number }[]>([]);
   const [son, setSon] = useState<number | null>(null);
+  const [en, setEn] = useState(0);
+  /** Atış anı: namlu alevi bir kare, isabet noktasında toz. */
+  const [alev, setAlev] = useState(false);
+  const [toz, setToz] = useState<{ x: number; y: number; kare: number } | null>(null);
+  const [bayrakKare, setBayrakKare] = useState(0);
 
   const t0 = useRef(0);
   const tutuyor = useRef(false);
@@ -111,7 +142,8 @@ export function Atis({ onBitti, zorluk = 0 }: MiniOyunProps) {
         ? Math.max(0, nefesRef.current - dt / NEFES_MS)
         : Math.min(1, nefesRef.current + dt / DOLMA_MS);
       // Genişlik yumuşak geçiyor: nefes tutunca salınım yavaşça daralıyor.
-      const hedefGenislik = tutuyor.current && nefesRef.current > 0 ? 0.25 : nefesRef.current <= 0 ? 1.3 : 1;
+      const hedefGenislik =
+        tutuyor.current && nefesRef.current > 0 ? 0.25 : nefesRef.current <= 0 ? 1.3 : 1;
       genislik.current += (hedefGenislik - genislik.current) * Math.min(1, dt / 220);
       tepme.current *= Math.max(0, 1 - dt / 260);
 
@@ -122,6 +154,15 @@ export function Atis({ onBitti, zorluk = 0 }: MiniOyunProps) {
     raf = requestAnimationFrame(dongu);
     return () => cancelAnimationFrame(raf);
   }, [konum]);
+
+  // Rüzgâr bayrağı dalgalanıyor; hareket azaltmada durağan.
+  useEffect(() => {
+    if (azaltilmis) return;
+    const id = setInterval(() => setBayrakKare((k) => 1 - k), 420);
+    return () => clearInterval(id);
+  }, [azaltilmis]);
+
+  const setler = useMemo(() => (en ? setPikselleri(Math.ceil(en / U)) : []), [en]);
 
   /** Bu basışın atışı henüz yapılmadı. */
   const bekleyen = useRef(false);
@@ -146,6 +187,11 @@ export function Atis({ onBitti, zorluk = 0 }: MiniOyunProps) {
     sesCal('atis');
     tepme.current = 34;
     setSon(puan);
+    setAlev(true);
+    z.sonra(90, () => setAlev(false));
+    setToz({ x: n.x, y: n.y, kare: 0 });
+    if (!azaltilmis) z.sonra(130, () => setToz((t) => (t ? { ...t, kare: 1 } : t)));
+    z.sonra(azaltilmis ? 220 : 300, () => setToz(null));
 
     setDelikler((eski) => {
       const yeni = [...eski, { x: n.x, y: n.y, puan }];
@@ -156,49 +202,204 @@ export function Atis({ onBitti, zorluk = 0 }: MiniOyunProps) {
       }
       return yeni;
     });
-  }, [konum, onBitti, z]);
+  }, [azaltilmis, konum, onBitti, z]);
 
   const kalan = MERMI - delikler.length;
 
+  const hedefSol = Math.round((en - BOY) / 2) - CERCEVE;
+  // Namlu nişangâhı biraz izliyor: atıcı gözüyle arpacık hedefin altında.
+  const namluX = en / 2 + (nisan.x - MERKEZ) * 0.3;
+  const sonuc =
+    son === null
+      ? ''
+      : son >= 1
+        ? 'ON İKİDEN'
+        : son > 0.6
+          ? 'İSABET'
+          : son > 0
+            ? 'KENAR'
+            : 'KARAVANA';
+  const sonucRengi =
+    son === null ? C.canvasFaint : son > 0.8 ? C.olive : son > 0.4 ? C.brass : C.rust;
+
   return (
-    <View style={{ alignItems: 'center', gap: SP.lg }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: BOY }}>
-        <PixelText font="command" size="h3" color={C.canvasDim}>
-          {`MERMİ ${kalan} / ${MERMI}`}
-        </PixelText>
-        <PixelText
-          font="command"
-          size="h3"
-          color={son === null ? C.canvasFaint : son > 0.8 ? C.olive : son > 0.4 ? C.brass : C.rust}
+    <View style={{ gap: SP.md, width: '100%' }}>
+      {/* Poligon: atıcının yerinden bakış */}
+      <View
+        onLayout={(e) => setEn(Math.round(e.nativeEvent.layout.width))}
+        style={{
+          height: SAHNE_H,
+          borderTopWidth: BORDER,
+          borderBottomWidth: BORDER,
+          borderColor: C.ink,
+        }}
+      >
+        <Sahne
+          yukseklik={SAHNE_H - 2 * BORDER}
+          u={U}
+          zemin="poligon"
+          zeminOrani={1 - SET_TABAN / SAHNE_H}
+          saat="10:30"
+          ufukVar={false}
+          tohum={9}
         >
-          {son === null ? '' : son >= 1 ? 'ON İKİDEN' : son > 0.6 ? 'İSABET' : son > 0 ? 'KENAR' : 'KARAVANA'}
-        </PixelText>
+          {en > 0 && (
+            <>
+              <PikselKatman
+                pikseller={setler}
+                u={U}
+                w={Math.ceil(en / U)}
+                h={Math.ceil(SET_TABAN / U)}
+                style={{ position: 'absolute', left: 0, top: 0 }}
+              />
+              {/* Uzaktaki hedef sıraları: setin önünde, küçük */}
+              {[0.03, 0.12, 0.8, 0.89].map((x, i) => (
+                <View
+                  key={i}
+                  style={{ position: 'absolute', left: en * x, top: SET_TABAN - 16 * 2 + 4 }}
+                >
+                  <PixelSprite sprite={SPRITES.hedefTahtasi} scale={2} opacity={0.85} />
+                </View>
+              ))}
+              <View style={{ position: 'absolute', left: en - 44, top: SET_TABAN - 17 * 3 - 6 }}>
+                <PixelSprite sprite={RUZGAR_BAYRAGI[bayrakKare]} scale={3} />
+              </View>
+
+              {/* Hedef tahtası: ahşap çerçeve, iki direkle toprağa çakılı */}
+              {[0.22, 0.72].map((x, i) => (
+                <View
+                  key={`d${i}`}
+                  style={{
+                    position: 'absolute',
+                    left: hedefSol + (BOY + 2 * CERCEVE) * x,
+                    top: HEDEF_UST + BOY,
+                    width: 3 * U,
+                    height: 36,
+                    backgroundColor: '#5A4128',
+                    borderRightWidth: U,
+                    borderColor: '#3F2D1B',
+                  }}
+                />
+              ))}
+              <View
+                style={{
+                  position: 'absolute',
+                  left: hedefSol,
+                  top: HEDEF_UST,
+                  borderWidth: CERCEVE,
+                  borderColor: '#5A4128',
+                  borderBottomColor: '#3F2D1B',
+                  borderRightColor: '#3F2D1B',
+                }}
+              >
+                <View style={{ width: BOY, height: BOY }}>
+                  <PixelSprite sprite={sprite} scale={PX} />
+                  <Svg width={BOY} height={BOY} style={{ position: 'absolute', left: 0, top: 0 }}>
+                    {delikler.map((d, i) => (
+                      <Rect
+                        key={i}
+                        x={d.x - PX / 2}
+                        y={d.y - PX / 2}
+                        width={PX}
+                        height={PX}
+                        fill={C.ink}
+                      />
+                    ))}
+                    {kalan > 0 && (
+                      <>
+                        <Rect x={nisan.x - 14} y={nisan.y - 1} width={10} height={3} fill={C.ink} />
+                        <Rect x={nisan.x + 4} y={nisan.y - 1} width={10} height={3} fill={C.ink} />
+                        <Rect x={nisan.x - 1} y={nisan.y - 14} width={3} height={10} fill={C.ink} />
+                        <Rect x={nisan.x - 1} y={nisan.y + 4} width={3} height={10} fill={C.ink} />
+                      </>
+                    )}
+                  </Svg>
+                  {toz && (
+                    <View
+                      pointerEvents="none"
+                      style={{
+                        position: 'absolute',
+                        left: toz.x - (toz.kare ? 10 : 7),
+                        top: toz.y - 10,
+                      }}
+                    >
+                      <PixelSprite sprite={TOZ[toz.kare]} scale={3} />
+                    </View>
+                  )}
+                </View>
+              </View>
+
+              {/* Siper: iki sıra kum torbası, üstünde namlu */}
+              {Array.from({ length: Math.ceil(en / 42) + 1 }, (_, i) => (
+                <View
+                  key={`a${i}`}
+                  style={{ position: 'absolute', left: i * 42 - 8, top: SAHNE_H - 30 }}
+                >
+                  <PixelSprite sprite={KUM_TORBASI} scale={3} />
+                </View>
+              ))}
+              {Array.from({ length: Math.ceil(en / 42) + 1 }, (_, i) => (
+                <View
+                  key={`b${i}`}
+                  style={{ position: 'absolute', left: i * 42 - 29, top: SAHNE_H - 50 }}
+                >
+                  <PixelSprite sprite={KUM_TORBASI} scale={3} />
+                </View>
+              ))}
+              <View style={{ position: 'absolute', left: namluX - 18, top: SAHNE_H - 96 }}>
+                {alev && (
+                  <View style={{ position: 'absolute', left: 0, top: -26 }}>
+                    <PixelSprite sprite={NAMLU_ALEVI} scale={4} />
+                  </View>
+                )}
+                <PixelSprite sprite={NAMLU} scale={4} />
+              </View>
+
+              {/* Mermi ve son atışın sonucu: sahnenin köşelerinde */}
+              <View
+                style={{
+                  position: 'absolute',
+                  left: SP.sm,
+                  top: SP.sm,
+                  backgroundColor: C.ink,
+                  paddingHorizontal: SP.sm,
+                  paddingVertical: 2,
+                }}
+              >
+                <PixelText font="command" size="body" color={C.canvasDim}>
+                  {`MERMİ ${kalan} / ${MERMI}`}
+                </PixelText>
+              </View>
+              {!!sonuc && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    right: SP.sm,
+                    top: SP.sm,
+                    backgroundColor: C.ink,
+                    paddingHorizontal: SP.sm,
+                    paddingVertical: 2,
+                    borderWidth: 1,
+                    borderColor: sonucRengi,
+                  }}
+                >
+                  <PixelText font="command" size="body" color={sonucRengi}>
+                    {sonuc}
+                  </PixelText>
+                </View>
+              )}
+            </>
+          )}
+        </Sahne>
       </View>
 
-      <View style={{ borderWidth: BORDER, borderColor: C.ink, backgroundColor: C.ink, padding: 3 }}>
-        <View style={{ width: BOY, height: BOY }}>
-          <PixelSprite sprite={sprite} scale={PX} />
-          <Svg width={BOY} height={BOY} style={{ position: 'absolute', left: 0, top: 0 }}>
-            {delikler.map((d, i) => (
-              <Rect key={i} x={d.x - PX / 2} y={d.y - PX / 2} width={PX} height={PX} fill={C.ink} />
-            ))}
-            {kalan > 0 && (
-              <>
-                <Rect x={nisan.x - 14} y={nisan.y - 1} width={10} height={3} fill={C.ink} />
-                <Rect x={nisan.x + 4} y={nisan.y - 1} width={10} height={3} fill={C.ink} />
-                <Rect x={nisan.x - 1} y={nisan.y - 14} width={3} height={10} fill={C.ink} />
-                <Rect x={nisan.x - 1} y={nisan.y + 4} width={3} height={10} fill={C.ink} />
-              </>
-            )}
-          </Svg>
-        </View>
-      </View>
-
-      <View style={{ width: BOY, gap: SP.xs }}>
+      <View style={{ gap: SP.xs, paddingHorizontal: SP.lg }}>
         <PixelText size="micro" color={C.canvasDim}>
           NEFES
         </PixelText>
-        <View style={{ height: 10, borderWidth: BORDER, borderColor: C.ink, backgroundColor: C.bg }}>
+        <View
+          style={{ height: 10, borderWidth: BORDER, borderColor: C.ink, backgroundColor: C.bg }}
+        >
           <View
             style={{
               width: `${Math.round(nefes * 100)}%`,
@@ -209,30 +410,30 @@ export function Atis({ onBitti, zorluk = 0 }: MiniOyunProps) {
         </View>
       </View>
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Nefesini tut, bırakınca ateş et"
-        disabled={kalan === 0}
-        onPressIn={tut}
-        onPressOut={atesle}
-        onPress={atesle}
-        style={{
-          borderWidth: BORDER,
-          borderColor: C.ink,
-          backgroundColor: C.surfaceHi,
-          paddingVertical: SP.lg,
-          paddingHorizontal: SP.xxl,
-          alignItems: 'center',
-          width: BOY,
-        }}
-      >
-        <PixelText font="command" size="h2" color={C.brass}>
-          TUT · BIRAK
-        </PixelText>
-        <PixelText size="micro" color={C.canvasDim}>
-          basılı tut: nefes · bırak: tetik
-        </PixelText>
-      </Pressable>
+      <View style={{ paddingHorizontal: SP.lg }}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Nefesini tut, bırakınca ateş et"
+          disabled={kalan === 0}
+          onPressIn={tut}
+          onPressOut={atesle}
+          onPress={atesle}
+          style={{
+            borderWidth: BORDER,
+            borderColor: C.ink,
+            backgroundColor: C.surfaceHi,
+            paddingVertical: SP.lg,
+            alignItems: 'center',
+          }}
+        >
+          <PixelText font="command" size="h2" color={C.brass}>
+            TUT · BIRAK
+          </PixelText>
+          <PixelText size="micro" color={C.canvasDim}>
+            basılı tut: nefes · bırak: tetik
+          </PixelText>
+        </Pressable>
+      </View>
     </View>
   );
 }

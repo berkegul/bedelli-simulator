@@ -119,14 +119,18 @@ export function OyunEkrani() {
         cepKapali={g.miniAktif}
       >
         {g.miniAktif && sahne.kind === "mini" ? (
-          <View style={{ flex: 1, padding: SP.lg, justifyContent: "center" }}>
+          // Kenar boşluğu yok: oyunlar kendi sahnelerini kenardan kenara çiziyor,
+          // metin ve düğme boşluğunu kendileri veriyor.
+          <View style={{ flex: 1, justifyContent: "center" }}>
             {/* İlk açılışta önce kart: süre oyuncu okurken işlemesin */}
             {!gorulenOgreticiler.includes(sahne.game) ? (
-              <OgreticiKarti
-                baslik={MINI_BASLIK[sahne.game]}
-                {...OGRETICI[sahne.game]}
-                onTamam={() => ogreticiGoruldu(sahne.game)}
-              />
+              <View style={{ padding: SP.lg }}>
+                <OgreticiKarti
+                  baslik={MINI_BASLIK[sahne.game]}
+                  {...OGRETICI[sahne.game]}
+                  onTamam={() => ogreticiGoruldu(sahne.game)}
+                />
+              </View>
             ) : (
               <MiniOyun
                 id={sahne.game}
